@@ -1,4 +1,5 @@
-- name: install python3 
+---
+- name: install python3
   homebrew:
     name: python3
   when: ansible_distribution == "Darwin"

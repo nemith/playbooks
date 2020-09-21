@@ -1,3 +1,4 @@
+---
 - name: setup workstation
   hosts: workstations
   roles:
@@ -11,7 +12,7 @@
   hosts: shells
   roles:
     - neovim
-    - zsh 
+    - zsh
 
 - name: setup work laptop
   hosts: subspace

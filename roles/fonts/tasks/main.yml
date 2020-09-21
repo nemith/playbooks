@@ -1,3 +1,4 @@
+---
 - name: install fonts
   copy:
     src: "{{ item }}"

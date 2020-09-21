@@ -1,3 +1,4 @@
+---
 all:
   vars:
     user_home: "{{ ansible_user_dir }}"
@@ -5,13 +6,13 @@ all:
 
 osx:
   vars:
-    ansible_python_interpreter: '/usr/local/bin/python3'
+    ansible_python_interpreter: "/usr/local/bin/python3"
   hosts:
     strongmad:
 
 fedora:
   vars:
-    ansible_python_interpreter: '/usr/bin/python3'
+    ansible_python_interpreter: "/usr/bin/python3"
   hosts:
     strongbad:
     coachz:
@@ -19,7 +20,7 @@ fedora:
 
 servers:
   hosts:
-    coachz:  
+    coachz:
     kingoftown:
 
 # development workstations

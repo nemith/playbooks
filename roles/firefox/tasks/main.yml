@@ -1,4 +1,4 @@
-
+---
 - name: install firefox (homebrew)
   homebrew_cask:
     name: firefox
