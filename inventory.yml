@@ -1,9 +1,41 @@
+all:
+  vars:
+    user_home: "{{ ansible_user_dir }}"
+    user_id: "{{ ansible_user_id }}"
 
+osx:
+  vars:
+    ansible_python_interpreter: '/usr/local/bin/python3'
+  hosts:
+    strongmad:
+
+fedora:
+  vars:
+    ansible_python_interpreter: '/usr/bin/python3'
+  hosts:
+    strongbad:
+    coachz:
+    kingoftown:
+
+servers:
+  hosts:
+    coachz:  
+    kingoftown:
+
+# development workstations
+workstations:
+  hosts:
+    strongbad:
+  children:
+    subspace:
+
+# work laptop
 subspace:
   hosts:
     strongmad:
 
-workstations:
-  hosts:
-    strongmad:
-    strongbad:
+# all systems that have a shell
+shells:
+  children:
+    workstations:
+    servers:

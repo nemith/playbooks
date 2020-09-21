@@ -1,3 +1,5 @@
+- debug:
+    msg: "install_{{ ansible_distribution|lower }}.yml"
 - name: install go
   include_tasks: "{{ item }}"
   with_first_found:

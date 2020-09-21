@@ -1,3 +1,2 @@
-- include: osx.yml
-  when: ansible_os_family == 'Darwin'
-  tags: package
+- name: install packages
+  include: "install_{{ ansible_distribution|lower }}.yml"
