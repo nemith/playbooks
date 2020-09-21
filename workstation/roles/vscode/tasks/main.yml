@@ -1,0 +1,16 @@
+- name: install vscode (homebrew)
+  homebrew_cask:
+    name: visual-studio-code
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: install vscode extensions
+  vscode_ext:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - bbenoist.vagrant
+    - golang.go
+    - ms-vscode-remote.vscode-remote-extensionpack
+    - rust-lang.rust
+    - vscodevim.vim
+    - ms-python.python

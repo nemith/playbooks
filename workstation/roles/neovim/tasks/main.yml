@@ -1,0 +1,18 @@
+- name: install neovim
+  package:
+    name: neovim
+    state: present
+
+- name: install pynvim
+  pip:
+    name: pynvim
+    state: latest
+
+- name: install neovim-ruby-host
+  gem:
+    name: neovim
+
+- name: copy nvim config
+  copy:
+    src: config/
+    dest: "{{ user_home }}/.config/nvim"

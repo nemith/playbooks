@@ -1,0 +1,21 @@
+
+- name: install misc casks
+  homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - alfred
+    - autodesk-fusion360
+    - discord
+    - fedora-media-writer
+    - firefox
+    - google-drive-file-stream
+    - hyperdock
+    - lastpass
+    - monodraw
+    - spotify
+    - steam
+    - vagrant
+    - virtualbox
+    - whatsapp
+    - zoomus

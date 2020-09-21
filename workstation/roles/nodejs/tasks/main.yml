@@ -1,0 +1,7 @@
+- name: install node.js
+  package:
+    name: {{ "item "}}
+  loop:
+    - node
+    - npm
+    - yarn

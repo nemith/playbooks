@@ -1,0 +1,5 @@
+
+- name: install firefox (homebrew)
+  homebrew_cask:
+    name: firefox
+  when: ansible_facts['os_family'] == "Darwin"
