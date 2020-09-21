@@ -1,3 +1,4 @@
+---
 - name: install misc casks
   homebrew_cask:
     name: "{{ item }}"

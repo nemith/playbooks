@@ -1,9 +1,9 @@
-
+---
 - name: install packages
   include: "install_{{ ansible_distribution|lower }}.yml"
 
-- name: change user shell to zsh 
-  become: yes
+- name: change user shell to zsh
+  become: true
   user:
     name: "{{ user_id}}"
     shell: /bin/zsh
@@ -17,5 +17,5 @@
   synchronize:
     src: zshrc.d/
     dest: "{{ user_home }}/.zshrc.d/"
-    recursive: yes
-    delete: yes
+    recursive: true
+    delete: true

@@ -1,3 +1,4 @@
+---
 - name: install neovim packages
   become: true
   dnf:

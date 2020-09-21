@@ -1,6 +1,7 @@
+---
 - name: install packages
-  become: yes
-  dnf: 
+  become: true
+  dnf:
     name: "{{ item }}"
     state: present
   loop:
