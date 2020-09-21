@@ -1,0 +1,9 @@
+
+subspace:
+  hosts:
+    strongmad:
+
+workstations:
+  hosts:
+    strongmad:
+    strongbad:

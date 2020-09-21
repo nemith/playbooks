@@ -1,0 +1,8 @@
+- name: install neovim packages
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - neovim
+    - python3-neovim

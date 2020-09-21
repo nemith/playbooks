@@ -1,0 +1,15 @@
+- name: setup workstation
+  hosts: workstations
+  vars: 
+    - user_home: "{{ ansible_user_dir }}"
+    - user_id: "{{ ansible_user_id }}"
+  roles:
+    - firefox
+    - fonts
+    - go
+    - misc_packages
+    - neovim
+    - vscode
+    - zsh
+
+  

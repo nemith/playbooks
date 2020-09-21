@@ -1,0 +1,13 @@
+- name: install neovim
+  homebrew:
+    name: neovim
+    state: present
+
+- name: install pynvim
+  pip:
+    name: pynvim
+    state: latest
+
+- name: install neovim-ruby-host
+  gem:
+    name: neovim
