@@ -1,0 +1,7 @@
+- name: install tools
+  copy:
+    src: "{{ item.source }}"
+    dest: "{{ user_home }}/bin/{{ item.name }}"
+    mode: '0755'
+  loop:
+    - { name: "d42", source: "/Volumes/GoogleDrive/My Drive/Tools/D42/d42" }

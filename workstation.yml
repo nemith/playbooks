@@ -1,0 +1,13 @@
+- name: setup workstation
+  hosts: localhost
+  vars: 
+    - user_home: "{{ lookup('env', 'HOME') }}"
+    - user_id: "{{ lookup('env', 'USER') }}"
+  roles:
+    - neovim
+    - fonts
+    - misc_packages
+    - firefox
+    - vscode
+    - zsh
+    - subspace

@@ -1,0 +1,24 @@
+- name: install zsh (redhat)
+  become: yes
+  dnf: 
+    name: zsh
+    state: latest
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: install powerline-go (homebrew)
+  homebrew:
+    name: powerline-go
+    state: latest
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: copy .zshrc
+  copy:
+    src: zshrc
+    dest: "{{ user_home }}/.zshrc"
+
+- name: copy .zshrc.d
+  synchronize:
+    src: zshrc.d/
+    dest: "{{ user_home }}/.zshrc.d/"
+    recursive: yes
+    delete: yes
