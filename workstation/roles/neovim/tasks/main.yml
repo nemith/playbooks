@@ -1,16 +1,5 @@
-- name: install neovim
-  package:
-    name: neovim
-    state: present
-
-- name: install pynvim
-  pip:
-    name: pynvim
-    state: latest
-
-- name: install neovim-ruby-host
-  gem:
-    name: neovim
+- name: install packages
+  include: "install_{{ ansible_distribution|lower }}.yml"
 
 - name: copy nvim config
   copy:

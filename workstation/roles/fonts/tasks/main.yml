@@ -1,7 +1,7 @@
 - name: install fonts
   copy:
     src: "{{ item }}"
-    dest: "{{ font_dir }}"
+    dest: "{{ font_dir }}/"
   with_fileglob:
     - "*.ttf"
     - "*.otf"

@@ -1,0 +1,6 @@
+- name: install go
+  unarchive:
+    src: https://golang.org/dl/go1.15.2.linux-amd64.tar.gz
+    dest: /opt
+    remote_src: yes
+  become: yes
