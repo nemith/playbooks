@@ -1,3 +1,9 @@
+- name: check for google tools mount
+  stat:
+    path: "/Volumes/GoogleDrive/My Drive/Tools"
+  register:
+    tools_path
+
 - name: install tools
   copy:
     src: "{{ item.source }}"
@@ -5,3 +11,5 @@
     mode: '0755'
   loop:
     - { name: "d42", source: "/Volumes/GoogleDrive/My Drive/Tools/D42/d42" }
+  when: tools_path.stat.exists
+    
