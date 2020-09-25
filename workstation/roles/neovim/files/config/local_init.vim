@@ -59,7 +59,6 @@ let g:SuperTabDefaultCompletionType = "<c-n>"
 set completeopt+=noselect
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#auto_completion_start_length = 1
-let g:deoplete#enable_smart_case = 1
 "
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
