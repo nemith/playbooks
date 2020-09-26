@@ -5,7 +5,7 @@
     - firefox
     - fonts
     - go
-    - misc_packages
+    - {role: osx_packages, when: (ansible_distribution|lower == "macosx")}
     - rust
     - vscode
 
