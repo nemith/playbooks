@@ -6,6 +6,7 @@
     - fonts
     - go
     - misc_packages
+    - rust
     - vscode
 
 - name: setup shell enviroment

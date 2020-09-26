@@ -1,0 +1,41 @@
+- name: get latest rustup version
+  uri: 
+    url: "https://api.github.com/repos/rust-lang/rustup/tags"
+  register: rustup_tags
+
+- name: set rustup version
+  set_fact:
+    rustup_version: "{{ rustup_tags.json[0].name }}"
+
+- name: create tarball dir
+  file:
+    path: /var/tarballs
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: download rustup
+  get_url:
+    url: "https://github.com/rust-lang/rustup/archive/{{ rustup_version }}.tar.gz"
+    dest: /var/tarballs/rustup-{{ rustup_version }}.tar.gz
+  become: true
+  register: rustup_tarball_result
+
+- name: temp dir
+  tempfile:
+    state: directory
+    suffix: rustup
+  register: rustup_tempdir_result
+  when: rustup_tarball_result.changed
+
+- name: extract rustup
+  unarchive:
+    src: /var/tarballs/rustup-{{ rustup_version }}.tar.gz
+    dest: "{{ rustup_tempdir_result.path }}"
+    extra_opts: "--strip-components=1"
+  become: true
+  when: rustup_tarball_result.changed
+
+- name: install rustup
+  command: "{{ rustup_tempdir_result.path }}/rustup-init.sh -y"
+  when: rustup_tarball_result.changed
