@@ -2,12 +2,16 @@
 - name: setup workstation
   hosts: workstations
   roles:
+    - chrony
+    - fedora
     - firefox
     - fonts
-    - go
-    - {role: osx_packages, when: (ansible_distribution|lower == "macosx")}
     - rust
+    - go
     - vscode
+    - steam
+    - spotify
+    - virtualbox
 
 - name: setup shell enviroment
   hosts: shells
@@ -15,7 +19,7 @@
     - neovim
     - zsh
 
-- name: setup work laptop
-  hosts: subspace
+- name: setup asus laptop
+  hosts: asus
   roles:
-    - subspace
+    - asus

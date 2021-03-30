@@ -1,0 +1,9 @@
+[Unit]
+Description=Asus laptop specific initializations
+
+[Service]
+Type=oneshot
+ExecStart=/opt/asus/bin/asus_postboot
+
+[Install]
+WantedBy=graphical.target

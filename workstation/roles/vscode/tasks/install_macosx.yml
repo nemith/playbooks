@@ -1,4 +1,0 @@
----
- name: install vscode
-  homebrew_cask:
-    name: visual-studio-code

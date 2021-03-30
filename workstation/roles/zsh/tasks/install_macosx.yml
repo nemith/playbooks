@@ -1,5 +1,0 @@
----
-- name: install powerline-go (homebrew)
-  homebrew:
-    name: powerline-go
-    state: present

@@ -1,0 +1,10 @@
+---
+- name: trigger akmods install
+  become: yes
+  shell: "akmods"
+
+- name: restart vboxdrv service
+  become: yes
+  service:
+    name: vboxdrv
+    state: restarted

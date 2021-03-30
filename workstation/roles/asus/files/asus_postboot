@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# sometimes the g14 touchpad needs a bit of a kick after a reboot.
+echo "re-initializing touchpad"
+rmmod i2c_hid
+modprobe i2c_hid
