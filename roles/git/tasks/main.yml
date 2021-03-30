@@ -1,0 +1,11 @@
+---
+- name: Install libsecret credential helper
+  become: yes
+  ansible.builtin.dnf:
+    name: git-credential-libsecret
+    state: present
+
+- name: git global configuration
+  copy:
+    src: gitconfig
+    dest: "{{ user_home }}/.gitconfig"

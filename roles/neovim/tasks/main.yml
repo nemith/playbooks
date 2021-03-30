@@ -1,6 +1,12 @@
 ---
-- name: install packages
-  include: "install_{{ ansible_distribution|lower }}.yml"
+- name: install neovim packages
+  become: true
+  dnf:
+    name:
+      - neovim
+      - python3-neovim
+    state: present
+  loop:
 
 - name: copy nvim config
   copy:

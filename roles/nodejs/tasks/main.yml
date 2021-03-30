@@ -1,8 +1,8 @@
 ---
-- name: install node.js
+- name: install pacakges
+  become: yes
   package:
-    name: "{{ item  }}"
-  loop:
-    - node
-    - npm
-    - yarn
+    name:
+      - node
+      - npm
+      - yarnpkg

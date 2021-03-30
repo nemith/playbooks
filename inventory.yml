@@ -3,15 +3,20 @@ all:
   vars:
     user_home: "{{ ansible_user_dir }}"
     user_id: "{{ ansible_user_id }}"
-
-fedora:
-  vars:
     ansible_python_interpreter: "/usr/bin/python3"
-  hosts:
-    strongbad:
-    coachz:
-    kingoftown:
 
+# Facebook
+fb:
+  children:
+    fb_workstations:
+    fb_devservers:
+
+# Facebook workstations
+fb_workstations:
+  hosts:
+    bbennett-fedora-MJ0C08V4:
+
+# Servers (without gui)
 servers:
   hosts:
     coachz:
@@ -21,6 +26,8 @@ servers:
 workstations:
   hosts:
     strongbad:
+  children:
+    fb_workstations:
 
 # all systems that have a shell
 shells:
@@ -28,6 +35,16 @@ shells:
     workstations:
     servers:
 
+# ASUS G14
 asus:
   hosts:
     strongbad:
+
+# Systems that need nvidia drivers
+nvidia:
+  vars: 
+    gdm_wayland_enable: false
+  hosts:
+    bbennett-fedora-MJ0C08V4
+  children:
+    asus:

@@ -1,20 +1,14 @@
 ---
-- name: remove nouveau x11 driver
-  become: true
-  dnf:
-    name: xorg-x11-drv-nouveau
-    state: absent
-
 - name: install nvidia packages
   become: true
   dnf:
-    name: "{{ item }}"
+    name:
+      - akmod-nvidia
+      - xorg-x11-drv-nvidia-cuda
+      - xorg-x11-drv-nvidia-cuda-libs
+      - vdpauinfo
+      - libva-vdpau-driver
+      - libva-utils
+      - vulkan
     state: present
   loop:
-    - akmod-nvidia 
-    - xorg-x11-drv-nvidia-cuda
-    - xorg-x11-drv-nvidia-cuda-libs
-    - vdpauinfo 
-    - libva-vdpau-driver 
-    - libva-utils
-    - vulkan

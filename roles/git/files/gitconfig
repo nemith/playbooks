@@ -1,0 +1,10 @@
+[user]
+    name = Brandon Bennett
+    email = brandon@brbe.me
+[credential]
+    helper = libsecret
+[init]
+    defaultBranch = main
+[alias]
+    amend = commit --amend --no-edit -a
+    addremove = !git add . && git add -u

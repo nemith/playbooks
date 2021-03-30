@@ -1,5 +1,2 @@
 ---
-font_dir_darwin: "{{ user_home }}/Library/Fonts"
-font_dir_linux: "{{ user_home }}/.local/share/fonts"
-
-font_dir: "{{ lookup('vars', 'font_dir_'+ansible_system|lower) }}"
+font_dir: "{{ user_home }}/.local/share/fonts"
