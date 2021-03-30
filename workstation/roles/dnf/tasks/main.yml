@@ -1,0 +1,13 @@
+---
+- name: install dnf-automatic
+  become: true
+  dnf:
+    name: dnf-automatic
+    state: present
+
+- name: start dnf-automatic timer
+  become: true
+  systemd:
+    name: dnf-automatic.timer
+    state: started
+    enabled: yes

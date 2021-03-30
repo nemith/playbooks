@@ -13,5 +13,5 @@ e.g will default to the `local.yml' playbook and prompt for the become/sudo pass
 which is equivelent to
 
 ```
-ansibple-playbook -c local --limit "localhost,$(hostname -s),$(hostname),127.0.0.1" -K local.yml
+ansible-playbook -c local --limit "localhost,$(hostname -s),$(hostname),127.0.0.1" -K local.yml
 ```

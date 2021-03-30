@@ -1,25 +1,45 @@
 ---
-- name: setup workstation
-  hosts: workstations
+- name: setup nvidia drivers
+  hosts: nvidia
   roles:
-    - chrony
-    - fedora
-    - firefox
-    - fonts
-    - rust
-    - go
-    - vscode
-    - steam
-    - spotify
-    - virtualbox
-
-- name: setup shell enviroment
-  hosts: shells
-  roles:
-    - neovim
-    - zsh
+    - nvidia
 
 - name: setup asus laptop
   hosts: asus
   roles:
     - asus
+
+- name: setup shells
+  hosts: shells
+  roles:
+    - git
+    - neovim
+    - zsh
+
+- name: setup workstation
+  hosts: workstations
+  roles:
+    - gnome
+    - fonts
+    # languages
+    - rust
+    - go
+    - nodejs
+    # apps
+    - discord
+    - idea
+    - slack
+    - spotify
+    - virtualbox
+    - vscode
+
+- name: setup fb workstation
+  hosts: fb_workstations
+  roles:
+    - dropbox
+
+- name: non fb setup
+  hosts: workstations,!fb_workstations
+  roles:
+    - dnf
+    - chrony

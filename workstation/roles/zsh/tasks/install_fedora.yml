@@ -1,9 +1,0 @@
----
-- name: install packages
-  become: true
-  dnf:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - zsh
-    - powerline-go
