@@ -1,0 +1,51 @@
+---
+- name: install virtualbox
+  become: true
+  dnf:
+    name: VirtualBox
+    state: present
+
+- name: install virtualbox kernel module
+  become: true
+  dnf:
+    name: akmod-VirtualBox
+    state: present
+  notify: 
+    - trigger akmods install
+    - restart vboxdrv service
+
+- name: Check if extension pack is already installed
+  shell: "VBoxManage list extpacks"
+  register: extpack_list
+  changed_when: false
+
+- name: install virtualbox extention
+  block:
+    - name: get virtualbox version
+      shell: "VBoxManage -v"
+      register: vboxmanage_ver_output
+
+    - name: set vbox_version
+      set_fact:
+        vbox_version: "{{ vboxmanage_ver_output.stdout_lines[-1].split('_')[0] }}"
+
+    - name: create tarball dir
+      become: true
+      file:
+        path: /var/tarballs
+        state: directory
+        mode: '0755'
+
+    - name: download VirtualBox extension pack
+      become: true
+      get_url:
+        url: https://download.virtualbox.org/virtualbox/{{ vbox_version }}/Oracle_VM_VirtualBox_Extension_Pack-{{ vbox_version }}.vbox-extpack
+        dest: /var/tarballs
+        force: true
+      register: download_result
+
+    - name: install VirtualBox extension pack
+      become: true
+      shell: "echo 'y' | VBoxManage extpack install --replace {{ download_result.dest }}"
+
+  when: 'extpack_list.stdout_lines[-1] == "Extension Packs: 0"'

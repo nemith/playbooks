@@ -1,0 +1,8 @@
+---
+- name: install hplip
+  dnf:
+    name: hplip
+    state: present
+  with_loop:
+    - hplip
+    - hplip-gui

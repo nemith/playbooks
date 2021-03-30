@@ -1,0 +1,7 @@
+---
+- name: configure chrony
+  become: yes
+  copy:
+    src: chrony.conf
+    dest: /etc/chrony.conf
+  notify: restart chronyd
