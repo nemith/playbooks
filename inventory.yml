@@ -45,6 +45,6 @@ nvidia:
   vars: 
     gdm_wayland_enable: false
   hosts:
-    bbennett-fedora-MJ0C08V4
+    bbennett-fedora-MJ0C08V4:
   children:
     asus:
