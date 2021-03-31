@@ -1,4 +1,9 @@
 ---
+- name: setup ansible
+  hosts: all
+  roles: 
+    - ansible
+
 - name: setup nvidia drivers
   hosts: nvidia
   roles:
