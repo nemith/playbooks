@@ -1,0 +1,7 @@
+asus_repo_ver_override:
+  "34": "Fedora_33"  # Fedora 34 still uses the Fedora 33 repo directory
+
+asus_repo_base_dir: "{{ 
+  asus_repo_ver_override[ansible_distribution_major_version] 
+    | default('Fedora_' + ansible_distribution_major_version) 
+}}"

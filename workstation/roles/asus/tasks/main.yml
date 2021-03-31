@@ -4,7 +4,7 @@
   yum_repository:
     name: asus
     description: asus
-    baseurl: https://download.opensuse.org/repositories/home:/luke_nukem:/asus/Fedora_{{ansible_distribution_major_version}}/
+    baseurl: https://download.opensuse.org/repositories/home:/luke_nukem:/asus/{{ asus_repo_base_dir }}/
     gpgcheck: false
 
 - name: install asus-nb-ctrl

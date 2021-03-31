@@ -21,7 +21,7 @@
 - name: set media keys
   community.general.dconf:
     key: "/org/gnome/settings-daemon/plugins/media-keys/{{ item.key }}"
-    value: "{{ item.value }}"
+    value: "{{ item.value | string }}"
   loop:
     - {key: "previous", value: "['<Super>comma']"}
     - {key: "next", value: "['<Super>period']"}
