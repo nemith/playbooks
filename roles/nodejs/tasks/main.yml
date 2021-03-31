@@ -3,6 +3,6 @@
   become: yes
   package:
     name:
-      - node
+      - nodejs
       - npm
       - yarnpkg

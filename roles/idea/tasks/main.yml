@@ -1,45 +1,45 @@
 ---
 - name: create tarball dir
+  become: true
   ansible.builtin.file:
     path: /var/tarballs
     state: directory
     mode: '0755'
-  become: true
 
 - name: download idea 
+  become: true
   ansible.builtin.get_url:
     url: "{{ idea_url }}"
     dest: /var/tarballs/{{ idea_tarball }}
-  become: true
 
 - name: create versioned directory
+  become: true
   ansible.builtin.file:
     path: /opt/idea-IC-{{ idea_version }}
     state: directory
     mode: '0755'
-  become: true
 
 - name: extract idea
+  become: true
   ansible.builtin.unarchive:
     src: /var/tarballs/{{ idea_tarball }}
     dest: /opt/idea-IC-{{ idea_version }}
     extra_opts: "--strip-components=1"
   register: idea_versioned_dir
-  become: true
 
 - name: remove old symlink
+  become: true
   ansible.builtin.file:
     path: /opt/idea
     state: absent
-  become: true
   when: idea_versioned_dir.changed
 
 - name: link new version
+  become: true
   ansible.builtin.file:
     src: /opt/idea-IC-{{ idea_version }}
     dest:  /opt/idea
     state:  link
-  become: true
   when: idea_versioned_dir.changed
 
 - name: add desktop icon
