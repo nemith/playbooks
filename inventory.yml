@@ -15,6 +15,7 @@ fb:
 fb_workstations:
   hosts:
     bbennett-fedora-MJ0C08V4:
+    bbennett-fedora-PC1SPNZP:
 
 # Servers (without gui)
 servers:
@@ -42,7 +43,7 @@ asus:
 
 # Systems that need nvidia drivers
 nvidia:
-  vars: 
+  vars:
     gdm_wayland_enable: false
   hosts:
     bbennett-fedora-MJ0C08V4:
