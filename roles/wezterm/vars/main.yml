@@ -1,0 +1,6 @@
+---
+distro_short_name:
+  Fedora: "fc"
+distro_version: "{{ distro_short_name[ansible_distribution] }}{{ ansible_distribution_major_version }}"
+wezterm_rpm_url: https://github.com/wez/wezterm/releases/download/{{ wezterm_ver }}/wezterm-{{ wezterm_ver|replace('-', '_') }}-1.{{ distro_version }}.x86_64.rpm
+wezterm_config_dir: "{{ user_home }}/.config/wezterm"

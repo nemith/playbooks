@@ -20,6 +20,7 @@
     - git
     - neovim
     - zsh
+    - wezterm  # needed on "servers" for multiplexing
 
 - name: setup workstation
   hosts: workstations
