@@ -1,14 +1,42 @@
 ---
-- name: install neovim packages
+- name: remove system neovim packages
   become: true
-  dnf:
+  ansible.builtin.dnf:
     name:
       - neovim
       - python3-neovim
-    state: present
-  loop:
+      - python36-neovim
+    state: absent
+
+- name: install neovim appimage
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ neovim_appimage_url }}" 
+    dest: /usr/local/bin/{{ neovim_binary }}
+    mode: 0755
+  register: neovim_appimage
+
+- name: remove old symlink
+  become: true
+  ansible.builtin.file:
+    dest: /usr/local/bin/nvim
+    state: absent
+  when: neovim_appimage.changed
+
+- name: check symlink
+  ansible.builtin.stat:
+    path: /usr/local/bin/nvim
+  register: nvim_symlink
+
+- name: link new version
+  become: true
+  ansible.builtin.file:
+    src: "{{ neovim_appimage.dest }}"
+    dest:  /usr/local/bin/nvim
+    state:  link
+  when: nvim_symlink.stat.exists == False
 
 - name: copy nvim config
-  copy:
+  ansible.builtin.copy:
     src: config/
     dest: "{{ user_home }}/.config/nvim"

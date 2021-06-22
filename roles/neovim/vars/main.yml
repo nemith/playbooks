@@ -1,0 +1,3 @@
+---
+neovim_appimage_url: https://github.com/neovim/neovim/releases/download/v{{ neovim_version }}/nvim.appimage
+neovim_binary: nvim-{{ neovim_version}}.appimage
