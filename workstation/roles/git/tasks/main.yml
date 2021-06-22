@@ -1,11 +1,12 @@
 ---
-- name: Install libsecret credential helper
+- name: install libsecret credential helper
   become: yes
   ansible.builtin.dnf:
     name: git-credential-libsecret
     state: present
 
-- name: git global configuration
-  copy:
-    src: gitconfig
+- name: git configuration
+  ansible.builtin.template:
+    src: gitconfig.j2
     dest: "{{ user_home }}/.gitconfig"
+    backup: yes

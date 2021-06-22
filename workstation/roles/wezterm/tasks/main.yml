@@ -1,7 +1,8 @@
 ---
 - name: install wezterm
-  become: yes
-  dnf:
+  become: true
+  environment: "{{ proxy_env }}"
+  ansible.builtin.dnf:
     name: "{{ wezterm_rpm_url }}"
     state: present
     disable_gpg_check: true
