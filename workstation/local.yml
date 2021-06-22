@@ -19,8 +19,9 @@
   roles:
     - git
     - neovim
-    - zsh
+    - tmux
     - wezterm  # needed on "servers" for multiplexing
+    - zsh
 
 - name: setup workstation
   hosts: workstations

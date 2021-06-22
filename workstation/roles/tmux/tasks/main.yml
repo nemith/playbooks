@@ -1,0 +1,11 @@
+---
+- name: install tmux
+  become: true
+  ansible.builtin.dnf:
+    name: tmux
+    state: present
+
+- name: copy .tmux.conf
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: "{{ user_home }}/.tmux.conf"
