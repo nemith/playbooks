@@ -4,6 +4,9 @@
   ansible.builtin.dnf:
     name: python3-ansible-lint
     state: present
+  when:
+    # package not present on Centos 8
+    - ansible_facts['distribution'] != "CentOS"
 
 - name: install ansible-local
   become: yes

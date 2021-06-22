@@ -1,10 +1,4 @@
 ---
-all:
-  vars:
-    user_home: "{{ ansible_user_dir }}"
-    user_id: "{{ ansible_user_id }}"
-    ansible_python_interpreter: "/usr/bin/python3"
-
 # Facebook
 fb:
   children:
@@ -17,7 +11,12 @@ fb_workstations:
     bbennett-fedora-MJ0C08V4:
     bbennett-fedora-PC1SPNZP:
 
-# Servers (without gui)
+# Facebook devservers
+fb_devservers:
+  hosts:
+    devvm3286.prn0.facebook.com:
+
+# Personal servers
 servers:
   hosts:
     coachz:
@@ -35,6 +34,7 @@ shells:
   children:
     workstations:
     servers:
+    fb_devservers:
 
 # ASUS G14
 asus:

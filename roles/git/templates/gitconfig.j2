@@ -1,0 +1,16 @@
+[user]
+    name = Brandon Bennett
+    email = brandon@brbe.me
+[credential]
+    helper = libsecret
+[init]
+    defaultBranch = main
+[alias]
+    amend = commit --amend --no-edit -a
+    addremove = !git add . && git add -u
+{% if "fb_devservers" in group_names %}
+[http]
+  proxy = https://fwdproxy:8082
+  proxySSLCert=/var/facebook/credentials/{{ ansible_user_id }}/x509/{{ ansible_user_id }}.pem
+  proxySSLKey=/var/facebook/credentials/{{ ansible_user_id }}/x509/{{ ansible_user_id }}.pem
+{% endif %}
