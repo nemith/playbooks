@@ -1,26 +1,38 @@
 ---
-- name: install packages
+- name: install zsh
   become: true
-  dnf:
-    name:
-      - zsh
-      - powerline-go
+  ansible.builtin.dnf:
+    name: zsh
     state: present
 
 - name: change user shell to zsh
   become: true
-  user:
+  ansible.builtin.user:
     name: "{{ user_id}}"
     shell: /bin/zsh
 
 - name: copy .zshrc
-  copy:
+  ansible.builtin.copy:
     src: zshrc
     dest: "{{ user_home }}/.zshrc"
 
 - name: copy .zshrc.d
-  synchronize:
+  ansible.builtin.synchronize:
     src: zshrc.d/
     dest: "{{ user_home }}/.zshrc.d/"
     recursive: true
     delete: true
+
+- name: remove powerline-go system packages
+  become: yes
+  ansible.builtin.dnf:
+    name: powerline-go
+    state: absent
+
+- name: install powerline-go
+  become: yes
+  ansible.builtin.get_url:
+    url: "{{ powerline_go_url }}"
+    dest: /usr/local/bin/powerline-go
+    mode: 0755
+    
