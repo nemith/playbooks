@@ -37,7 +37,35 @@
     state:  link
   when: nvim_symlink.stat.exists == False
 
+- name: create autoload directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.local/share/nvim/site/autoload"
+    state: directory
+    mode: '0755'
+
+- name: update neovim plug
+  ansible.builtin.get_url:
+    url: "{{ vim_plug_url }}"
+    dest: "{{ user_home }}/.local/share/nvim/site/autoload/plug.vim"
+
+- name: remove older unsused files
+  ansible.builtin.file:
+     path: "{{ user_home}}/.config/nvim/{{ item }}"
+     state: absent
+  loop:
+    - local_bundles.vim
+    - local_init.vim
+    - autoload
+    - plugged
+
 - name: copy nvim config
   ansible.builtin.copy:
     src: config/
     dest: "{{ user_home }}/.config/nvim"
+
+- name: install pynim python package
+  ansible.builtin.pip:
+    virtualenv: "{{ neovim_py3venv_dir }}"
+    virtualenv_command: "python3 -m venv"
+    name: pynvim
+
