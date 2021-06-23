@@ -1,33 +1,28 @@
-- name: create tarball dir
-  file:
-    path: /var/tarballs
-    state: directory
-    mode: '0755'
-  become: true
 
 - name: download rustup
-  get_url:
-    url: "https://github.com/rust-lang/rustup/archive/{{ rustup_version }}.tar.gz"
-    dest: /var/tarballs/rustup-{{ rustup_version }}.tar.gz
+  ansible.builtin.get_url:
+    url: "{{ rustup_url }}"
+    dest: "{{ rustup_tarball }}"
+    checksum: "{{ rustup_checksum }}"
   become: true
-  register: rustup_tarball
+  register: rustup_download
 
 - name: install rustup
   block:
     - name: temp dir
-      tempfile:
+      ansible.builtin.tempfile:
         state: directory
         suffix: rustup
       register: rustup_tempdir
 
     - name: extract rustup
-      unarchive:
-        src: "{{rustup_tarball.dest }}"
+      ansible.builtin.unarchive:
+        src: "{{ rustup_tarball }}"
         dest: "{{ rustup_tempdir.path }}"
         extra_opts: "--strip-components=1"
       become: true
 
     - name: install rustup
-      command: "{{ rustup_tempdir.path }}/rustup-init.sh -y"
+      ansible.builtin.command: "{{ rustup_tempdir.path }}/rustup-init.sh -y"
 
-  when: rustup_tarball.changed
+  when: rustup_download.changed

@@ -1,11 +1,17 @@
 ---
-- name: install wezterm
+- name: download wezterm
   become: true
   environment: "{{ proxy_env }}"
+  ansible.builtin.get_url:
+    url: "{{ wezterm_rpm_url }}"
+    dest: "{{ wezterm_rpm }}"
+    checksum: "{{ wezterm_checksum }}"
+  
+- name: install wezterm
+  become: true
   ansible.builtin.dnf:
-    name: "{{ wezterm_rpm_url }}"
+    name: "{{ wezterm_rpm }}"
     state: present
-    disable_gpg_check: true
     
 - name: create wezterm config dir
   ansible.builtin.file:

@@ -1,7 +1,14 @@
 ---
+- name: dowload dropbox
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ dropbox_url }}"
+    dest: "{{ dropbox_rpm }}"
+    checksum: "{{ dropbox_checksum }}"
+
 - name: install dropbox
   become: true
   ansible.builtin.dnf:
-    name: https://www.dropbox.com/download?dl=packages/fedora/nautilus-dropbox-2020.03.04-1.fedora.x86_64.rpm
+    name: "{{ dropbox_rpm }}"
     state: present
     disable_gpg_check: true
