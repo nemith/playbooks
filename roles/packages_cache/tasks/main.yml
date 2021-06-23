@@ -1,0 +1,28 @@
+
+- name: remove old /var/tarballs directory
+  become: true
+  ansible.builtin.file:
+    path: /var/tarballs
+    state: absent
+
+- name: create /var/cache/packages dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ packages_cache_dir }}"
+    state: directory
+    mode: '0755'
+
+
+- name: find older packages
+  ansible.builtin.find:
+    paths: "{{ packages_cache_dir }}"
+    age: 90d
+    recurse: yes
+  register: old_packages
+
+- name: remove older packages
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_packages.files }}"

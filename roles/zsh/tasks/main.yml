@@ -29,11 +29,19 @@
     name: powerline-go
     state: absent
 
-- name: install powerline-go
+- name: download powerline-go
   become: yes
   environment: "{{ proxy_env }}"
   ansible.builtin.get_url:
     url: "{{ powerline_go_url }}"
-    dest: /usr/local/bin/powerline-go
+    dest: "{{ powerline_go_binary }}"
     mode: 0755
-    
+    checksum: "{{ powerline_go_checksum }}"
+
+- name: install powerline-go
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ powerline_go_binary }}"
+    dest: "/usr/local/bin/powerline-go"
+    remote_src: true
+    mode: 0755

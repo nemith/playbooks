@@ -1,16 +1,10 @@
 ---
-- name: create tarball dir
-  become: true
-  ansible.builtin.file:
-    path: /var/tarballs
-    state: directory
-    mode: '0755'
-
 - name: download idea 
   become: true
   ansible.builtin.get_url:
     url: "{{ idea_url }}"
-    dest: /var/tarballs/{{ idea_tarball }}
+    dest: "{{ idea_tarball }}"
+    checksum: "{{ idea_checksum }}"
 
 - name: create versioned directory
   become: true
@@ -22,7 +16,7 @@
 - name: extract idea
   become: true
   ansible.builtin.unarchive:
-    src: /var/tarballs/{{ idea_tarball }}
+    src: "{{ idea_tarball }}"
     dest: /opt/idea-IC-{{ idea_version }}
     extra_opts: "--strip-components=1"
   register: idea_versioned_dir

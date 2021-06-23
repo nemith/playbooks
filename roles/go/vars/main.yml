@@ -6,5 +6,5 @@ go_os_map:
   "Linux": "linux"
 go_os: "{{ go_os_map[ansible_system] | default(ansible_system|lower) }}"
 
-go_tarball: go{{ go_version }}.{{go_os}}-{{go_arch}}.tar.gz 
-go_url: https://golang.org/dl/{{ go_tarball }}
+go_tarball: "{{ packages_cache_dir }}/go{{ go_version }}.{{go_os}}-{{go_arch}}.tar.gz"
+go_url: https://golang.org/dl/{{ go_tarball|basename }}
