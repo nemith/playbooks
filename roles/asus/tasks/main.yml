@@ -7,10 +7,10 @@
     baseurl: https://download.opensuse.org/repositories/home:/luke_nukem:/asus/{{ asus_repo_base_dir }}/
     gpgcheck: false
 
-- name: install asus-nb-ctrl
+- name: install asusctl
   become: yes
   dnf:
-    name: asus-nb-ctrl
+    name: asusctl
     state: present
   
 - name: add tlp repo
