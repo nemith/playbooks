@@ -23,25 +23,4 @@
     recursive: true
     delete: true
 
-- name: remove powerline-go system packages
-  become: yes
-  ansible.builtin.dnf:
-    name: powerline-go
-    state: absent
-
-- name: download powerline-go
-  become: yes
-  environment: "{{ proxy_env }}"
-  ansible.builtin.get_url:
-    url: "{{ powerline_go_url }}"
-    dest: "{{ powerline_go_binary }}"
-    mode: 0755
-    checksum: "{{ checksums[powerline_go_binary|basename] }}"
-
-- name: install powerline-go
-  become: yes
-  ansible.builtin.copy:
-    src: "{{ powerline_go_binary }}"
-    dest: "/usr/local/bin/powerline-go"
-    remote_src: true
-    mode: 0755
+- import_tasks: powerline-go.yml

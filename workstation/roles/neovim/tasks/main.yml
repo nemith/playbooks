@@ -18,13 +18,21 @@
   environment: "{{ proxy_env }}"
   register: neovim_appimage
 
-- name: copy latest to /usr/bin/local
+- name: copy latest to appimages directory
   become: true
   ansible.builtin.copy:
     src: "{{ neovim_appimage.dest }}"
-    dest:  /usr/local/bin/nvim
+    dest:  "{{ appimages_dir }}/nvim.AppImage"
     remote_src: true
     mode: 0755
+
+- name: link to /usr/local/bin
+  become: true
+  ansible.builtin.file:
+    src: "{{ appimages_dir }}/nvim.AppImage"
+    dest: /usr/local/bin/nvim
+    state: link
+    force: true
 
 - name: create autoload directory
   ansible.builtin.file:
