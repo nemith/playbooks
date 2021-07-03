@@ -1,4 +1,5 @@
 ---
+wezterm_ver: "{{ versions['wezterm'] }}"
 distro_short_name:
   Fedora: "fc"
   CentOS: "el"

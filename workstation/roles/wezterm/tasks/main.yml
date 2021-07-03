@@ -5,13 +5,14 @@
   ansible.builtin.get_url:
     url: "{{ wezterm_rpm_url }}"
     dest: "{{ wezterm_rpm }}"
-    checksum: "{{ wezterm_checksum }}"
+    checksum: "{{ checksums[wezterm_rpm|basename] }}"
   
 - name: install wezterm
   become: true
   ansible.builtin.dnf:
     name: "{{ wezterm_rpm }}"
     state: present
+    disable_gpg_check: true
     
 - name: create wezterm config dir
   ansible.builtin.file:

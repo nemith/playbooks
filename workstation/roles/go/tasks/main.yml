@@ -3,7 +3,7 @@
   get_url:
     url: "{{ go_url }}"
     dest: "{{ go_tarball }}"
-    checksum: "{{ go_checksum }}"
+    checksum: "{{ checksums[go_tarball|basename] }}"
   become: true
 
 - name: create versioned directory

@@ -1,3 +1,4 @@
 ---
+idea_version: "{{ versions['idea'] }}"
 idea_tarball: "{{ packages_cache_dir }}/ideaIC-{{ idea_version }}.tar.gz"
 idea_url: https://download.jetbrains.com/idea/{{ idea_tarball|basename }}
