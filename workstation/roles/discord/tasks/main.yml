@@ -1,6 +1,11 @@
 ---
-- name: install discord
+- name: install flatpak
   community.general.flatpak:
     name: com.discordapp.Discord
     state: present
   
+- name: remove disto package
+  become: true
+  ansible.builtin.dnf:
+    name: discord
+    state: absent
