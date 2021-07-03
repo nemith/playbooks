@@ -14,7 +14,7 @@
     url: "{{ neovim_appimage_url }}" 
     dest: "{{ neovim_binary }}"
     mode: 0755
-    checksum: "{{ neovim_checksum }}"
+    checksum: "{{ checksums[neovim_binary|basename] }}"
   environment: "{{ proxy_env }}"
   register: neovim_appimage
 

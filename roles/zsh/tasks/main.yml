@@ -36,7 +36,7 @@
     url: "{{ powerline_go_url }}"
     dest: "{{ powerline_go_binary }}"
     mode: 0755
-    checksum: "{{ powerline_go_checksum }}"
+    checksum: "{{ checksums[powerline_go_binary|basename] }}"
 
 - name: install powerline-go
   become: yes

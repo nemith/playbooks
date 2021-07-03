@@ -3,7 +3,7 @@
   ansible.builtin.get_url:
     url: "{{ rustup_url }}"
     dest: "{{ rustup_tarball }}"
-    checksum: "{{ rustup_checksum }}"
+    checksum: "{{ checksums[rustup_tarball|basename] }}"
   become: true
   register: rustup_download
 
