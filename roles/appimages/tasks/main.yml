@@ -1,0 +1,7 @@
+---
+- name: create /opt/appimages
+  become: true
+  ansible.builtin.file:
+    path: "{{ appimages_dir }}"
+    state: directory
+    mode: '0755'
