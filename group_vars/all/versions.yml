@@ -17,3 +17,4 @@ checksums:
     powerline-go-1.21.0-linux-amd64: sha256:a99cc075cbeca751feac2675355bdf6b9142bb1bb36fa5a50d0ee5768688e286
     rustup-1.24.3.tar.gz: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc0622d0f6
     wezterm-20210502_154244_3f7122cb-1.fc34.x86_64.rpm: sha256:4850dfc3c78f798476d962a44cdec423977769b25c74971b9b932f2d7134ffee
+    nautilus-dropbox-2020.03.04-1.fedora.x86_64.rpm: sha256:ee811b9acc130753887a639bc8d88160108eaa6a390b6f9d233ddc9cd093f4a0  
