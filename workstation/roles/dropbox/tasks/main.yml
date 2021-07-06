@@ -4,7 +4,7 @@
   ansible.builtin.get_url:
     url: "{{ dropbox_url }}"
     dest: "{{ dropbox_rpm }}"
-    checksum: "{{ dropbox_checksum }}"
+    checksum: "{{ checksums[dropbox_rpm|basename] }}"
 
 - name: install dropbox
   become: true
