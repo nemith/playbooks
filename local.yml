@@ -32,6 +32,7 @@
     - rust
     - go
     - nodejs
+    - zig
     # apps
     - discord
     - idea
