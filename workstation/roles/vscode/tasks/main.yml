@@ -18,9 +18,10 @@
     name: "{{ item }}"
     state: present
   loop:
+    - AugusteRame.zls-vscode
     - bbenoist.vagrant
     - golang.go
+    - ms-python.python
     - ms-vscode-remote.vscode-remote-extensionpack
     - rust-lang.rust
     - vscodevim.vim
-    - ms-python.python
