@@ -8,8 +8,8 @@ fb:
 # Facebook workstations
 fb_workstations:
   hosts:
-    bbennett-fedora-MJ0C08V4:
     bbennett-fedora-PC1SPNZP:
+    bbennett-fedora-MJ0EQ3D5:
 
 # Facebook devservers
 fb_devservers:
@@ -45,7 +45,5 @@ asus:
 nvidia:
   vars:
     gdm_wayland_enable: false
-  hosts:
-    bbennett-fedora-MJ0C08V4:
   children:
     asus:
