@@ -36,4 +36,19 @@
   become: true
   when: go_versioned_dir.changed
 
+- name: find old versions
+  ansible.builtin.find:
+    paths: /opt 
+    file_type: directory
+    pattern: go\d.*
+    use_regex: true
+    excludes: go{{ go_version }}
+  register: go_old_dirs
+
+- name: remove old go versions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{go_old_dirs.files}}"
+  become: true
 
