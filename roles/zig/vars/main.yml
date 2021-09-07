@@ -1,6 +1,6 @@
 zig_version: "{{ versions['zig'] }}"
 zig_tarball: "{{ packages_cache_dir }}/zig-linux-x86_64-{{ zig_version }}.tar.xz"
-zig_url: https://ziglang.org/download/0.8.0/{{ zig_tarball|basename }}
+zig_url: https://ziglang.org/download/{{ zig_version }}/{{ zig_tarball|basename }}
 
 zls_version: "{{ versions['zls'] }}"
 zls_tarball: "{{ packages_cache_dir }}/zls-{{ zls_version }}-x86_64-linux.tar.xz"
