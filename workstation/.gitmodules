@@ -1,3 +1,6 @@
 [submodule "collections/ansible_collections/community/general"]
 	path = collections/ansible_collections/community/general
 	url = https://github.com/ansible-collections/community.general.git
+[submodule "collections/ansible_collections/community/crypto"]
+	path = collections/ansible_collections/community/crypto
+	url = https://github.com/ansible-collections/community.crypto.git

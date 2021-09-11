@@ -1,0 +1,24 @@
+---
+- name: check existing symlinks
+  ansible.builtin.stat:
+    path: "{{ user_home }}/{{ item }}"
+  register: homedir_folders
+  loop: "{{ homedir_symlinks }}"
+
+- name: Move old directory
+  ansible.builtin.command: 
+    cmd: mv {{ user_home }}/{{ item[1] }} {{ user_home }}/Sync/{{ item[1] }}-{{ ansible_hostname }} 
+    creates: "{{ user_home }}/Sync/{{ item[1] }}"
+  when: item[0].stat.exists and (not item[0].stat.islnk or (item[0].stat.islnk and item[0].stat.lnk_target != "Sync/"+item[1]))
+  loop: "{{ homedir_folders.results | zip(homedir_symlinks) | list }}"
+
+- name: symlink to ~/Sync 
+  ansible.builtin.file:
+    src: Sync/{{ item }}
+    dest: "{{ user_home }}/{{ item }}"
+    state: link
+    force: true # may not have synced these yet
+    follow: false
+  loop: "{{ homedir_symlinks }}"
+
+

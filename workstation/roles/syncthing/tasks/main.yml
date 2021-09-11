@@ -1,0 +1,23 @@
+---
+- name: install syncthing
+  ansible.builtin.dnf:
+    name: syncthing
+    state: present
+  become: true
+
+- name: enable services
+  ansible.builtin.systemd:
+    name: syncthing.service
+    scope: user
+    enabled: true
+
+- name: generate default config
+  ansible.builtin.command:
+    cmd: syncthing serve --generate {{ user_home}}/.config/syncthing
+    creates: "{{ user_home }}/.config/syncthing/config.xml"
+
+- name: configure syncthing
+  import_tasks: config.yml
+
+- name: setup home symlinks
+  import_tasks: homedir.yml
