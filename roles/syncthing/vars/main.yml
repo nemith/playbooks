@@ -1,0 +1,33 @@
+config_file: "{{ user_home }}/.config/syncthing/config.xml"
+
+# top level directories to symlink into ~/Sync
+homedir_symlinks:
+  - Code
+  - Desktop
+  - Documents
+  - Music
+  - Pictures
+  - Public
+  - Templates
+  - Videos
+
+devices:
+  BKGPAYH-VHEPQVQ-3OCJZNW-BHFQ3W4-ISREW56-3ZDQCTO-VNFPESF-Q2O3KQK:
+    name: bbennett-fedora-PC1SPNZP
+    address: dynamic
+  KLRYH2G-3AAUBBO-XQOT2C2-6OJ7BSL-32JS43M-KYKNNTJ-K4TG5ZM-KMZ2YAE:
+    name: bbennett-fedora-MJ0EQ3D5
+    address: dynamic
+
+folders:
+  default:
+    label: Default Folder
+    path: "{{ user_home }}/Sync"
+    devices:
+      - BKGPAYH-VHEPQVQ-3OCJZNW-BHFQ3W4-ISREW56-3ZDQCTO-VNFPESF-Q2O3KQK
+      - KLRYH2G-3AAUBBO-XQOT2C2-6OJ7BSL-32JS43M-KYKNNTJ-K4TG5ZM-KMZ2YAE
+
+_device_attributes: [name]
+_device_values: [address]
+_folder_attributes: [label, path]
+_folder_values: []
