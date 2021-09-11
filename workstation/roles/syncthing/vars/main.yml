@@ -18,6 +18,9 @@ devices:
   KLRYH2G-3AAUBBO-XQOT2C2-6OJ7BSL-32JS43M-KYKNNTJ-K4TG5ZM-KMZ2YAE:
     name: bbennett-fedora-MJ0EQ3D5
     address: dynamic
+  MZ67EQD-DGR5336-SRS53DP-ACDGBKU-ZYFTHHV-D2UXKTZ-JD5RJLU-MWF5WA4:
+    name: strongbad
+    address: dynamic
 
 folders:
   default:
@@ -26,6 +29,7 @@ folders:
     devices:
       - BKGPAYH-VHEPQVQ-3OCJZNW-BHFQ3W4-ISREW56-3ZDQCTO-VNFPESF-Q2O3KQK
       - KLRYH2G-3AAUBBO-XQOT2C2-6OJ7BSL-32JS43M-KYKNNTJ-K4TG5ZM-KMZ2YAE
+      - MZ67EQD-DGR5336-SRS53DP-ACDGBKU-ZYFTHHV-D2UXKTZ-JD5RJLU-MWF5WA4
 
 _device_attributes: [name]
 _device_values: [address]
