@@ -23,5 +23,8 @@
     - golang.go
     - ms-python.python
     - ms-vscode-remote.vscode-remote-extensionpack
+    - ms-vscode.cpptools
+    - phgn.vscode-starlark
     - rust-lang.rust
+    - tiehuis.zig
     - vscodevim.vim
