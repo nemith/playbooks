@@ -1,10 +1,10 @@
 # default versions for non-distro versioned packages (tarballs, etc) 
 
 versions:
-    go: "1.17.1"
-    idea: "2021.1.3"
-    neovim: "0.5.0"
-    paq-nvim: "0.9.1"
+    go: "1.17.2"
+    idea: "2021.2.3"
+    neovim: "0.5.1"
+    paq-nvim: "0.9.5"
     powerline-go: "1.21.0"
     rustup: "1.24.3"
     wezterm: 20210814-124438-54e29167
@@ -12,10 +12,10 @@ versions:
     zls: "0.1.0"
 
 checksums:
-    go1.17.1.linux-amd64.tar.gz: sha256:dab7d9c34361dc21ec237d584590d72500652e7c909bf082758fb63064fca0ef
-    ideaIC-2021.1.3.tar.gz: sha256:b14ed5fbd9c7523a1fd2e689b0ac8bc990c046b92bd6699548efcc11937217de
-    nvim-0.5.0.appimage: sha256:6305a1cab22433bf7871cbfcdb76f0013314f4a6c04e56e1547a6925df17240b
-    paq-nvim-0.9.1.tar.gz: sha256:338bae7332d650efdc056dcdb0becd2684e010f6e0a3e8363202d06b1c95875b
+    go1.17.2.linux-amd64.tar.gz: sha256:f242a9db6a0ad1846de7b6d94d507915d14062660616a61ef7c808a76e4f1676
+    ideaIC-2021.2.3.tar.gz: sha256:582eb0b6dc9cb3c181d179638ccae54a89cfe73bd59fac6806c4fee8b586d998
+    nvim-0.5.1.appimage: sha256:1cfbc587ea5598545ac045ee776965a005b1f0c26d5daf5479b859b092697439
+    paq-nvim-0.9.5.tar.gz: sha256:4861c17475567343444960aa91cb61806ebee21a1698355dd0a736c11b0f6f04
     powerline-go-1.21.0-linux-amd64: sha256:a99cc075cbeca751feac2675355bdf6b9142bb1bb36fa5a50d0ee5768688e286
     rustup-1.24.3.tar.gz: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc0622d0f6
     wezterm-20210814_124438_54e29167-1.fc34.x86_64.rpm: sha256:4e9160f8b0df5c97b24ecf182c302bd49c8905f341e217d150724f66184ab90c
