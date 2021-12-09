@@ -1,0 +1,3 @@
+---
+- import_playbook: core.yml
+- import_playbook: workstations.yml

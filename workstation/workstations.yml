@@ -1,0 +1,46 @@
+---
+- name: setup nvidia drivers
+  hosts: nvidia
+  roles:
+    - ws_nvidia
+
+- name: setup asus laptop
+  hosts: asus
+  roles:
+    - ws_asus
+
+- name: setup shells
+  hosts: shells
+  roles:
+    - shell_git
+    - shell_neovim
+    - shell_tmux
+    - shell_wezterm  
+    - shell_zsh
+
+- name: common workstation setup
+  hosts: workstations
+  roles:
+    - lang_go
+    - lang_rust
+    - ws_fonts
+    - ws_gnome
+    - ws_spotify
+    - ws_virtualbox
+    - ws_vscode
+
+- name: fb workstation setup
+  hosts: fb_workstations
+  roles:
+    - ws_dropbox
+    - ws_idea
+
+- name: non-fb workstation setup
+  hosts: workstations,!fb_workstations
+  roles:
+    - core_chrony
+    - lang_nodejs
+    - lang_zig
+    - ws_discord
+    - ws_slack
+    - ws_syncthing
