@@ -1,19 +1,38 @@
 ---
+- name: remove wezterm rpm
+  become: true
+  ansible.builtin.dnf:
+    name: wezterm
+    state: absent
+    disable_gpg_check: true
+
 - name: download wezterm
   become: true
   environment: "{{ proxy_env }}"
   ansible.builtin.get_url:
-    url: "{{ wezterm_rpm_url }}"
-    dest: "{{ wezterm_rpm }}"
-    checksum: "{{ checksums[wezterm_rpm|basename] }}"
-  
-- name: install wezterm
+    url: "{{ wezterm_appimage_url}}"
+    dest: "{{ packages_cache_dir }}/{{ wezterm_appimage }}"
+    checksum: "{{ checksums[wezterm_appimage|basename] }}"
+  register: wezterm_appimage_dl
+
+- name: copy latest to appimages directory
   become: true
-  ansible.builtin.dnf:
-    name: "{{ wezterm_rpm }}"
-    state: present
-    disable_gpg_check: true
-    
+  ansible.builtin.copy:
+    src: "{{ wezterm_appimage_dl.dest }}"
+    dest:  "{{ appimages_dir }}/wezterm.AppImage"
+    remote_src: true
+    mode: 0755
+
+- name: link to /usr/local/bin
+  become: true
+  ansible.builtin.file:
+    src: "{{ appimages_dir }}/wezterm.AppImage"
+    dest: /usr/local/bin/wezterm
+    state: link
+    force: true
+
+
+
 - name: create wezterm config dir
   ansible.builtin.file:
     path: "{{ wezterm_config_dir }}"

@@ -7,7 +7,7 @@ versions:
     paq-nvim: "0.9.5"
     powerline-go: "1.21.0"
     rustup: "1.24.3"
-    wezterm: 20210814-124438-54e29167
+    wezterm: 20211205-192649-672c1cc1
     zig: "0.8.1"
     zls: "0.1.0"
 
@@ -18,7 +18,7 @@ checksums:
     paq-nvim-0.9.5.tar.gz: sha256:4861c17475567343444960aa91cb61806ebee21a1698355dd0a736c11b0f6f04
     powerline-go-1.21.0-linux-amd64: sha256:a99cc075cbeca751feac2675355bdf6b9142bb1bb36fa5a50d0ee5768688e286
     rustup-1.24.3.tar.gz: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc0622d0f6
-    wezterm-20210814_124438_54e29167-1.fc34.x86_64.rpm: sha256:4e9160f8b0df5c97b24ecf182c302bd49c8905f341e217d150724f66184ab90c
     nautilus-dropbox-2020.03.04-1.fedora.x86_64.rpm: sha256:ee811b9acc130753887a639bc8d88160108eaa6a390b6f9d233ddc9cd093f4a0
     zig-linux-x86_64-0.8.1.tar.xz: sha256:6c032fc61b5d77a3f3cf781730fa549f8f059ffdb3b3f6ad1c2994d2b2d87983
     zls-0.1.0-x86_64-linux.tar.xz: sha256:1318a785e6982ef86d1d0242403b20cec34ce209c64eee339512f8267e9a5ccb
+    WezTerm-20211205-192649-672c1cc1-Ubuntu18.04.AppImage: sha256:4b769f59bcdd7da9a1cecf323625b39fac3e55a622fc54ccb6f5b67b8bd44ccf
