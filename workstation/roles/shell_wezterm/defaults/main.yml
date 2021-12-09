@@ -1,0 +1,4 @@
+
+---
+wezterm_url: https://github.com/wez/wezterm/releases/download/{{ wezterm_version }}/WezTerm-{{ wezterm_version }}-Ubuntu18.04.AppImage
+wezterm_config_dir: "{{ user_home }}/.config/wezterm"

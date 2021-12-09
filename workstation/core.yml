@@ -4,7 +4,7 @@
   roles: 
     - core_ansible
     - core_dnf
-    - core_packages_cache
+    - core_tarball
   
 - name:
   hosts: all, !fb_workstations

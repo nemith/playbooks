@@ -1,0 +1,2 @@
+---
+rustup_url: "https://github.com/rust-lang/rustup/archive/{{ rustup_version }}.tar.gz"

@@ -4,7 +4,7 @@
   ansible.builtin.get_url:
     url: "{{ idea_url }}"
     dest: "{{ idea_tarball }}"
-    checksum: "{{ checksums[idea_tarball|basename] }}"
+    checksum: "{{ idea_checksum }}"
 
 - name: create versioned directory
   become: true

@@ -1,14 +1,8 @@
 ---
-- name: dowload dropbox
-  become: true
-  ansible.builtin.get_url:
-    url: "{{ dropbox_url }}"
-    dest: "{{ dropbox_rpm }}"
-    checksum: "{{ checksums[dropbox_rpm|basename] }}"
-
 - name: install dropbox
   become: true
   ansible.builtin.dnf:
-    name: "{{ dropbox_rpm }}"
+    name:
+      - dropbox
+      - nautilus-dropbox
     state: present
-    disable_gpg_check: true

@@ -9,17 +9,9 @@
   environment: "{{ proxy_env }}"
   ansible.builtin.get_url:
     url: "{{ powerline_go_url }}"
-    dest: "{{ powerline_go_binary }}"
-    mode: 0755
-    checksum: "{{ checksums[powerline_go_binary|basename] }}"
-
-- name: copy to appimages 
-  become: yes
-  ansible.builtin.copy:
-    src: "{{ powerline_go_binary }}"
     dest: "{{ appimages_dir }}/powerline-go.AppImage"
-    remote_src: true
     mode: 0755
+    checksum: "{{ powerline_go_checksum }}"
 
 - name: symlink powerline-go to /usr/local/bin
   become: yes

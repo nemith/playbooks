@@ -1,4 +1,0 @@
----
-powerline_go_version: "{{ versions['powerline-go'] }}"
-powerline_go_binary: "{{ packages_cache_dir}}/powerline-go-{{ powerline_go_version }}-linux-amd64"
-powerline_go_url: https://github.com/justjanne/powerline-go/releases/download/v{{ powerline_go_version }}/powerline-go-linux-amd64

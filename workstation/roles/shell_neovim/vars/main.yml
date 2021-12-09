@@ -1,9 +1,2 @@
 ---
-neovim_version: "{{ versions['neovim'] }}"
-neovim_appimage_url: https://github.com/neovim/neovim/releases/download/v{{ neovim_version }}/nvim.appimage
-neovim_binary: "{{ packages_cache_dir }}/nvim-{{ neovim_version }}.appimage"
-neovim_py3venv_dir: "{{ user_home }}/.local/share/nvim/py3venv"
-
-paq_nvim_version: "{{ versions['paq-nvim'] }}"
-paq_nvim_url: https://github.com/savq/paq-nvim/archive/refs/tags/v{{ paq_nvim_version }}.tar.gz
-paq_nvim_tarball: "{{ packages_cache_dir }}/paq-nvim-{{ paq_nvim_version }}.tar.gz"
+paq_nvim_tarball: "{{ tarball_dir }}/paq-nvim-{{ paq_nvim_version }}.tar.gz"

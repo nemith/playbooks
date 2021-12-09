@@ -1,4 +1,3 @@
 ---
 dependencies:
-  - role: core_packages_cache
   - role: core_appimages

@@ -1,4 +1,2 @@
 ---
-rustup_version: "{{ versions['rustup'] }}"
-rustup_url: "https://github.com/rust-lang/rustup/archive/{{ rustup_version }}.tar.gz"
-rustup_tarball: "{{ packages_cache_dir }}/rustup-{{ rustup_version }}.tar.gz"
+rustup_tarball: "{{ tarball_dir }}/rustup-{{ rustup_version }}.tar.gz"

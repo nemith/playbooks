@@ -1,2 +1,5 @@
 ---
-vim_plug_version: 0.10.0
+neovim_url: https://github.com/neovim/neovim/releases/download/v{{ neovim_version }}/nvim.appimage
+neovim_py3venv_dir: "{{ user_home }}/.local/share/nvim/py3venv"
+
+paq_nvim_url: https://github.com/savq/paq-nvim/archive/refs/tags/v{{ paq_nvim_version }}.tar.gz

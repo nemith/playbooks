@@ -1,3 +1,0 @@
----
-dropbox_rpm: "{{ packages_cache_dir }}/nautilus-dropbox-{{ dropbox_version }}-1.fedora.x86_64.rpm"
-dropbox_url: https://www.dropbox.com/download?dl=packages/fedora/{{ dropbox_rpm|basename }}

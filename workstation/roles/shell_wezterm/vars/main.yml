@@ -1,6 +1,0 @@
----
-wezterm_version: "{{ versions['wezterm'] }}"
-wezterm_appimage: WezTerm-{{ wezterm_version }}-Ubuntu18.04.AppImage
-wezterm_appimage_url: https://github.com/wez/wezterm/releases/download/{{ wezterm_version }}/{{ wezterm_appimage }}
-wezterm_config_dir: "{{ user_home }}/.config/wezterm"
-

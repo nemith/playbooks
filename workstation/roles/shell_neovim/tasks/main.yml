@@ -11,20 +11,12 @@
 - name: download neovim appimage
   become: true
   ansible.builtin.get_url:
-    url: "{{ neovim_appimage_url }}" 
-    dest: "{{ neovim_binary }}"
+    url: "{{ neovim_url }}"
+    dest:  "{{ appimages_dir }}/nvim.AppImage"
     mode: 0755
-    checksum: "{{ checksums[neovim_binary|basename] }}"
+    checksum: "{{ neovim_checksum }}"
   environment: "{{ proxy_env }}"
   register: neovim_appimage
-
-- name: copy latest to appimages directory
-  become: true
-  ansible.builtin.copy:
-    src: "{{ neovim_appimage.dest }}"
-    dest:  "{{ appimages_dir }}/nvim.AppImage"
-    remote_src: true
-    mode: 0755
 
 - name: link to /usr/local/bin
   become: true
@@ -45,7 +37,7 @@
   ansible.builtin.get_url:
     url: "{{ paq_nvim_url }}"
     dest: "{{ paq_nvim_tarball }}"
-    checksum: "{{ checksums[paq_nvim_tarball|basename] }}"
+    checksum: "{{ paq_nvim_checksum }}"
   register: paq_nvim_download
 
 - name: install paq-nvim
@@ -58,7 +50,7 @@
 
 - name: remove older unsused files
   ansible.builtin.file:
-     path: "{{ user_home}}/.config/nvim/{{ item }}"
+     path: "{{ user_home }}/.config/nvim/{{ item }}"
      state: absent
   loop:
     - local_bundles.vim
