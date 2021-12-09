@@ -1,4 +1,0 @@
----
-dependencies:
-  - role: packages_cache
-  - role: appimages

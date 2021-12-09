@@ -1,0 +1,13 @@
+---
+- name: core setup
+  hosts: all
+  roles: 
+    - core_ansible
+    - core_dnf
+    - core_packages_cache
+  
+- name:
+  hosts: all, !fb_workstations
+  roles:
+    - core_chrony 
+    
