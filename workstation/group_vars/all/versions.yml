@@ -1,7 +1,7 @@
 # default versions for non-distro versioned packages (tarballs, etc) 
 
-go_checksum: sha256:bd78114b0d441b029c8fe0341f4910370925a4d270a6a590668840675b0c653e
-go_version: "1.17.5"
+go_checksum: "sha256:128f72c5c22640085e4187cd1b540c587cf8fb280f941519bd2d1ae9fdab4f37"
+go_version: "1.18beta1"
 idea_checksum: sha256:de44097f00f4f9c48cf5abc2fab58c6436a4345f00f83ae7a75734af177e3077
 idea_version: "2021.3"
 neovim_checksum: sha256:8a2b8bb009f5a10f2908c6806c4745e064a6032db89de7895805fb979c90a08e
@@ -14,7 +14,7 @@ rustup_checksum: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc
 rustup_version: "1.24.3"
 wezterm_checksum: sha256:4b769f59bcdd7da9a1cecf323625b39fac3e55a622fc54ccb6f5b67b8bd44ccf
 wezterm_version: 20211205-192649-672c1cc1
-zig_checksum: sha256:6c032fc61b5d77a3f3cf781730fa549f8f059ffdb3b3f6ad1c2994d2b2d87983
-zig_version: "0.8.1"
+zig_checksum: sha256:5c55344a877d557fb1b28939785474eb7f4f2f327aab55293998f501f7869fa6
+zig_version: "0.9.0"
 zls_checksum: sha256:1318a785e6982ef86d1d0242403b20cec34ce209c64eee339512f8267e9a5ccb
 zls_version: "0.1.0"
