@@ -1,0 +1,6 @@
+---
+- name: restart_mdnsrepeater
+  ansible.builtin.service:
+    name: mdns-repeater
+    state: restarted
+  become: yes

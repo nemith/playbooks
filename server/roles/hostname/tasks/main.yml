@@ -1,0 +1,4 @@
+---
+- name: set hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"

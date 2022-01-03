@@ -1,0 +1,110 @@
+# Managed by ansible.  Do not modify
+
+# drop any existing nftables ruleset
+flush ruleset
+
+define NIC_WAN = wan0
+define NIC_TRUST = lan0
+define NIC_IOT = lan0.2254
+
+# a common table for both IPv4 and IPv6
+table inet filter {
+    chain input {
+        type filter hook input priority filter
+        policy drop
+
+        # accept loopback traffic
+        iifname lo accept
+
+        # Allow established and related packets and drop invalid states
+        ct state established,related accept
+        ct state invalid drop
+
+        ip protocol icmp icmp type {
+            echo-request,
+            echo-reply,
+            time-exceeded,
+            parameter-problem,
+            destination-unreachable,
+        } accept
+        
+        ip6 nexthdr icmpv6 icmpv6 type {
+            echo-request,
+            echo-reply,
+            time-exceeded,
+            parameter-problem,
+            destination-unreachable,
+            packet-too-big,
+            nd-router-advert,
+            nd-router-solicit,
+            nd-neighbor-solicit,
+            nd-neighbor-advert,
+            mld-listener-query
+        } accept
+
+        iifname vmap {
+            $NIC_IOT: jump input_iot,
+            $NIC_TRUST: jump input_trust,
+            $NIC_WAN: jump input_wan,
+        }
+
+        log prefix "Dropped: " flags all drop
+    }
+
+    chain input_wan {
+        icmp type echo-request limit rate 5/second accept
+        icmpv6 type echo-request limit rate 5/second accept
+
+        udp dport bootpc counter accept
+        udp dport dhcpv6-client counter accept
+    }
+
+    chain input_iot {
+        jump input_lan
+    }
+
+    chain input_trust {
+        jump input_lan
+
+        # accept ssh
+        tcp dport ssh accept
+    }
+
+    chain input_lan {
+        ip protocol igmp accept
+        ip6 nexthdr igmp accept
+
+        udp dport bootps accept
+
+        udp dport domain accept
+        tcp dport domain accept
+
+        udp dport mdns accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0
+        policy drop
+
+        # Allow established and related packets and drop invalid states
+        ct state invalid drop
+        ct state established,related accept
+
+        iifname $NIC_TRUST oifname $NIC_IOT jump forward_trust_to_iot
+        iifname $NIC_IOT oifname $NIC_TRUST jump forward_iot_to_trust
+        iifname {$NIC_IOT, $NIC_TRUST} oifname $NIC_WAN accept
+    }
+
+    chain forward_trust_to_iot {}
+
+    chain forward_iot_to_trust {}
+}
+
+table ip nat {
+    chain postrouting {
+        type nat hook postrouting priority srcnat
+
+        # nat all traffic going out to wan0
+        oifname wan0 masquerade
+    }
+}

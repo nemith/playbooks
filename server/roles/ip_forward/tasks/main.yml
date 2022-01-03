@@ -1,0 +1,10 @@
+---
+- name: enable ip fowarding
+  ansible.builtin.copy:
+    src: ipforward.sysctl
+    dest: /etc/sysctl.d/30-ipforward.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: reload_sysctl

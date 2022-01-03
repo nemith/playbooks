@@ -1,0 +1,27 @@
+---
+- name: enable crb repository
+  community.general.ini_file:
+    path: /etc/yum.repos.d/centos.conf
+    section: crb
+    option: enabled
+    value: "1"
+    backup: yes
+  become: yes
+
+- name: import gpg key
+  ansible.builtin.rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+  become: yes
+
+- name: install epel repo package
+  ansible.builtin.dnf:
+    name: "{{ epel_repo_rpm_url }}"
+    state: present
+  become: yes
+
+- name: install epel-next repo package
+  ansible.builtin.dnf:
+    name: "{{ epel_next_repo_rpm_url }}"
+    state: present
+  become: yes

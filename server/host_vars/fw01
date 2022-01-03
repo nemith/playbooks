@@ -1,0 +1,58 @@
+hostname: fw01
+networkd:
+  links:
+    - match: {path: pci-0000:01:00.0}
+      link: {name: lan0}
+      priority: 10
+    - match: {path: pci-0000:01:00.1}
+      link: {name: lan1}
+      priority: 10
+    - match: {path: pci-0000:02:00.0}
+      link: {name: wan0}
+      priority: 10
+    - match: {path: pci-0000:02:00.1}
+      link: {name: wan1}
+      priority: 10
+  netdevs:
+    - netdev:
+        name: lan0.2254
+        kind: vlan
+      vlan:
+        id: 2254
+  networks:
+    - match: {name: wan0}
+      network:
+        dhcp: yes
+        ipv6_accept_ra: yes
+      dhcpv6:
+        prefix_delegation_hint: ::/60
+    - match: {name: lan0}
+      network:
+        addresses:
+          - 192.168.1.1/24
+          - "{{ ula_prefix }}:1::1/64"
+        dns: "192.168.1.1"
+        domains: [purgatory.lan]
+        lldp: yes
+        emit_lldp: yes
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation: yes
+        vlans:
+          - lan0.2254
+      dhcpv6_prefix_delegation:
+        subnet_id: "0x1"
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}:1::/64"
+    - match: {name: lan0.2254}
+      network:
+        addresses: 
+          - 192.168.254.1/24
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation:
+          subnet_id: "0xf"
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}:fe::/64"
+
+  

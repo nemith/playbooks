@@ -1,0 +1,46 @@
+---
+- name: remove old config
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/nftables/nat.nft
+    - /etc/nftables/router.nft
+
+- name: configure nftables
+  ansible.builtin.copy:
+    src: main.nft
+    dest: /etc/nftables/main.nft
+    owner: root
+    group: root
+    mode: 0600
+    validate: nft --file %s --check
+  become: yes
+  notify: restart_nftables
+
+- name: configure entry config
+  ansible.builtin.copy:
+    src: nftables.conf 
+    dest: /etc/sysconfig/nftables.conf
+    owner: root
+    group: root
+    mode: 0600
+    validate: nft --file %s --check
+  become: yes
+  notify: restart_nftables
+
+- name: disable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: false
+  become: yes
+
+- name: enable nftables service
+  ansible.builtin.service:
+    name: nftables
+    enabled: true
+  become: yes
+  notify: restart_nftables
+
+    

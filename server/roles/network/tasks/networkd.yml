@@ -1,0 +1,61 @@
+---
+- name: install networkd
+  ansible.builtin.dnf:
+    name: systemd-networkd
+    state: present
+  become: yes
+
+- name: disable network manager
+  ansible.builtin.service: 
+    name: NetworkManager
+    enabled: false
+  become: yes
+  ignore_errors: yes # NetworkManager may be uninstalled
+
+- name: enable networkd
+  ansible.builtin.service:
+    name: systemd-networkd
+    enabled: true
+  become: yes
+
+- name: setup links
+  ansible.builtin.template:
+    src: link.j2
+    dest: /etc/systemd/network/{{ cfg.priority }}-{{ filename }}.link
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    filename: "{% if cfg.filename is defined %}{{ cfg.filename }}{% else %}{{ cfg.link.name }}{% endif %}"
+  loop: "{{ networkd.links }}"
+  loop_control:
+    loop_var: cfg
+  become: yes
+
+- name: setup netdevs
+  ansible.builtin.template:
+    src: netdev.j2
+    dest: /etc/systemd/network/{{ filename }}.netdev
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    filename: "{% if cfg.filename is defined %}{{ cfg.filename }}{% else %}{{ cfg.netdev.name }}{% endif %}"
+  loop: "{{ networkd.netdevs }}"
+  loop_control:
+    loop_var: cfg
+  become: yes
+
+- name: setup networks
+  ansible.builtin.template:
+    src: network.j2
+    dest: /etc/systemd/network/{{ filename }}.network
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    filename: "{% if cfg.filename is defined %}{{ cfg.filename }}{% else %}{{ cfg.match.name }}{% endif %}"
+  loop: "{{ networkd.networks }}"
+  loop_control:
+    loop_var: cfg
+  become: yes

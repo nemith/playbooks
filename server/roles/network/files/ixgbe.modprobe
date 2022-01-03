@@ -1,0 +1,3 @@
+# Managed by ansible.  Do not modify
+
+options ixgbe allow_unsupported_sfp=1

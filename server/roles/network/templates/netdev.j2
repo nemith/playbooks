@@ -1,0 +1,10 @@
+# Managed by ansible.  Do not modify
+
+[NetDev]
+Name={{ cfg.netdev.name }}
+Kind={{ cfg.netdev.kind }}
+
+{% if cfg.vlan is defined %}
+[VLAN]
+Id={{ cfg.vlan.id }}
+{% endif %}

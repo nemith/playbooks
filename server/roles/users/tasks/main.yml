@@ -1,0 +1,24 @@
+---
+- name: install zsh
+  ansible.builtin.dnf:
+    name: zsh
+    state: present
+  become: yes
+
+- name: add user
+  ansible.builtin.user:
+    name: "{{ item.unixname }}"
+    shell: /bin/zsh
+    groups: wheel 
+    append: yes
+    password: "!"
+  become: yes
+  loop: "{{ users }}"
+
+- name: add authorized key
+  ansible.builtin.authorized_key:
+    user: "{{ item.unixname }}"
+    key:  "{{ item.ssh_key }}"
+    state: present
+  become: yes
+  loop: "{{ users }}"

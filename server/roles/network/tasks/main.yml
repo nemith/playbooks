@@ -1,0 +1,8 @@
+---
+- name: setup networkd
+  ansible.builtin.include_tasks:
+    file: networkd.yml
+
+- name: setup hardware
+  ansible.builtin.include_tasks:
+    file: hardware.yml
