@@ -5,11 +5,12 @@
     - hosts
     - users
     - sudo
+    - epel
     - ixgbe
     - networkd
     - dnf
     - chrony
-    - epel
+    - utils
   
 - name: firewall setup
   hosts: fw
