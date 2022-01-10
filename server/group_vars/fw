@@ -1,3 +1,5 @@
 ---
 hosts:
+  - {ip: 192.168.1.1, names: [fw01]}
+  - {ip: fdda:56e3:932d:1::1, names: [fw01]}
   - {ip: 192.168.1.18, names: [homeassistant]}
