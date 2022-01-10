@@ -95,7 +95,9 @@ table inet filter {
         iifname {$NIC_IOT, $NIC_TRUST} oifname $NIC_WAN accept
     }
 
-    chain forward_trust_to_iot {}
+    chain forward_trust_to_iot {
+        accept
+    }
 
     chain forward_iot_to_trust {}
 }
