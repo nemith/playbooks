@@ -70,6 +70,7 @@ table inet filter {
         tcp dport ssh accept
     }
 
+    # Common allow list for all vlans
     chain input_lan {
         ip protocol igmp accept
         ip6 nexthdr igmp accept
@@ -99,7 +100,10 @@ table inet filter {
         accept
     }
 
-    chain forward_iot_to_trust {}
+    chain forward_iot_to_trust {
+        # Allow upstair-dashboard to access home assistant
+        ether saddr b0:f7:c4:85:36:fa ip daddr 192.168.1.18 tcp dport 8123 counter accept
+    }
 }
 
 table ip nat {

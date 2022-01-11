@@ -18,14 +18,16 @@
 
 - name: dnsmasq subconfigs
   ansible.builtin.copy:
-    src: dnsmasq.d/
-    dest: /etc/dnsmasq.d/
+    src: dnsmasq.d/{{ item|basename }}
+    dest: /etc/dnsmasq.d/{{ item|basename }}
     owner: root
     group: dnsmasq
     mode: 0644
     validate: dnsmasq --conf-file=%s --test
+  with_fileglob: 'dnsmasq.d/*.conf'
   become: yes
   notify: restart_dnsmasq
+
 
 - name: enable dnsmasq service
   ansible.builtin.service:
