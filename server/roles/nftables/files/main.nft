@@ -57,6 +57,9 @@ table inet filter {
 
         udp dport bootpc counter accept
         udp dport dhcpv6-client counter accept
+
+        # nginx
+        tcp dport https accept
     }
 
     chain input_iot {
@@ -81,6 +84,10 @@ table inet filter {
         tcp dport domain accept
 
         udp dport mdns accept
+
+        # nginx
+        tcp dport http accept
+        tcp dport https accept
     }
 
     chain forward {

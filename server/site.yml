@@ -2,7 +2,6 @@
   hosts: all
   roles:
     - hostname
-    - hosts
     - users
     - sudo
     - epel
@@ -19,3 +18,5 @@
     - mdnsrepeater
     - ip_forward
     - nftables
+    - ddns
+    - nginx

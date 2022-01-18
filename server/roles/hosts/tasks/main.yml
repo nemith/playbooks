@@ -1,9 +1,0 @@
----
-- name: setup /etc/hosts
-  ansible.builtin.template:
-    src: hosts.j2
-    dest: /etc/hosts
-    owner: root
-    group: root
-    mode: 644
-  become: yes

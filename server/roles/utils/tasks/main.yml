@@ -8,5 +8,6 @@
       - tcpdump
       - wget
       - nmap
+      - lsof
     state: present
   become: yes

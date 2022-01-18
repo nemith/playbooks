@@ -1,0 +1,4 @@
+---
+client_version: "0.2.1"
+client_url: https://github.com/mattolenik/cloudflare-ddns-client/releases/download/v{{ client_version }}/cloudflare-ddns-linux-amd64
+client_checksum: sha256:493fcc56d56c2168dce486535b8f19f0426637b5eeb8630ba76e568540e9e8c7
