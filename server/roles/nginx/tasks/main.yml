@@ -1,0 +1,30 @@
+---
+- name: install nginx
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+  become: yes
+  notify: 
+
+- name: enable service
+  ansible.builtin.service:
+    name: nginx
+    enabled: yes
+  become: yes
+
+- name: set selinux httpd_can_network_connect to 1 
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  become: yes
+
+- name: configure homeassistant proxy
+  ansible.builtin.copy:
+    src: hass.brbe.net.conf
+    dest: /etc/nginx/conf.d/hass.brbe.net.conf
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  notify: restart nginx

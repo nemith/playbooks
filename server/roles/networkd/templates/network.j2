@@ -1,0 +1,70 @@
+{% macro bool(value) -%}
+{% if value %}yes{% else %}no{% endif %}
+{%- endmacro %}
+# Managed by ansible.  Do not modify
+
+[Match]
+Name={{ cfg.match.name }}
+
+[Network]
+{% if cfg.network.dhcp is defined %}
+DHCP={{ bool(cfg.network.dhcp) }}
+{% endif %}
+{% if cfg.network.addresses is defined %}{% for address in cfg.network.addresses %}
+Address={{ address }}
+{% endfor %}{% endif %}
+{% if cfg.network.gateway is defined %}
+Gateway={{ cfg.network.gateway }}
+{% endif %}
+{% if cfg.network.dns is defined %}
+DNS={{ cfg.network.dns }}
+{% endif %}
+{% if cfg.network.domains is defined %}
+Domains={{ " ".join(cfg.network.domains) }}
+{% endif %}
+{% if cfg.network.lldp is defined %}
+LLDP={{ bool(cfg.network.lldp) }}
+{% endif %}
+{% if cfg.network.emit_lldp is defined %}
+EmitLLDP={{ bool(cfg.network.emit_lldp) }}
+{% endif %}
+{% if cfg.network.configure_without_carrier is defined %}
+ConfigureWithoutCarrier={{ bool(cfg.network.configure_without_carrier) }}
+{% endif %}
+{% if cfg.network.ipv6_accept_ra is defined %}
+IPv6AcceptRA={{ bool(cfg.network.ipv6_accept_ra) }}
+{% endif %}
+{% if cfg.network.ipv6_send_ra is defined %}
+IPv6SendRA={{ bool(cfg.network.ipv6_send_ra) }}
+{% endif %}
+{% if cfg.network.dhcpv6_prefix_delegation is defined %}
+DHCPv6PrefixDelegation={{ bool(cfg.network.dhcpv6_prefix_delegation) }}
+{% endif %}
+{% if cfg.network.vlans is defined %}{% for vlan in cfg.network.vlans %}
+VLAN={{ vlan }}
+{% endfor %}{% endif %}
+
+{# DHCPv6 SECTION #}
+{% if cfg.dhcpv6 is defined %}
+[DHCPv6]
+{% if cfg.dhcpv6.prefix_delegation_hint is defined %}
+PrefixDelegationHint={{ cfg.dhcpv6.prefix_delegation_hint }}
+{% endif %}
+{% endif-%}
+
+{# DHCPv6PrefixDelegation SECTION #}
+{% if cfg.dhcpv6_prefix_delegation is defined %}
+[DHCPv6PrefixDelegation]
+{% if cfg.dhcpv6_prefix_delegation.subnet_id is defined %}
+SubnetId={{ cfg.dhcpv6_prefix_delegation.subnet_id }}
+{% endif %}
+
+{% endif -%}
+
+{# IPv6Prefix SECTION #}
+{%- if cfg.ipv6_prefixes is defined %}
+{% for pfx in cfg.ipv6_prefixes %}
+[IPv6Prefix]
+Prefix={{ pfx.prefix }}
+{% endfor %}
+{% endif %}

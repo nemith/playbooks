@@ -1,0 +1,10 @@
+---
+- name: setup suoders
+  ansible.builtin.copy:
+    src: suoders
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: 0640
+    validate: '/usr/sbin/visudo -cf %s'
+  become: yes

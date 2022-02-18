@@ -1,0 +1,13 @@
+---
+- name: install utils
+  ansible.builtin.dnf:
+    name: 
+      - bind-utils # dig
+      - htop
+      - screen
+      - tcpdump
+      - wget
+      - nmap
+      - lsof
+    state: present
+  become: yes

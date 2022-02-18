@@ -1,0 +1,7 @@
+---
+- name: configure chrony
+  ansible.builtin.copy:
+    src: chrony.conf
+    dest: /etc/chrony.conf
+  become: yes
+  notify: restart chronyd

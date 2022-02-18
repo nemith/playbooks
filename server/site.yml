@@ -1,0 +1,22 @@
+- name: core setup
+  hosts: all
+  roles:
+    - hostname
+    - users
+    - sudo
+    - epel
+    - ixgbe
+    - networkd
+    - dnf
+    - chrony
+    - utils
+  
+- name: firewall setup
+  hosts: fw
+  roles: 
+    - dnsmasq 
+    - mdnsrepeater
+    - ip_forward
+    - nftables
+    - ddns
+    - nginx

@@ -1,0 +1,19 @@
+---
+- name: install mdnsrepeater
+  ansible.builtin.dnf:
+    name: mdns-repeater
+    state: present
+  become: yes
+
+- name: configure mdnsrepeater
+  ansible.builtin.copy:
+    src: mdns-repeater.sysconfig
+    dest: /etc/sysconfig/mdns-repeater
+  become: yes
+  notify: restart_mdnsrepeater
+
+- name: enable service
+  ansible.builtin.service:
+    name: mdns-repeater
+    enabled: yes
+    state: started

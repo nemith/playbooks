@@ -1,0 +1,9 @@
+---
+- name: enable unsupported sfp on ixgbe
+  ansible.builtin.copy:
+    src: ixgbe.modprobe
+    dest: /etc/modprobe.d/ixgbe.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes

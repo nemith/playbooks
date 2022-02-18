@@ -1,0 +1,11 @@
+# Managed by ansible.  Do not modify
+
+[Match]
+{% if cfg.match.path %}
+Path={{ cfg.match.path }}
+{% endif %}
+
+[Link]
+{% if cfg.link.name %}
+Name={{ cfg.link.name }}
+{% endif %}
