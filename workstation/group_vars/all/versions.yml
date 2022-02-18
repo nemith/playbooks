@@ -14,7 +14,7 @@ rustup_checksum: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc
 rustup_version: "1.24.3"
 wezterm_checksum: sha256:4b769f59bcdd7da9a1cecf323625b39fac3e55a622fc54ccb6f5b67b8bd44ccf
 wezterm_version: 20211205-192649-672c1cc1
-zig_checksum: sha256:5c55344a877d557fb1b28939785474eb7f4f2f327aab55293998f501f7869fa6
-zig_version: "0.9.0"
+zig_checksum: sha256:be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7
+zig_version: "0.9.1"
 zls_checksum: sha256:1318a785e6982ef86d1d0242403b20cec34ce209c64eee339512f8267e9a5ccb
 zls_version: "0.1.0"
