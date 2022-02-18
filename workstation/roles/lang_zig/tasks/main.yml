@@ -3,7 +3,7 @@
   get_url:
     url: "{{ zig_url }}"
     dest: "{{ zig_tarball }}"
-    checksum: "{{ checksums[zig_tarball|basename] }}"
+    checksum: "{{ zig_checksum }}"
   become: true
 
 - name: create versioned directory
@@ -40,7 +40,7 @@
   get_url:
     url: "{{ zls_url }}"
     dest: "{{ zls_tarball }}"
-    checksum: "{{ checksums[zls_tarball|basename] }}"
+    checksum: "{{ zls_checksum }}"
   become: true
 
 - name: extract zls
