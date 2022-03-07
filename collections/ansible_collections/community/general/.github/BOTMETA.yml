@@ -418,6 +418,8 @@ files:
     maintainers: Spredzy
   $modules/cloud/scaleway/scaleway_organization_info.py:
     maintainers: Spredzy
+  $modules/cloud/scaleway/scaleway_private_network.py:
+    maintainers: pastral
   $modules/cloud/scaleway/scaleway_security_group.py:
     maintainers: DenBeke
   $modules/cloud/scaleway/scaleway_security_group_info.py:
@@ -819,7 +821,7 @@ files:
   $modules/packaging/os/opkg.py:
     maintainers: skinp
   $modules/packaging/os/pacman.py:
-    maintainers: elasticdog indrajitr tchernomax
+    maintainers: elasticdog indrajitr tchernomax jraby
     labels: pacman
     ignore: elasticdog
   $modules/packaging/os/pacman_key.py:
@@ -977,6 +979,8 @@ files:
     maintainers: farhan7500 gautamphegde
   $modules/storage/ibm/:
     maintainers: tzure
+  $modules/storage/pmem/pmem.py:
+    maintainers: mizumm
   $modules/storage/vexata/:
     maintainers: vexata
   $modules/storage/zfs/:
@@ -1233,7 +1237,7 @@ macros:
   team_cyberark_conjur: jvanderhoof ryanprior
   team_e_spirit: MatrixCrawler getjack
   team_flatpak: JayKayy oolongbrothers
-  team_gitlab: Lunik Shaps dj-wasabi marwatk waheedi zanssa scodeman metanovii sh0shin
+  team_gitlab: Lunik Shaps dj-wasabi marwatk waheedi zanssa scodeman metanovii sh0shin nejch lgatellier
   team_hpux: bcoca davx8342
   team_huawei: QijunPan TommyLike edisonxiang freesky-edward hwDCN niuzhenguo xuxiaowei0512 yanzhangi zengchen1024 zhongjun2
   team_ipa: Akasurde Nosmoht fxfitz justchris1
