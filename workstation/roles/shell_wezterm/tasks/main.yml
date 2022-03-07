@@ -13,6 +13,7 @@
     url: "{{ wezterm_url}}"
     dest:  "{{ appimages_dir }}/wezterm.AppImage"
     checksum: "{{ wezterm_checksum }}"
+    mode: 0755
   register: wezterm_appimage_dl
 
 - name: link to /usr/local/bin

@@ -52,3 +52,9 @@
       - "--no-anchored"
       - "zls"
   become: true
+
+- name: zls permissions
+  file:
+    path: /opt/zig-{{ zig_version }}/zls
+    mode: 0755
+  become: true

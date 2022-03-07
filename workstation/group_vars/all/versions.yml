@@ -1,20 +1,20 @@
 # default versions for non-distro versioned packages (tarballs, etc) 
 
-go_checksum: "sha256:9ea4e6adee711e06fa95546e1a9629b63de3aaae85fac9dc752fb533f3e5be23"
+go_checksum: sha256:9ea4e6adee711e06fa95546e1a9629b63de3aaae85fac9dc752fb533f3e5be23
 go_version: "1.18rc1"
-idea_checksum: sha256:de44097f00f4f9c48cf5abc2fab58c6436a4345f00f83ae7a75734af177e3077
-idea_version: "2021.3"
-neovim_checksum: sha256:8a2b8bb009f5a10f2908c6806c4745e064a6032db89de7895805fb979c90a08e
-neovim_version: "0.6.0"
-paq_nvim_checksum: sha256:4861c17475567343444960aa91cb61806ebee21a1698355dd0a736c11b0f6f04
-paq_nvim_version: "0.9.5"
+idea_checksum: sha256:99e2225846d118e3190023abc65c8b2c62a1d1463f601c79a20b9494c54a08c9
+idea_version: "2021.3.2"
+neovim_checksum: sha256:ef9056e05ef6a4c1d0cdb8b21f79261703122c0fd31f23f782158d326fdadbf5
+neovim_version: "0.6.1"
+paq_nvim_checksum: sha256:913001ce778e0cd4158c3b763c1cb3692f2f1b4fadf26bcc22854797f35a70e8
+paq_nvim_version: "1.0.2"
 powerline_go_checksum: sha256:a99cc075cbeca751feac2675355bdf6b9142bb1bb36fa5a50d0ee5768688e286
 powerline_go_version: "1.21.0"
 rustup_checksum: sha256:24a8cede4ccbbf45ab7b8de141d92f47d1881bb546b3b9180d5a51dc0622d0f6
 rustup_version: "1.24.3"
-wezterm_checksum: sha256:4b769f59bcdd7da9a1cecf323625b39fac3e55a622fc54ccb6f5b67b8bd44ccf
-wezterm_version: 20211205-192649-672c1cc1
+wezterm_checksum: sha256:c9709dc8f119e370bc090f76052c4ad86213baaa3584f9f22956d0a1e18a42b6
+wezterm_version: 20220101-133340-7edc5b5a
 zig_checksum: sha256:be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7
 zig_version: "0.9.1"
-zls_checksum: sha256:1318a785e6982ef86d1d0242403b20cec34ce209c64eee339512f8267e9a5ccb
-zls_version: "0.1.0"
+zls_checksum: sha256:f001967764565ab72e38c9320309fbbaf45f122ba01c80a2433b400f942bd18d
+zls_version: "0.9.0"

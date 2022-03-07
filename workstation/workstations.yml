@@ -15,7 +15,7 @@
     - shell_git
     - shell_neovim
     - shell_tmux
-    - shell_wezterm  
+    - shell_wezterm
     - shell_zsh
 
 - name: common workstation setup
