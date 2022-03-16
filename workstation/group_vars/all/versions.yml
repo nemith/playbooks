@@ -1,7 +1,7 @@
 # default versions for non-distro versioned packages (tarballs, etc) 
 
-go_checksum: sha256:9ea4e6adee711e06fa95546e1a9629b63de3aaae85fac9dc752fb533f3e5be23
-go_version: "1.18rc1"
+go_checksum: sha256:e85278e98f57cdb150fe8409e6e5df5343ecb13cebf03a5d5ff12bd55a80264f
+go_version: "1.18"
 idea_checksum: sha256:99e2225846d118e3190023abc65c8b2c62a1d1463f601c79a20b9494c54a08c9
 idea_version: "2021.3.2"
 neovim_checksum: sha256:ef9056e05ef6a4c1d0cdb8b21f79261703122c0fd31f23f782158d326fdadbf5
