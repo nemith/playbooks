@@ -13,6 +13,12 @@
     name: gnome-tweaks
     state: present
 
+- name: install dependant packages
+  become: yes
+  ansible.builtin.dnf:
+    name: python3-psutil
+    state: present
+
 - name: set xkb-options
   community.general.dconf:
     key: /org/gnome/desktop/input-sources/xkb-options
