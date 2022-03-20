@@ -1,11 +1,14 @@
 ---
-- name: add asus repo
+- name: remove old asus repo
   become: yes
   yum_repository:
     name: asus
-    description: asus
-    baseurl: https://download.opensuse.org/repositories/home:/luke_nukem:/asus/{{ asus_repo_base_dir }}/
-    gpgcheck: false
+    state: absent
+
+- name: add asus-linux copr repo
+  become: yes
+  community.general.copr:
+    name: lukenukem/asus-linux
 
 - name: install asusctl
   become: yes
