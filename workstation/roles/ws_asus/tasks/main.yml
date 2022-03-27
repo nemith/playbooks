@@ -24,11 +24,12 @@
     baseurl: https://repo.linrunner.de/fedora/tlp/repos/releases/$releasever/$basearch/os
     gpgcheck: false
 
-- name: install acpi_call kmod
-  become: yes
-  dnf:
-    name: akmod-acpi_call
-    state: present
+# TODO: not needed for F36
+# - name: install acpi_call kmod
+#   become: yes
+#   dnf:
+#     name: akmod-acpi_call
+#     state: present
 
 - name: create /opt/asus directory
   become: yes

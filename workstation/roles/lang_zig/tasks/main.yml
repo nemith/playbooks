@@ -1,49 +1,51 @@
 ---
 - name: download zig
+  become: true
   get_url:
     url: "{{ zig_url }}"
     dest: "{{ zig_tarball }}"
     checksum: "{{ zig_checksum }}"
-  become: true
 
 - name: create versioned directory
+  become: true
   file:
     path: /opt/zig-{{ zig_version }}
     state: directory
     mode: '0755'
-  become: true
 
 - name: extract zig 
+  become: true
   unarchive:
     src: "{{ zig_tarball }}"
     dest: /opt/zig-{{ zig_version }}
     extra_opts: "--strip=1"
   register: zig_versioned_dir
-  become: true
 
 - name: remove old symlink
+  become: true
   file:
     path: /opt/zig
     state: absent
-  become: true
   when: zig_versioned_dir.changed
 
 - name: link new version
+  become: true
   file:
     src: /opt/zig-{{ zig_version }}
     dest:  /opt/zig
     state:  link
-  become: true
   when: zig_versioned_dir.changed
 
 - name: download zls
+  become: true
   get_url:
     url: "{{ zls_url }}"
     dest: "{{ zls_tarball }}"
     checksum: "{{ zls_checksum }}"
-  become: true
+    mode: 0644
 
 - name: extract zls
+  become: true
   unarchive:
     src: "{{ zls_tarball }}"
     dest: /opt/zig-{{ zig_version }}
@@ -51,10 +53,9 @@
       - "--strip=1"
       - "--no-anchored"
       - "zls"
-  become: true
 
 - name: zls permissions
+  become: true
   file:
     path: /opt/zig-{{ zig_version }}/zls
     mode: 0755
-  become: true
