@@ -1,8 +1,14 @@
 ---
-- name: install vscode
+- name: install packages (arch)
   kewlfft.aur.aur:
     name: visual-studio-code-bin 
     state: present
+  when: ansible_facts['distribution'] == "Arch"
+
+- name: install packages (osx)
+  community.general.homebrew_cask:
+    name: visual-studio-code
+  when: ansible_facts['distribution'] == "MacOSX"
 
 - name: install vscode extentions
   vscode_ext:

@@ -31,7 +31,10 @@
       - wget
       - ranger
 
+      # applications
       - firefox
+      - discord
+      - steam 
 
       # graphics
       - libva-utils
@@ -54,6 +57,13 @@
     use: makepkg
     state: present
 
+- name: install aur packages 
+  kewlfft.aur.aur:
+    name: 
+      - tidal-hifi-bin
+      - mangohud
+      - lib32-mangohud
+    state: present
 
 - name: enable fstrim.service
   become: yes

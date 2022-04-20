@@ -1,9 +1,15 @@
 ---
-- name: install wezterm
+- name: install packages (arch)
   become: yes
   community.general.pacman:
     name: wezterm
     state: present
+  when: ansible_facts['distribution'] == "Arch"
+
+- name: install packages (osx)
+  community.general.homebrew_cask:
+    name: wezterm
+  when: ansible_facts['distribution'] == "MacOSX"
 
 - name: create wezterm config dir
   ansible.builtin.file:

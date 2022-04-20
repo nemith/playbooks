@@ -1,11 +1,18 @@
 ---
-- name: install neovim
+- name: install packages (arch)
   become: yes
   community.general.pacman:
     name: 
       - neovim
       - python-pynvim
     state: present
+  when: ansible_facts['distribution'] == "Arch"
+
+- name: install packages (osx)
+  community.general.homebrew:
+    name: 
+      - neovim
+  when: ansible_facts['distribution'] == "MacOSX"
 
 - name: create paq directory
   ansible.builtin.file:

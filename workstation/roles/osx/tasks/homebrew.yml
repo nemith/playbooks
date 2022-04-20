@@ -1,0 +1,11 @@
+---
+- name: check existing homebrew
+  ansible.builtin.stat: 
+    path: /opt/homebrew/bin/brew
+  register: result_brew_binary
+
+- name: install homebrew
+  ansible.builtin.script:
+    cmd: install-homebrew.sh
+  when: not result_brew_binary.stat.exists
+

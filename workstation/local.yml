@@ -3,16 +3,20 @@
   hosts: arch
   roles:
     - arch
+    - devel
+    - gnome
+
+- name: osx setup
+  hosts: osx
+  roles:
+    - osx
+
+- name: common workstation
+  hosts: all
+  roles:
     - ansible
     - zsh
     - git
     - neovim
-    - devel
-
-    # gui
-    - gnome
-    - steam
     - wezterm
     - vscode
-    - discord
-    - tidal

@@ -1,0 +1,28 @@
+---
+- import_tasks: homebrew.yml
+
+- name: turn off desktop icons
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: CreateDesktop
+    type: bool
+    value: false
+    state: present
+
+- name: install packages
+  community.general.homebrew:
+    name:
+      - coreutils
+      - gnu-tar
+      - htop
+      - xz
+
+- name: install applications 
+  community.general.homebrew_cask:
+    name:
+      - raycast
+      - tidal
+      - rectangle
+      - steam
+      - parallels
+      - firefox

@@ -1,11 +1,20 @@
 ---
-- name: install packages
+- name: install packages (arch)
   become: yes
   community.general.pacman:
     name: 
       - ansible  # not sure how we got this far
       - ansible-lint
-    state: present
+    state: present 
+  when: ansible_facts['distribution'] == "Arch"
+
+- name: install packages (osx)
+  community.general.homebrew:
+    name:
+      - ansible
+      - ansible-lint
+  when: ansible_facts['distribution'] == "MacOSX"
+
 
 - name: add ansible-local
   become: yes
@@ -13,4 +22,5 @@
     src: ansible-local
     dest: /usr/local/bin/ansible-local
     mode: 0755
+
 
