@@ -1,4 +1,5 @@
 ---
 collections:
-  - name: community.general
   - name: ansible.posix
+  - name: community.general
+  - name: kewlfft.aur

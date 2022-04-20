@@ -1,2 +1,0 @@
----
-paq_nvim_tarball: "{{ tarball_dir }}/paq-nvim-{{ paq_nvim_version }}.tar.gz"

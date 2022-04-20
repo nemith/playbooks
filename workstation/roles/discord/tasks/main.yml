@@ -1,0 +1,5 @@
+---
+- name: install packages
+  become: yes
+  community.general.pacman:
+    name: discord

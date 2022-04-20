@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+import argparse
+import platform
+import socket
+import subprocess
+import sys
+import os
+
+def _limit_default() -> str:
+    node = platform.node()
+    host = socket.getfqdn() 
+    host_list = [
+        "localhost",
+        host, 
+        node, 
+        host.split('.')[0], 
+        node.split('.')[0],
+        "127.0.0.1",
+    ]
+    return ",".join(set(host_list))
+
+
+def main():
+    parser = argparse.ArgumentParser(description='run ansible locally using inventory')
+    parser.add_argument('--limit', '-l', dest='limit', default=_limit_default(),
+                        help='further limit selected hosts to an additional pattern')
+    parser.add_argument('playbooks', metavar='playbook', nargs='*',  default=['local.yml'], help='Playbook(s)')
+    args, ansible_args = parser.parse_known_args()
+
+    cmd = [
+        'ansible-playbook', 
+        '-c', 'local', 
+        '--limit',
+        args.limit] + ansible_args + args.playbooks
+    ret = subprocess.run(cmd, cwd=os.getcwd())
+    sys.exit(ret.returncode)
+
+if __name__ == '__main__':
+    main()

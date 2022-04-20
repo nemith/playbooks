@@ -1,0 +1,16 @@
+---
+- name: install packages
+  become: yes
+  community.general.pacman:
+    name: 
+      - ansible  # not sure how we got this far
+      - ansible-lint
+    state: present
+
+- name: add ansible-local
+  become: yes
+  ansible.builtin.copy:
+    src: ansible-local
+    dest: /usr/local/bin/ansible-local
+    mode: 0755
+

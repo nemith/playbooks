@@ -1,2 +1,0 @@
----
-rustup_tarball: "{{ tarball_dir }}/rustup-{{ rustup_version }}.tar.gz"

@@ -1,0 +1,25 @@
+---
+# Update the systemd-boot bootloader when the package has been updated
+# https://wiki.archlinux.org/title/Systemd-boot#systemd_service
+- name: enable systemd-boot-update service
+  become: yes
+  ansible.builtin.systemd:
+    name: systemd-boot-update.service
+    enabled: yes
+
+- name: enable systemd-timesyncd
+  become: yes
+  ansible.builtin.systemd:
+    name: systemd-timesyncd.service
+    enabled: yes
+  notify: restart systemd-timesyncd.service
+
+- name: configure systemd-timesyncd
+  become: yes
+  ansible.builtin.copy:
+    src: systemd-timesyncd.conf
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart systemd-timesyncd.service

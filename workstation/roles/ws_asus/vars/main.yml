@@ -1,6 +1,0 @@
-asus_repo_ver_override:
-
-asus_repo_base_dir: "{{ 
-  asus_repo_ver_override[ansible_distribution_major_version] 
-    | default('Fedora_' + ansible_distribution_major_version) 
-}}"

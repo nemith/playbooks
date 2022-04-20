@@ -1,9 +1,0 @@
-#
-# managed by ansible. DO NOT EDIT
-#
-# GDM configuration storage
-
-[daemon]
-{% if not gdm_wayland_enable %}
-WaylandEnable=false
-{% endif %}

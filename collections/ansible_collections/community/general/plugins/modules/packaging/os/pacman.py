@@ -43,16 +43,27 @@ options:
 
     force:
         description:
-            - When removing package, force remove package, without any checks.
-              Same as `extra_args="--nodeps --nodeps"`.
-              When update_cache, force redownload repo databases.
-              Same as `update_cache_extra_args="--refresh --refresh"`.
+            - When removing packages, forcefully remove them, without any checks.
+              Same as C(extra_args="--nodeps --nodeps").
+              When combined with I(update_cache), force a refresh of all package databases.
+              Same as C(update_cache_extra_args="--refresh --refresh").
+        default: no
+        type: bool
+
+    remove_nosave:
+        description:
+            - When removing packages, do not save modified configuration files as C(.pacsave) files.
+              (passes C(--nosave) to pacman)
+        version_added: 4.6.0
         default: no
         type: bool
 
     executable:
         description:
-            - Name of binary to use. This can either be C(pacman) or a pacman compatible AUR helper.
+            - Path of the binary to use. This can either be C(pacman) or a pacman compatible AUR helper.
+            - Pacman compatibility is unfortunately ill defined, in particular, this modules makes
+              extensive use of the C(--print-format) directive which is known not to be implemented by
+              some AUR helpers (notably, C(yay)).
             - Beware that AUR helpers might behave unexpectedly and are therefore not recommended.
         default: pacman
         type: str
@@ -70,6 +81,10 @@ options:
             - This can be run as part of a package installation or as a separate step.
             - Alias C(update-cache) has been deprecated and will be removed in community.general 5.0.0.
             - If not specified, it defaults to C(false).
+            - Please note that this option will only have an influence on the module's C(changed) state
+              if I(name) and I(upgrade) are not specified. This will change in community.general 5.0.0.
+              See the examples for how to make the module behave as it will in 5.0.0 right now, or how
+              to keep the current behavior with 5.0.0 and later.
         type: bool
         aliases: [ update-cache ]
 
@@ -101,20 +116,37 @@ notes:
 
 RETURN = """
 packages:
-    description: a list of packages that have been changed
-    returned: when upgrade is set to yes
+    description:
+        - A list of packages that have been changed.
+        - Before community.general 4.5.0 this was only returned when I(upgrade=true).
+          In community.general 4.5.0, it was sometimes omitted when the package list is empty,
+          but since community.general 4.6.0 it is always returned when I(name) is specified or
+          I(upgrade=true).
+    returned: success and I(name) is specified or I(upgrade=true)
     type: list
+    elements: str
     sample: [ package, other-package ]
 
+cache_updated:
+    description:
+        - The changed status of C(pacman -Sy).
+        - Useful when I(name) or I(upgrade=true) are specified next to I(update_cache=true).
+    returned: success, when I(update_cache=true)
+    type: bool
+    sample: false
+    version_added: 4.6.0
+
 stdout:
-    description: Output from pacman.
+    description:
+        - Output from pacman.
     returned: success, when needed
     type: str
     sample: ":: Synchronizing package databases...  core is up to date :: Starting full system upgrade..."
     version_added: 4.1.0
 
 stderr:
-    description: Error output from pacman.
+    description:
+        - Error output from pacman.
     returned: success, when needed
     type: str
     sample: "warning: libtool: local (2.4.6+44+gb9b44533-14) is newer than core (2.4.6+42+gb88cebd5-15)\nwarning ..."
@@ -147,6 +179,9 @@ EXAMPLES = """
     extra_args: --builddir /var/cache/yay
 
 - name: Upgrade package foo
+  # The 'changed' state of this call will only indicate whether foo was
+  # installed/upgraded, but not on whether the cache was updated. This
+  # will change in community.general 5.0.0!
   community.general.pacman:
     name: foo
     state: latest
@@ -174,6 +209,29 @@ EXAMPLES = """
     upgrade: yes
 
 - name: Run the equivalent of "pacman -Syu" as a separate step
+  # The 'changed' state of this call will only indicate whether
+  # something was upgraded, but not on whether the cache was
+  # updated. This will change in community.general 5.0.0!
+  #
+  # To keep the old behavior, add the following to the task:
+  #
+  #   register: result
+  #   changed_when: result.packages | length > 0
+  #
+  # To already switch to the new behavior now, add:
+  #
+  #   register: result
+  #   changed_when: result is changed or result.cache_updated
+  #
+  # Note that both constructs only work with community.general 4.6.0+.
+  # For compatibility with older versions of community.general, you
+  # have to use
+  #
+  #   changed_when: result.packages | default([]) | length > 0
+  #
+  # respectively
+  #
+  #   changed_when: result is changed or (result.cache_updated | default(false))
   community.general.pacman:
     update_cache: yes
     upgrade: yes
@@ -190,7 +248,22 @@ from ansible.module_utils.basic import AnsibleModule
 from collections import defaultdict, namedtuple
 
 
-Package = namedtuple("Package", ["name", "source"])
+class Package(object):
+    def __init__(self, name, source, source_is_URL=False):
+        self.name = name
+        self.source = source
+        self.source_is_URL = source_is_URL
+
+    def __eq__(self, o):
+        return self.name == o.name and self.source == o.source and self.source_is_URL == o.source_is_URL
+
+    def __lt__(self, o):
+        return self.name < o.name
+
+    def __repr__(self):
+        return 'Package("%s", "%s", %s)' % (self.name, self.source, self.source_is_URL)
+
+
 VersionTuple = namedtuple("VersionTuple", ["current", "latest"])
 
 
@@ -208,6 +281,8 @@ class Pacman(object):
         self.exit_params = {}
 
         self.pacman_path = self.m.get_bin_path(p["executable"], True)
+
+        self._cached_database = None
 
         # Normalize for old configs
         if p["state"] == "installed":
@@ -253,6 +328,11 @@ class Pacman(object):
             if not (self.m.params["name"] or self.m.params["upgrade"]):
                 self.success()
 
+        # Avoid shadowing lack of changes in the following stages
+        # so that `update_cache: true` doesn't always return changed
+        # TODO: remove this in community.general 5.0.0
+        self.changed = False
+
         self.inventory = self._build_inventory()
         if self.m.params["upgrade"]:
             self.upgrade()
@@ -273,7 +353,13 @@ class Pacman(object):
 
     def install_packages(self, pkgs):
         pkgs_to_install = []
+        pkgs_to_install_from_url = []
         for p in pkgs:
+            if p.source_is_URL:
+                # URL packages bypass the latest / upgradable_pkgs test
+                # They go through the dry-run to let pacman decide if they will be installed
+                pkgs_to_install_from_url.append(p)
+                continue
             if (
                 p.name not in self.inventory["installed_pkgs"]
                 or self.target_state == "latest"
@@ -281,14 +367,13 @@ class Pacman(object):
             ):
                 pkgs_to_install.append(p)
 
-        if len(pkgs_to_install) == 0:
+        if len(pkgs_to_install) == 0 and len(pkgs_to_install_from_url) == 0:
+            self.exit_params["packages"] = []
             self.add_exit_infos("package(s) already installed")
             return
 
-        self.changed = True
         cmd_base = [
             self.pacman_path,
-            "--sync",
             "--noconfirm",
             "--noprogressbar",
             "--needed",
@@ -296,53 +381,87 @@ class Pacman(object):
         if self.m.params["extra_args"]:
             cmd_base.extend(self.m.params["extra_args"])
 
-        # Dry run first to gather what will be done
-        cmd = cmd_base + ["--print-format", "%n %v"] + [p.source for p in pkgs_to_install]
-        rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
-        if rc != 0:
-            self.fail("Failed to list package(s) to install", stdout=stdout, stderr=stderr)
+        def _build_install_diff(pacman_verb, pkglist):
+            # Dry run to build the installation diff
 
-        name_ver = [l.strip() for l in stdout.splitlines()]
+            cmd = cmd_base + [pacman_verb, "--print-format", "%n %v"] + [p.source for p in pkglist]
+            rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
+            if rc != 0:
+                self.fail("Failed to list package(s) to install", cmd=cmd, stdout=stdout, stderr=stderr)
+
+            name_ver = [l.strip() for l in stdout.splitlines()]
+            before = []
+            after = []
+            to_be_installed = []
+            for p in name_ver:
+                # With Pacman v6.0.1 - libalpm v13.0.1, --upgrade outputs "loading packages..." on stdout. strip that.
+                # When installing from URLs, pacman can also output a 'nothing to do' message. strip that too.
+                if "loading packages" in p or "there is nothing to do" in p:
+                    continue
+                name, version = p.split()
+                if name in self.inventory["installed_pkgs"]:
+                    before.append("%s-%s" % (name, self.inventory["installed_pkgs"][name]))
+                after.append("%s-%s" % (name, version))
+                to_be_installed.append(name)
+
+            return (to_be_installed, before, after)
+
         before = []
         after = []
         installed_pkgs = []
-        self.exit_params["packages"] = []
-        for p in name_ver:
-            name, version = p.split()
-            if name in self.inventory["installed_pkgs"]:
-                before.append("%s-%s" % (name, self.inventory["installed_pkgs"][name]))
-            after.append("%s-%s" % (name, version))
-            installed_pkgs.append(name)
+
+        if pkgs_to_install:
+            p, b, a = _build_install_diff("--sync", pkgs_to_install)
+            installed_pkgs.extend(p)
+            before.extend(b)
+            after.extend(a)
+        if pkgs_to_install_from_url:
+            p, b, a = _build_install_diff("--upgrade", pkgs_to_install_from_url)
+            installed_pkgs.extend(p)
+            before.extend(b)
+            after.extend(a)
+
+        if len(installed_pkgs) == 0:
+            # This can happen with URL packages if pacman decides there's nothing to do
+            self.exit_params["packages"] = []
+            self.add_exit_infos("package(s) already installed")
+            return
+
+        self.changed = True
 
         self.exit_params["diff"] = {
-            "before": "\n".join(before) + "\n" if before else "",
-            "after": "\n".join(after) + "\n" if after else "",
+            "before": "\n".join(sorted(before)) + "\n" if before else "",
+            "after": "\n".join(sorted(after)) + "\n" if after else "",
         }
 
         if self.m.check_mode:
             self.add_exit_infos("Would have installed %d packages" % len(installed_pkgs))
-            self.exit_params["packages"] = installed_pkgs
+            self.exit_params["packages"] = sorted(installed_pkgs)
             return
 
         # actually do it
-        cmd = cmd_base + [p.source for p in pkgs_to_install]
+        def _install_packages_for_real(pacman_verb, pkglist):
+            cmd = cmd_base + [pacman_verb] + [p.source for p in pkglist]
+            rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
+            if rc != 0:
+                self.fail("Failed to install package(s)", cmd=cmd, stdout=stdout, stderr=stderr)
+            self.add_exit_infos(stdout=stdout, stderr=stderr)
+            self._invalidate_database()
 
-        rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
-        if rc != 0:
-            self.fail("Failed to install package(s)", stdout=stdout, stderr=stderr)
+        if pkgs_to_install:
+            _install_packages_for_real("--sync", pkgs_to_install)
+        if pkgs_to_install_from_url:
+            _install_packages_for_real("--upgrade", pkgs_to_install_from_url)
 
         self.exit_params["packages"] = installed_pkgs
-        self.add_exit_infos(
-            "Installed %d package(s)" % len(installed_pkgs), stdout=stdout, stderr=stderr
-        )
+        self.add_exit_infos("Installed %d package(s)" % len(installed_pkgs))
 
     def remove_packages(self, pkgs):
-        force_args = ["--nodeps", "--nodeps"] if self.m.params["force"] else []
-
         # filter out pkgs that are already absent
         pkg_names_to_remove = [p.name for p in pkgs if p.name in self.inventory["installed_pkgs"]]
 
         if len(pkg_names_to_remove) == 0:
+            self.exit_params["packages"] = []
             self.add_exit_infos("package(s) already absent")
             return
 
@@ -350,10 +469,10 @@ class Pacman(object):
         self.changed = True
 
         cmd_base = [self.pacman_path, "--remove", "--noconfirm", "--noprogressbar"]
-        if self.m.params["extra_args"]:
-            cmd_base.extend(self.m.params["extra_args"])
-        if force_args:
-            cmd_base.extend(force_args)
+        cmd_base += self.m.params["extra_args"]
+        cmd_base += ["--nodeps", "--nodeps"] if self.m.params["force"] else []
+        # nosave_args conflicts with --print-format. Added later.
+        # https://github.com/ansible-collections/community.general/issues/4315
 
         # This is a bit of a TOCTOU but it is better than parsing the output of
         # pacman -R, which is different depending on the user config (VerbosePkgLists)
@@ -362,7 +481,7 @@ class Pacman(object):
 
         rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
         if rc != 0:
-            self.fail("failed to list package(s) to remove", stdout=stdout, stderr=stderr)
+            self.fail("failed to list package(s) to remove", cmd=cmd, stdout=stdout, stderr=stderr)
 
         removed_pkgs = stdout.split()
         self.exit_params["packages"] = removed_pkgs
@@ -376,12 +495,13 @@ class Pacman(object):
             self.add_exit_infos("Would have removed %d packages" % len(removed_pkgs))
             return
 
-        # actually do it
-        cmd = cmd_base + pkg_names_to_remove
+        nosave_args = ["--nosave"] if self.m.params["remove_nosave"] else []
+        cmd = cmd_base + nosave_args + pkg_names_to_remove
 
         rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
         if rc != 0:
-            self.fail("failed to remove package(s)", stdout=stdout, stderr=stderr)
+            self.fail("failed to remove package(s)", cmd=cmd, stdout=stdout, stderr=stderr)
+        self._invalidate_database()
         self.exit_params["packages"] = removed_pkgs
         self.add_exit_infos("Removed %d package(s)" % len(removed_pkgs), stdout=stdout, stderr=stderr)
 
@@ -410,23 +530,36 @@ class Pacman(object):
             cmd = [
                 self.pacman_path,
                 "--sync",
-                "--sys-upgrade",
+                "--sysupgrade",
                 "--quiet",
                 "--noconfirm",
             ]
             if self.m.params["upgrade_extra_args"]:
                 cmd += self.m.params["upgrade_extra_args"]
             rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
+            self._invalidate_database()
             if rc == 0:
                 self.add_exit_infos("System upgraded", stdout=stdout, stderr=stderr)
             else:
-                self.fail("Could not upgrade", stdout=stdout, stderr=stderr)
+                self.fail("Could not upgrade", cmd=cmd, stdout=stdout, stderr=stderr)
+
+    def _list_database(self):
+        """runs pacman --sync --list with some caching"""
+        if self._cached_database is None:
+            dummy, packages, dummy = self.m.run_command([self.pacman_path, '--sync', '--list'], check_rc=True)
+            self._cached_database = packages.splitlines()
+        return self._cached_database
+
+    def _invalidate_database(self):
+        """invalidates the pacman --sync --list cache"""
+        self._cached_database = None
 
     def update_package_db(self):
         """runs pacman --sync --refresh"""
         if self.m.check_mode:
             self.add_exit_infos("Would have updated the package db")
             self.changed = True
+            self.exit_params["cache_updated"] = True
             return
 
         cmd = [
@@ -438,15 +571,28 @@ class Pacman(object):
             cmd += self.m.params["update_cache_extra_args"]
         if self.m.params["force"]:
             cmd += ["--refresh"]
+        else:
+            # Dump package database to get contents before update
+            pre_state = sorted(self._list_database())
 
         rc, stdout, stderr = self.m.run_command(cmd, check_rc=False)
+        self._invalidate_database()
 
-        self.changed = True
+        if self.m.params["force"]:
+            # Always changed when force=true
+            self.exit_params["cache_updated"] = True
+        else:
+            # Dump package database to get contents after update
+            post_state = sorted(self._list_database())
+            # If contents changed, set changed=true
+            self.exit_params["cache_updated"] = pre_state != post_state
+        if self.exit_params["cache_updated"]:
+            self.changed = True
 
         if rc == 0:
             self.add_exit_infos("Updated package db", stdout=stdout, stderr=stderr)
         else:
-            self.fail("could not update package db", stdout=stdout, stderr=stderr)
+            self.fail("could not update package db", cmd=cmd, stdout=stdout, stderr=stderr)
 
     def package_list(self):
         """Takes the input package list and resolves packages groups to their package list using the inventory,
@@ -459,6 +605,7 @@ class Pacman(object):
             if not pkg:
                 continue
 
+            is_URL = False
             if pkg in self.inventory["available_groups"]:
                 # Expand group members
                 for group_member in self.inventory["available_groups"][pkg]:
@@ -488,8 +635,11 @@ class Pacman(object):
                                 stderr=stderr,
                                 rc=rc,
                             )
+                    # With Pacman v6.0.1 - libalpm v13.0.1, --upgrade outputs "loading packages..." on stdout. strip that
+                    stdout = stdout.replace("loading packages...\n", "")
+                    is_URL = True
                 pkg_name = stdout.strip()
-                pkg_list.append(Package(name=pkg_name, source=pkg))
+                pkg_list.append(Package(name=pkg_name, source=pkg, source_is_URL=is_URL))
 
         return pkg_list
 
@@ -519,7 +669,7 @@ class Pacman(object):
 
         installed_groups = defaultdict(set)
         dummy, stdout, dummy = self.m.run_command(
-            [self.pacman_path, "--query", "--group"], check_rc=True
+            [self.pacman_path, "--query", "--groups"], check_rc=True
         )
         # Format of lines:
         #     base-devel file
@@ -533,9 +683,9 @@ class Pacman(object):
             installed_groups[group].add(pkgname)
 
         available_pkgs = {}
-        dummy, stdout, dummy = self.m.run_command([self.pacman_path, "--sync", "--list"], check_rc=True)
+        database = self._list_database()
         # Format of a line: "core pacman 6.0.1-2"
-        for l in stdout.splitlines():
+        for l in database:
             l = l.strip()
             if not l:
                 continue
@@ -544,7 +694,7 @@ class Pacman(object):
 
         available_groups = defaultdict(set)
         dummy, stdout, dummy = self.m.run_command(
-            [self.pacman_path, "--sync", "--group", "--group"], check_rc=True
+            [self.pacman_path, "--sync", "--groups", "--groups"], check_rc=True
         )
         # Format of lines:
         #     vim-plugins vim-airline
@@ -613,6 +763,7 @@ def setup_module():
                 choices=["present", "installed", "latest", "absent", "removed"],
             ),
             force=dict(type="bool", default=False),
+            remove_nosave=dict(type="bool", default=False),
             executable=dict(type="str", default="pacman"),
             extra_args=dict(type="str", default=""),
             upgrade=dict(type="bool"),

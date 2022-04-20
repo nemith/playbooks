@@ -84,7 +84,6 @@ options:
         description:
           - Dictionary of scopes to silence, with timestamps or None.
           - Each scope will be muted until the given POSIX timestamp or forever if the value is None.
-        default: ""
     notify_no_data:
         description:
           - Whether this monitor will notify when data stops reporting.
@@ -153,6 +152,11 @@ options:
         type: bool
         default: yes
         version_added: 1.3.0
+    priority:
+        description:
+          - Integer from 1 (high) to 5 (low) indicating alert severity.
+        type: int
+        version_added: 4.6.0
 '''
 
 EXAMPLES = '''
@@ -239,6 +243,7 @@ def main():
             evaluation_delay=dict(),
             id=dict(),
             include_tags=dict(required=False, default=True, type='bool'),
+            priority=dict(type='int'),
         )
     )
 
@@ -298,6 +303,7 @@ def _post_monitor(module, options):
                       name=_fix_template_vars(module.params['name']),
                       message=_fix_template_vars(module.params['notification_message']),
                       escalation_message=_fix_template_vars(module.params['escalation_message']),
+                      priority=module.params['priority'],
                       options=options)
         if module.params['tags'] is not None:
             kwargs['tags'] = module.params['tags']
@@ -322,6 +328,7 @@ def _update_monitor(module, monitor, options):
                       name=_fix_template_vars(module.params['name']),
                       message=_fix_template_vars(module.params['notification_message']),
                       escalation_message=_fix_template_vars(module.params['escalation_message']),
+                      priority=module.params['priority'],
                       options=options)
         if module.params['tags'] is not None:
             kwargs['tags'] = module.params['tags']

@@ -1,3 +1,18 @@
 ---
-- import_playbook: core.yml
-- import_playbook: workstations.yml
+- name: arch setup
+  hosts: arch
+  roles:
+    - arch
+    - ansible
+    - zsh
+    - git
+    - neovim
+    - devel
+
+    # gui
+    - gnome
+    - steam
+    - wezterm
+    - vscode
+    - discord
+    - tidal

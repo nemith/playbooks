@@ -1,0 +1,10 @@
+---
+- name: install nvidia packages
+  become: yes
+  community.general.pacman:
+    name:
+      - nvidia
+      - nvidia-settings
+      - nvidia-prime
+      - nvidia-utils
+      - lib32-nvidia-utils

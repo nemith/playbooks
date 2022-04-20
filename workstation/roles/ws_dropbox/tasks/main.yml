@@ -1,8 +1,0 @@
----
-- name: install dropbox
-  become: true
-  ansible.builtin.dnf:
-    name:
-      - dropbox
-      - nautilus-dropbox
-    state: present

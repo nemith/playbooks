@@ -1,2 +1,0 @@
----
-idea_tarball: "{{ tarball_dir }}/{{ idea_url|basename }}"

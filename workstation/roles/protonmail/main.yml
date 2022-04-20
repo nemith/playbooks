@@ -1,0 +1,5 @@
+---
+- name: install protonmail-bridge
+  kewlfft.aur.aur:
+    name: protonmail-bridge
+    state: present

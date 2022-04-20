@@ -1,0 +1,24 @@
+---
+- name: install bluetooth packages
+  become: yes
+  community.general.pacman:
+    name:
+      - bluez
+      - bluez-utils
+
+- name: enable bluetooth.service
+  become: yes
+  ansible.builtin.systemd:
+    name: bluetooth.service
+    enabled: yes
+  notify: restart bluetooth.service
+
+- name: configure bluetooth
+  become: yes
+  ansible.builtin.copy:
+    src: bluetooth-main.conf
+    dest: /etc/bluetooth/main.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart bluetooth.service

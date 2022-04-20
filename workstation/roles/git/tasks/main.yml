@@ -1,0 +1,13 @@
+---
+- name: install packages
+  become: yes
+  community.general.pacman:
+    name:
+      - git
+      - libsecret
+
+- name: configure git
+  ansible.builtin.copy:
+    src: gitconfig
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+    backup: yes

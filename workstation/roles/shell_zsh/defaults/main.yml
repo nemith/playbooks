@@ -1,2 +1,0 @@
----
-powerline_go_url: https://github.com/justjanne/powerline-go/releases/download/v{{ powerline_go_version }}/powerline-go-linux-amd64

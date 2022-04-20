@@ -1,0 +1,36 @@
+---
+- name: install neovim
+  become: yes
+  community.general.pacman:
+    name: 
+      - neovim
+      - python-pynvim
+    state: present
+
+- name: create paq directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
+    state: directory
+    mode: '0755'
+
+- name: download paq
+  ansible.builtin.get_url:
+    url: https://github.com/savq/paq-nvim/archive/refs/tags/v1.0.2.tar.gz
+    dest: "{{ ansible_env.HOME }}/.local/share/nvim/paq-1.0.2.tar.gz"
+
+- name: install paq
+  ansible.builtin.unarchive:
+    src: "{{ ansible_env.HOME }}/.local/share/nvim/paq-1.0.2.tar.gz"
+    dest: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
+    extra_opts: "--strip-components=1"
+
+- name: create nvim config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+    state: directory
+    mode: '0755'
+
+- name: copy nvim config
+  ansible.builtin.copy:
+    src: init.lua
+    dest: "{{ ansible_env.HOME }}/.config/nvim/init.lua"

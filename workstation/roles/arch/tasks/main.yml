@@ -1,0 +1,71 @@
+---
+- name: setup pacman
+  become: yes
+  ansible.builtin.template:
+    src: pacman.conf.j2
+    dest: /etc/pacman.conf
+    mode: 0644
+  notify: refresh pacman database
+
+- name: flush handlers
+  meta: flush_handlers
+
+- name: install packages
+  become: yes
+  community.general.pacman:
+    name:
+      # tools
+      - acpi
+      - bind      # for dig
+      - dmidecode
+      - fwupd
+      - git
+      - htop
+      - man
+      - most
+      - pkgfile
+      - plocate
+      - rsync
+      - strace
+      - base-devel
+      - wget
+      - ranger
+
+      - firefox
+
+      # graphics
+      - libva-utils
+      - vdpauinfo
+      - vulkan-tools
+
+      # fonts
+      - adobe-source-code-pro-fonts
+      - cantarell-fonts
+      - noto-fonts
+      - ttf-dejavu
+      - ttf-droid
+      - ttf-liberation
+      - ttf-carlito
+      - gsfonts
+
+- name: install yay
+  kewlfft.aur.aur:
+    name: yay
+    use: makepkg
+    state: present
+
+
+- name: enable fstrim.service
+  become: yes
+  ansible.builtin.systemd:
+    name: fstrim.service
+    enabled: yes
+
+- import_tasks: systemd.yml
+- import_tasks: bluetooth.yml
+
+- import_tasks: asus_g14.yml
+  when: asus_g14 is defined
+
+- import_tasks: nvidia.yml
+  when: nvidia is defined

@@ -1,4 +1,0 @@
----
-dependencies:
-  - role: core_tarball
-  - role: core_appimages

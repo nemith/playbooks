@@ -1,0 +1,31 @@
+---
+- name: install zsh
+  become: yes
+  community.general.pacman:
+    name: 
+      - zsh
+      - zsh-completions
+    state: present
+
+- name: change user shell to zsh
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_env.USER }}"
+    shell: /bin/zsh
+
+- name: copy .zshrc
+  ansible.builtin.copy:
+    src: zshrc
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+
+- name: copy .zshrc.d
+  ansible.posix.synchronize:
+    src: zshrc.d/
+    dest: "{{ ansible_env.HOME }}/.zshrc.d/"
+    recursive: true
+    delete: true
+
+- name: install powerline-go
+  kewlfft.aur.aur:
+    name: powerline-go
+    state: present

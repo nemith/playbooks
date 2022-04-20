@@ -1,0 +1,6 @@
+---
+- name: install tidal client
+  kewlfft.aur.aur:
+    name: tidal-hifi-bin
+    state: present
+

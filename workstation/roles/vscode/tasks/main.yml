@@ -1,0 +1,21 @@
+---
+- name: install vscode
+  kewlfft.aur.aur:
+    name: visual-studio-code-bin 
+    state: present
+
+- name: install vscode extentions
+  vscode_ext:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - AugusteRame.zls-vscode
+    - bbenoist.vagrant
+    - golang.go
+    - ms-python.python
+    - ms-vscode-remote.vscode-remote-extensionpack
+    - ms-vscode.cpptools
+    - phgn.vscode-starlark
+    - matklad.rust-analyzer
+    - tiehuis.zig
+    - vscodevim.vim

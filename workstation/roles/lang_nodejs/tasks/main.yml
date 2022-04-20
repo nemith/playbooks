@@ -1,8 +1,0 @@
----
-- name: install pacakges
-  become: yes
-  package:
-    name:
-      - nodejs
-      - npm
-      - yarnpkg

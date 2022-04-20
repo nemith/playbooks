@@ -1,7 +1,0 @@
----
-- name: install hplip
-  dnf:
-    name:
-      - hplip
-      - hplip-gui
-    state: present
