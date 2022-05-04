@@ -1,0 +1,22 @@
+---
+- name: install packagees
+  become: yes
+  community.general.pacman:
+    name:
+      - gdm
+      - gimp           # image editor
+      - gnome
+      - gnome-firmware # frontend for fwupd
+      - gnome-todo
+      - gnome-tweaks
+      - python-psutil  # needed for dconf module below
+      - gnome-software-packagekit-plugin
+      - ttf-fira-code
+    state: present
+
+- name: enable gdm
+  become: yes
+  ansible.builtin.systemd:
+    name: gdm.service
+    enabled: yes
+

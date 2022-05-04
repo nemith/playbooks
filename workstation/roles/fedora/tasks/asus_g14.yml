@@ -1,0 +1,12 @@
+---
+- name: enable asus copr repo
+  become: yes
+  community.general.copr:
+    name: lukenukem/asus-linux
+
+- name: install asus package
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - asusctl
+      - supergfxctl 

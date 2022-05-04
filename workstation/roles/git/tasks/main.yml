@@ -1,18 +1,4 @@
 ---
-- name: install packages (arch)
-  become: yes
-  community.general.pacman:
-    name:
-      - git
-      - libsecret
-  when: ansible_facts['distribution'] == "Arch"
-
-- name: install packages (osx)
-  community.general.homebrew:
-    name:
-      - git-credential-libsecret
-  when: ansible_facts['distribution'] == "MacOSX"
-
 - name: configure git
   ansible.builtin.copy:
     src: gitconfig

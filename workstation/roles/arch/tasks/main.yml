@@ -73,6 +73,7 @@
 
 - import_tasks: systemd.yml
 - import_tasks: bluetooth.yml
+- import_tasks: devel.yml
 
 - import_tasks: asus_g14.yml
   when: asus_g14 is defined

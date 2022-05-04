@@ -1,0 +1,6 @@
+---
+- name: install packages
+  community.general.homebrew:
+    name:
+      - ansible
+      - ansible-lint

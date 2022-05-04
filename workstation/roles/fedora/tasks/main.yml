@@ -1,0 +1,72 @@
+---
+- name: install rpmfusion gpg keys
+  become: yes
+  ansible.builtin.rpm_key:
+    key: "{{ item }}"
+  loop:
+      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
+      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+
+- name: enable rpmfusion reposiories
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm 
+      - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm 
+
+- name: install packages
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - most
+      - htop
+      - mosh
+      - git
+      - git-lfs
+
+      - steam-devices
+
+      - vulkan
+      - vdpauinfo
+      - libva-vdpau-driver
+      - libva-utils
+      - "@multimedia"
+      - "@sound-and-video"
+      - "@Development Tools"
+
+      - vlc
+      - gnome-tweak-tool
+
+      - google-roboto-condensed-fonts
+      - google-roboto-fonts
+      - google-roboto-mono-fonts
+      - google-roboto-slab-fonts
+      - fira-code-fonts
+      - mozilla-fira-fonts-common
+      - mozilla-fira-mono-fonts
+      - mozilla-fira-sans-fonts
+      - adobe-source-code-pro-fonts
+
+
+
+
+- name: enable flathub
+  become: true
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+
+- name: install flatpaks
+  become: yes
+  community.general.flatpak:
+    name:
+      - com.discordapp.Discord
+      - com.valvesoftware.Steam
+      - us.zoom.Zoom
+
+- import_tasks: dnf.yml
+- import_tasks: asus_g14.yml
+  when: asus_g14 is defined
+- import_tasks: nvidia.yml
+  when: nvidia is defined

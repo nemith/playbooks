@@ -3,7 +3,12 @@
   hosts: arch
   roles:
     - arch
-    - devel
+    - gnome
+
+- name: fedora setup
+  hosts: fedora
+  roles:
+    - fedora
     - gnome
 
 - name: osx setup
@@ -18,5 +23,5 @@
     - zsh
     - git
     - neovim
-    - wezterm
+#    - wezterm
     - vscode

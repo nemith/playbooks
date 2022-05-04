@@ -1,23 +1,5 @@
 ---
-- name: install packages (arch)
-  block:
-    - name: install zsh
-      become: yes
-      community.general.pacman:
-        name: 
-          - zsh
-          - zsh-completions
-        state: present
-    - name: install powerline-go (arch)
-      kewlfft.aur.aur:
-        name: powerline-go
-        state: present
-  when: ansible_facts['distribution'] == "Arch"
-
-- name: install packages (mac)
-  community.general.homebrew:
-    name: powerline-go
-  when: ansible_facts['distribution'] == "MacOSX"
+- include_tasks: "{{ ansible_distribution|lower }}.yml" 
 
 - name: change user shell to zsh
   become: true
@@ -36,4 +18,3 @@
     dest: "{{ ansible_env.HOME }}/.zshrc.d/"
     recursive: true
     delete: true
-

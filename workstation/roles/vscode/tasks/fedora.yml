@@ -1,0 +1,17 @@
+---
+- name: install microsoft gpg keys
+  become: yes
+  ansible.builtin.rpm_key:
+    key: https://packages.microsoft.com/keys/microsoft.asc
+
+- name: add vscode repos
+  become: yes
+  ansible.builtin.yum_repository:
+    name: vscode
+    description: Visual Studio Code
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+
+- name: install packages 
+  become: yes
+  ansible.builtin.dnf:
+    name: code

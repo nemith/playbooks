@@ -1,0 +1,7 @@
+---
+- name: install packages
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - git
+      - git-credential-libsecret
