@@ -1,0 +1,5 @@
+---
+- name: install packages
+  community.general.homebrew:
+    name: 
+      - neovim

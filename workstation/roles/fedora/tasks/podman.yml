@@ -1,0 +1,13 @@
+---
+- name: instal podman packages
+  become: yes
+  ansible.builtin.dnf:
+    name: 
+      - podman
+      - docker-compose
+
+- name: enable podman service
+  ansible.builtin.systemd:
+    state: enabled
+    name: podman.socket
+

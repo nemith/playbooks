@@ -1,5 +1,2 @@
 ---
-- name: install packages
-  community.general.homebrew:
-    name: 
-      - neovim
+# zsh is the default on osx 

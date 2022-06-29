@@ -3,5 +3,6 @@
   become: yes
   community.general.pacman:
     name: 
-      - zsh
+      - neovim
+      - python-pynvim
     state: present

@@ -3,5 +3,4 @@
   become: yes
   ansible.builtin.dnf:
     name: 
-      - zsh
-      - powerline-go
+      - neovim

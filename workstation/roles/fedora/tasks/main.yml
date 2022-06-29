@@ -7,25 +7,47 @@
       - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
       - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
 
-- name: enable rpmfusion reposiories
+- name: add rpmfusion reposiories
   become: yes
   ansible.builtin.dnf:
     name:
       - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm 
       - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm 
 
+- name: install openconnect copr
+  become: yes
+  community.general.copr:
+    name: "dwmw2/openconnect"
+
+- name: add github cli repo
+  become: yes
+  ansible.builtin.yum_repository:
+    name: gh-cli
+    baseurl: https://cli.github.com/packages/rpm
+    enabled: yes
+    gpgkey: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xc99b11deb97541f0
+
+- name: add hashicorp repos
+  become: yes
+  ansible.builtin.yum_repository:
+    name: hashicorp
+    baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+    enabled: yes
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+
 - name: install packages
   become: yes
   ansible.builtin.dnf:
     name:
+      # cli utilities
       - most
       - htop
       - mosh
       - git
       - git-lfs
+      - gh
 
-      - steam-devices
-
+      # drivers / etc
       - vulkan
       - vdpauinfo
       - libva-vdpau-driver
@@ -34,9 +56,13 @@
       - "@sound-and-video"
       - "@Development Tools"
 
+      # gui
       - vlc
       - gnome-tweak-tool
+      - gnome-extensions-app
+      - steam
 
+      # fonts
       - google-roboto-condensed-fonts
       - google-roboto-fonts
       - google-roboto-mono-fonts
@@ -47,8 +73,10 @@
       - mozilla-fira-sans-fonts
       - adobe-source-code-pro-fonts
 
-
-
+      # hashicorp
+      - nomad
+      - vault
+      - consul
 
 - name: enable flathub
   become: true
@@ -62,7 +90,9 @@
   community.general.flatpak:
     name:
       - com.discordapp.Discord
-      - com.valvesoftware.Steam
+      - com.slack.Slack
+      - com.spotify.Client
+      - io.typora.Typora
       - us.zoom.Zoom
 
 - import_tasks: dnf.yml
