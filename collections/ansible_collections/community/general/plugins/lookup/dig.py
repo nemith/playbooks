@@ -27,19 +27,30 @@ DOCUMENTATION = '''
         This needs to be passed-in as an additional parameter to the lookup
     options:
       _terms:
-        description: domain(s) to query
+        description: Domain(s) to query.
       qtype:
-        description: record type to query
+        description:
+            - Record type to query.
+            - C(DLV) is deprecated and will be removed in community.general 6.0.0.
         default: 'A'
         choices: [A, ALL, AAAA, CNAME, DNAME, DLV, DNSKEY, DS, HINFO, LOC, MX, NAPTR, NS, NSEC3PARAM, PTR, RP, RRSIG, SOA, SPF, SRV, SSHFP, TLSA, TXT]
       flat:
-        description: If 0 each record is returned as a dictionary, otherwise a string
+        description: If 0 each record is returned as a dictionary, otherwise a string.
         default: 1
       retry_servfail:
         description: Retry a nameserver if it returns SERVFAIL.
         default: false
         type: bool
         version_added: 3.6.0
+      fail_on_error:
+        description:
+          - Abort execution on lookup errors.
+          - The default for this option will likely change to C(true) in the future.
+            The current default, C(false), is used for backwards compatibility, and will result in empty strings
+            or the string C(NXDOMAIN) in the result in case of errors.
+        default: false
+        type: bool
+        version_added: 5.4.0
     notes:
       - ALL is not a record per-se, merely the listed fields are available for any record results you retrieve in the form of a dictionary.
       - While the 'dig' lookup plugin supports anything which dnspython supports out of the box, only a subset can be converted into a dictionary.
@@ -163,6 +174,7 @@ RETURN = """
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 from ansible.module_utils.common.text.converters import to_native
+from ansible.utils.display import Display
 import socket
 
 try:
@@ -176,6 +188,9 @@ try:
     HAVE_DNS = True
 except ImportError:
     HAVE_DNS = False
+
+
+display = Display()
 
 
 def make_rdata_dict(rdata):
@@ -273,6 +288,7 @@ class LookupModule(LookupBase):
         domain = None
         qtype = 'A'
         flat = True
+        fail_on_error = False
         rdclass = dns.rdataclass.from_text('IN')
 
         for t in terms:
@@ -311,6 +327,8 @@ class LookupModule(LookupBase):
                         raise AnsibleError("dns lookup illegal CLASS: %s" % to_native(e))
                 elif opt == 'retry_servfail':
                     myres.retry_servfail = bool(arg)
+                elif opt == 'fail_on_error':
+                    fail_on_error = bool(arg)
 
                 continue
 
@@ -325,6 +343,11 @@ class LookupModule(LookupBase):
         # print "--- domain = {0} qtype={1} rdclass={2}".format(domain, qtype, rdclass)
 
         ret = []
+
+        if qtype.upper() == 'DLV':
+            display.deprecated('The DLV record type has been decommissioned in 2017 and support for'
+                               ' it will be removed from community.general 6.0.0',
+                               version='6.0.0', collection_name='community.general')
 
         if qtype.upper() == 'PTR':
             try:
@@ -353,16 +376,24 @@ class LookupModule(LookupBase):
                         rd['class'] = dns.rdataclass.to_text(rdata.rdclass)
 
                         ret.append(rd)
-                    except Exception as e:
-                        ret.append(str(e))
+                    except Exception as err:
+                        if fail_on_error:
+                            raise AnsibleError("Lookup failed: %s" % str(err))
+                        ret.append(str(err))
 
-        except dns.resolver.NXDOMAIN:
+        except dns.resolver.NXDOMAIN as err:
+            if fail_on_error:
+                raise AnsibleError("Lookup failed: %s" % str(err))
             ret.append('NXDOMAIN')
-        except dns.resolver.NoAnswer:
+        except dns.resolver.NoAnswer as err:
+            if fail_on_error:
+                raise AnsibleError("Lookup failed: %s" % str(err))
             ret.append("")
-        except dns.resolver.Timeout:
+        except dns.resolver.Timeout as err:
+            if fail_on_error:
+                raise AnsibleError("Lookup failed: %s" % str(err))
             ret.append('')
-        except dns.exception.DNSException as e:
-            raise AnsibleError("dns.resolver unhandled exception %s" % to_native(e))
+        except dns.exception.DNSException as err:
+            raise AnsibleError("dns.resolver unhandled exception %s" % to_native(err))
 
         return ret

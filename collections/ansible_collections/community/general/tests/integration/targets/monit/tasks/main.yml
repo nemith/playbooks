@@ -7,6 +7,9 @@
   - name: Install EPEL repository (RHEL only)
     include_role:
       name: setup_epel
+    when:
+      - ansible_distribution in ['RedHat', 'CentOS']
+      - ansible_distribution_major_version is version('9', '<')
 
   - name: create required directories
     become: yes
@@ -59,6 +62,7 @@
     pip:
       name: "{{ item }}"
       virtualenv: "{{ process_venv }}"
+      extra_args: "-c {{ remote_constraints }}"
     loop:
       - setuptools==44
       - python-daemon

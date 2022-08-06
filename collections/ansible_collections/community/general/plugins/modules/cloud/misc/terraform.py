@@ -67,7 +67,7 @@ options:
   state_file:
     description:
       - The path to an existing Terraform state file to use when building plan.
-        If this is not specified, the default `terraform.tfstate` will be used.
+        If this is not specified, the default C(terraform.tfstate) will be used.
       - This option is ignored when plan is specified.
     type: path
   variables_files:
@@ -103,7 +103,7 @@ options:
   force_init:
     description:
       - To avoid duplicating infra, if a state file can't be found this will
-        force a `terraform init`. Generally, this should be turned off unless
+        force a C(terraform init). Generally, this should be turned off unless
         you intend to provision an entirely new Terraform deployment.
     default: false
     type: bool
@@ -124,6 +124,12 @@ options:
     type: list
     elements: path
     version_added: '0.2.0'
+  provider_upgrade:
+    description:
+      - Allows Terraform init to upgrade providers to versions specified in the project's version constraints.
+    default: false
+    type: bool
+    version_added: 4.8.0
   init_reconfigure:
     description:
       - Forces backend reconfiguration during init.
@@ -143,7 +149,7 @@ options:
     type: int
     version_added: '3.8.0'
 notes:
-   - To just run a `terraform plan`, use check mode.
+   - To just run a C(terraform plan), use check mode.
 requirements: [ "terraform" ]
 author: "Ryan Scott Brown (@ryansb)"
 '''
@@ -199,7 +205,7 @@ EXAMPLES = """
 RETURN = """
 outputs:
   type: complex
-  description: A dictionary of all the TF outputs by their assigned name. Use `.outputs.MyOutputName.value` to access the value.
+  description: A dictionary of all the TF outputs by their assigned name. Use C(.outputs.MyOutputName.value) to access the value.
   returned: on success
   sample: '{"bukkit_arn": {"sensitive": false, "type": "string", "value": "arn:aws:s3:::tf-test-bukkit"}'
   contains:
@@ -217,12 +223,12 @@ outputs:
       description: The value of the output as interpolated by Terraform
 stdout:
   type: str
-  description: Full `terraform` command stdout, in case you want to display it or examine the event log
+  description: Full C(terraform) command stdout, in case you want to display it or examine the event log
   returned: always
   sample: ''
 command:
   type: str
-  description: Full `terraform` command built by this module, in case you want to re-run the command outside the module or debug a problem.
+  description: Full C(terraform) command built by this module, in case you want to re-run the command outside the module or debug a problem.
   returned: always
   sample: terraform apply ...
 """
@@ -266,7 +272,7 @@ def _state_args(state_file):
     return []
 
 
-def init_plugins(bin_path, project_path, backend_config, backend_config_files, init_reconfigure, plugin_paths):
+def init_plugins(bin_path, project_path, backend_config, backend_config_files, init_reconfigure, provider_upgrade, plugin_paths):
     command = [bin_path, 'init', '-input=false']
     if backend_config:
         for key, val in backend_config.items():
@@ -279,6 +285,8 @@ def init_plugins(bin_path, project_path, backend_config, backend_config_files, i
             command.extend(['-backend-config', f])
     if init_reconfigure:
         command.extend(['-reconfigure'])
+    if provider_upgrade:
+        command.extend(['-upgrade'])
     if plugin_paths:
         for plugin_path in plugin_paths:
             command.extend(['-plugin-dir', plugin_path])
@@ -324,7 +332,7 @@ def build_plan(command, project_path, variables_args, state_file, targets, state
     if plan_path is None:
         f, plan_path = tempfile.mkstemp(suffix='.tfplan')
 
-    local_command = command.copy()
+    local_command = command[:]
 
     plan_command = [command[0], 'plan']
 
@@ -384,6 +392,7 @@ def main():
             overwrite_init=dict(type='bool', default=True),
             check_destroy=dict(type='bool', default=False),
             parallelism=dict(type='int'),
+            provider_upgrade=dict(type='bool', default=False),
         ),
         required_if=[('state', 'planned', ['plan_file'])],
         supports_check_mode=True,
@@ -405,6 +414,7 @@ def main():
     init_reconfigure = module.params.get('init_reconfigure')
     overwrite_init = module.params.get('overwrite_init')
     check_destroy = module.params.get('check_destroy')
+    provider_upgrade = module.params.get('provider_upgrade')
 
     if bin_path is not None:
         command = [bin_path]
@@ -422,7 +432,7 @@ def main():
 
     if force_init:
         if overwrite_init or not os.path.isfile(os.path.join(project_path, ".terraform", "terraform.tfstate")):
-            init_plugins(command[0], project_path, backend_config, backend_config_files, init_reconfigure, plugin_paths)
+            init_plugins(command[0], project_path, backend_config, backend_config_files, init_reconfigure, provider_upgrade, plugin_paths)
 
     workspace_ctx = get_workspace_context(command[0], project_path)
     if workspace_ctx["current"] != workspace:

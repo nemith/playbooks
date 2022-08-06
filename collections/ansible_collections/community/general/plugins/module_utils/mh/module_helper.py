@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # (c) 2020, Alexei Znamensky <russoz@gmail.com>
 # Copyright: (c) 2020, Ansible Project
-# Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
+# Simplified BSD License (see simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -44,7 +44,8 @@ class ModuleHelper(DeprecateAttrsMixin, VarsMixin, DependencyMixin, ModuleHelper
             version="6.0.0",
             collection_name="community.general",
             target=ModuleHelper,
-            module=self.module)
+            module=self.module,
+        )
 
     def update_output(self, **kwargs):
         self.update_vars(meta={"output": True}, **kwargs)
@@ -65,7 +66,7 @@ class ModuleHelper(DeprecateAttrsMixin, VarsMixin, DependencyMixin, ModuleHelper
             facts = self.vars.facts()
             if facts is not None:
                 result['ansible_facts'] = {self.facts_name: facts}
-        if self.module._diff:
+        if self.diff_mode:
             diff = result.get('diff', {})
             vars_diff = self.vars.diff() or {}
             result['diff'] = dict_merge(dict(diff), vars_diff)

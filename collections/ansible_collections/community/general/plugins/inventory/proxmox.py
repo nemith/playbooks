@@ -3,6 +3,7 @@
 # Copyright (c) 2018 Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
 
 DOCUMENTATION = '''
@@ -52,11 +53,32 @@ DOCUMENTATION = '''
           - Proxmox authentication password.
           - If the value is not specified in the inventory configuration, the value of environment variable C(PROXMOX_PASSWORD) will be used instead.
           - Since community.general 4.7.0 you can also use templating to specify the value of the I(password).
-        required: yes
+          - If you do not specify a password, you must set I(token_id) and I(token_secret) instead.
         type: str
         env:
           - name: PROXMOX_PASSWORD
             version_added: 2.0.0
+      token_id:
+        description:
+          - Proxmox authentication token ID.
+          - If the value is not specified in the inventory configuration, the value of environment variable C(PROXMOX_TOKEN_ID) will be used instead.
+          - To use token authentication, you must also specify I(token_secret). If you do not specify I(token_id) and I(token_secret),
+            you must set a password instead.
+          - Make sure to grant explicit pve permissions to the token or disable 'privilege separation' to use the users' privileges instead.
+        version_added: 4.8.0
+        type: str
+        env:
+          - name: PROXMOX_TOKEN_ID
+      token_secret:
+        description:
+          - Proxmox authentication token secret.
+          - If the value is not specified in the inventory configuration, the value of environment variable C(PROXMOX_TOKEN_SECRET) will be used instead.
+          - To use token authentication, you must also specify I(token_id). If you do not specify I(token_id) and I(token_secret),
+            you must set a password instead.
+        version_added: 4.8.0
+        type: str
+        env:
+          - name: PROXMOX_TOKEN_SECRET
       validate_certs:
         description: Verify SSL certificate if using HTTPS.
         type: boolean
@@ -70,15 +92,29 @@ DOCUMENTATION = '''
         default: proxmox_
         type: str
       want_facts:
-        description: Gather LXC/QEMU configuration facts.
+        description:
+          - Gather LXC/QEMU configuration facts.
+          - When I(want_facts) is set to C(true) more details about QEMU VM status are possible, besides the running and stopped states.
+            Currently if the VM is running and it is suspended, the status will be running and the machine will be in C(running) group,
+            but its actual state will be paused. See I(qemu_extended_statuses) for how to retrieve the real status.
         default: no
         type: bool
+      qemu_extended_statuses:
+        description:
+          - Requires I(want_facts) to be set to C(true) to function. This will allow you to differentiate betweend C(paused) and C(prelaunch)
+            statuses of the QEMU VMs.
+          - This introduces multiple groups [prefixed with I(group_prefix)] C(prelaunch) and C(paused).
+        default: no
+        type: bool
+        version_added: 5.1.0
       want_proxmox_nodes_ansible_host:
         version_added: 3.0.0
         description:
           - Whether to set C(ansbile_host) for proxmox nodes.
           - When set to C(true) (default), will use the first available interface. This can be different from what you expect.
-        default: true
+          - This currently defaults to C(true), but the default is deprecated since community.general 4.8.0.
+            The default will change to C(false) in community.general 6.0.0. To avoid a deprecation warning, please
+            set this parameter explicitly.
         type: bool
       filters:
         version_added: 4.6.0
@@ -103,6 +139,25 @@ EXAMPLES = '''
 plugin: community.general.proxmox
 user: ansible@pve
 password: secure
+# Note that this can easily give you wrong values as ansible_host. See further below for
+# an example where this is set to `false` and where ansible_host is set with `compose`.
+want_proxmox_nodes_ansible_host: true
+
+# Instead of login with password, proxmox supports api token authentication since release 6.2.
+plugin: community.general.proxmox
+user: ci@pve
+token_id: gitlab-1
+token_secret: fa256e9c-26ab-41ec-82da-707a2c079829
+
+# The secret can also be a vault string or passed via the environment variable TOKEN_SECRET.
+token_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62353634333163633336343265623632626339313032653563653165313262343931643431656138
+          6134333736323265656466646539663134306166666237630a653363623262636663333762316136
+          34616361326263383766366663393837626437316462313332663736623066656237386531663731
+          3037646432383064630a663165303564623338666131353366373630656661333437393937343331
+          32643131386134396336623736393634373936356332623632306561356361323737313663633633
+          6231313333666361656537343562333337323030623732323833
 
 # More complete example demonstrating the use of 'want_facts' and the constructed options
 # Note that using facts returned by 'want_facts' in constructed options requires 'want_facts=true'
@@ -123,6 +178,9 @@ groups:
   mailservers: "'mail' in (proxmox_tags_parsed|list)"
 compose:
   ansible_port: 2222
+# Note that this can easily give you wrong values as ansible_host. See further below for
+# an example where this is set to `false` and where ansible_host is set with `compose`.
+want_proxmox_nodes_ansible_host: true
 
 # Using the inventory to allow ansible to connect via the first IP address of the VM / Container
 # (Default is connection by name of QEMU/LXC guests)
@@ -134,6 +192,7 @@ user: ansible@pve
 password: secure
 validate_certs: false
 want_facts: true
+want_proxmox_nodes_ansible_host: false
 compose:
   ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
   my_inv_var_1: "'my_var1_value'"
@@ -146,6 +205,9 @@ plugin: community.general.proxmox
 url: "{{ lookup('ansible.builtin.ini', 'url', section='proxmox', file='file.ini') }}"
 user: "{{ lookup('ansible.builtin.env','PM_USER') | default('ansible@pve') }}"
 password: "{{ lookup('community.general.random_string', base64=True) }}"
+# Note that this can easily give you wrong values as ansible_host. See further up for
+# an example where this is set to `false` and where ansible_host is set with `compose`.
+want_proxmox_nodes_ansible_host: true
 
 '''
 
@@ -157,6 +219,7 @@ from ansible.module_utils.common._collections_compat import MutableMapping
 from ansible.errors import AnsibleError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
 from ansible.module_utils.common.text.converters import to_native
+from ansible.module_utils.six import string_types
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.utils.display import Display
 from ansible.template import Templar
@@ -210,15 +273,24 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _get_auth(self):
         credentials = urlencode({'username': self.proxmox_user, 'password': self.proxmox_password, })
 
-        a = self._get_session()
-        ret = a.post('%s/api2/json/access/ticket' % self.proxmox_url, data=credentials)
+        if self.proxmox_password:
 
-        json = ret.json()
+            credentials = urlencode({'username': self.proxmox_user, 'password': self.proxmox_password, })
 
-        self.credentials = {
-            'ticket': json['data']['ticket'],
-            'CSRFPreventionToken': json['data']['CSRFPreventionToken'],
-        }
+            a = self._get_session()
+            ret = a.post('%s/api2/json/access/ticket' % self.proxmox_url, data=credentials)
+
+            json = ret.json()
+
+            self.headers = {
+                # only required for POST/PUT/DELETE methods, which we are not using currently
+                # 'CSRFPreventionToken': json['data']['CSRFPreventionToken'],
+                'Cookie': 'PVEAuthCookie={0}'.format(json['data']['ticket'])
+            }
+
+        else:
+
+            self.headers = {'Authorization': 'PVEAPIToken={0}!{1}={2}'.format(self.proxmox_user, self.proxmox_token_id, self.proxmox_token_secret)}
 
     def _get_json(self, url, ignore_errors=None):
 
@@ -230,8 +302,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             data = []
             s = self._get_session()
             while True:
-                headers = {'Cookie': 'PVEAuthCookie={0}'.format(self.credentials['ticket'])}
-                ret = s.get(url, headers=headers)
+                ret = s.get(url, headers=self.headers)
                 if ignore_errors and ret.status_code in ignore_errors:
                     break
                 ret.raise_for_status()
@@ -341,14 +412,31 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                         properties[parsed_key] = [tag.strip() for tag in stripped_value.split(",")]
 
                 # The first field in the agent string tells you whether the agent is enabled
-                # the rest of the comma separated string is extra config for the agent
-                if config == 'agent' and int(value.split(',')[0]):
-                    agent_iface_value = self._get_agent_network_interfaces(node, vmid, vmtype)
-                    if agent_iface_value:
-                        agent_iface_key = self.to_safe('%s%s' % (key, "_interfaces"))
-                        properties[agent_iface_key] = agent_iface_value
+                # the rest of the comma separated string is extra config for the agent.
+                # In some (newer versions of proxmox) instances it can be 'enabled=1'.
+                if config == 'agent':
+                    agent_enabled = 0
+                    try:
+                        agent_enabled = int(value.split(',')[0])
+                    except ValueError:
+                        if value.split(',')[0] == "enabled=1":
+                            agent_enabled = 1
+                    if agent_enabled:
+                        agent_iface_value = self._get_agent_network_interfaces(node, vmid, vmtype)
+                        if agent_iface_value:
+                            agent_iface_key = self.to_safe('%s%s' % (key, "_interfaces"))
+                            properties[agent_iface_key] = agent_iface_value
 
-                if config not in plaintext_configs and not isinstance(value, int) and all("=" in v for v in value.split(",")):
+                if config == 'lxc':
+                    out_val = {}
+                    for k, v in value:
+                        if k.startswith('lxc.'):
+                            k = k[len('lxc.'):]
+                        out_val[k] = v
+                    value = out_val
+
+                if config not in plaintext_configs and isinstance(value, string_types) \
+                        and all("=" in v for v in value.split(",")):
                     # split off strings with commas to a dict
                     # skip over any keys that cannot be processed
                     try:
@@ -363,6 +451,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _get_vm_status(self, properties, node, vmid, vmtype, name):
         ret = self._get_json("%s/api2/json/nodes/%s/%s/%s/status/current" % (self.proxmox_url, node, vmtype, vmid))
         properties[self._fact('status')] = ret['status']
+        if vmtype == 'qemu':
+            properties[self._fact('qmpstatus')] = ret['qmpstatus']
 
     def _get_vm_snapshots(self, properties, node, vmid, vmtype, name):
         ret = self._get_json("%s/api2/json/nodes/%s/%s/%s/snapshot" % (self.proxmox_url, node, vmtype, vmid))
@@ -421,7 +511,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         name, vmid = item['name'], item['vmid']
 
         # get status, config and snapshots if want_facts == True
-        if self.get_option('want_facts'):
+        want_facts = self.get_option('want_facts')
+        if want_facts:
             self._get_vm_status(properties, node, vmid, ittype, name)
             self._get_vm_config(properties, node, vmid, ittype, name)
             self._get_vm_snapshots(properties, node, vmid, ittype, name)
@@ -435,10 +526,13 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         node_type_group = self._group('%s_%s' % (node, ittype))
         self.inventory.add_child(self._group('all_' + ittype), name)
         self.inventory.add_child(node_type_group, name)
-        if item['status'] == 'stopped':
-            self.inventory.add_child(self._group('all_stopped'), name)
-        elif item['status'] == 'running':
-            self.inventory.add_child(self._group('all_running'), name)
+
+        item_status = item['status']
+        if item_status == 'running':
+            if want_facts and ittype == 'qemu' and self.get_option('qemu_extended_statuses'):
+                # get more details about the status of the qemu VM
+                item_status = properties.get(self._fact('qmpstatus'), item_status)
+        self.inventory.add_child(self._group('all_%s' % (item_status, )), name)
 
         return name
 
@@ -460,12 +554,26 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _populate(self):
 
         # create common groups
-        self.inventory.add_group(self._group('all_lxc'))
-        self.inventory.add_group(self._group('all_qemu'))
-        self.inventory.add_group(self._group('all_running'))
-        self.inventory.add_group(self._group('all_stopped'))
+        default_groups = ['lxc', 'qemu', 'running', 'stopped']
+
+        if self.get_option('qemu_extended_statuses'):
+            default_groups.extend(['prelaunch', 'paused'])
+
+        for group in default_groups:
+            self.inventory.add_group(self._group('all_%s' % (group)))
+
         nodes_group = self._group('nodes')
         self.inventory.add_group(nodes_group)
+
+        want_proxmox_nodes_ansible_host = self.get_option("want_proxmox_nodes_ansible_host")
+        if want_proxmox_nodes_ansible_host is None:
+            display.deprecated(
+                'The want_proxmox_nodes_ansible_host option of the community.general.proxmox inventory plugin'
+                ' currently defaults to `true`, but this default has been deprecated and will change to `false`'
+                ' in community.general 6.0.0. To keep the current behavior and remove this deprecation warning,'
+                ' explicitly set `want_proxmox_nodes_ansible_host` to `true` in your inventory configuration',
+                version='6.0.0', collection_name='community.general')
+            want_proxmox_nodes_ansible_host = True
 
         # gather vm's on nodes
         self._get_auth()
@@ -482,7 +590,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 continue
 
             # get node IP address
-            if self.get_option("want_proxmox_nodes_ansible_host"):
+            if want_proxmox_nodes_ansible_host:
                 ip = self._get_node_ip(node['node'])
                 self.inventory.set_variable(node['node'], 'ansible_host', ip)
 
@@ -529,6 +637,22 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if t.is_template(proxmox_password):
             proxmox_password = t.template(variable=proxmox_password, disable_lookups=False)
         self.proxmox_password = proxmox_password
+
+        proxmox_token_id = self.get_option('token_id')
+        if t.is_template(proxmox_token_id):
+            proxmox_token_id = t.template(variable=proxmox_token_id, disable_lookups=False)
+        self.proxmox_token_id = proxmox_token_id
+
+        proxmox_token_secret = self.get_option('token_secret')
+        if t.is_template(proxmox_token_secret):
+            proxmox_token_secret = t.template(variable=proxmox_token_secret, disable_lookups=False)
+        self.proxmox_token_secret = proxmox_token_secret
+
+        if proxmox_password is None and (proxmox_token_id is None or proxmox_token_secret is None):
+            raise AnsibleError('You must specify either a password or both token_id and token_secret.')
+
+        if self.get_option('qemu_extended_statuses') and not self.get_option('want_facts'):
+            raise AnsibleError('You must set want_facts to True if you want to use qemu_extended_statuses.')
 
         self.cache_key = self.get_cache_key(path)
         self.use_cache = cache and self.get_option('cache')

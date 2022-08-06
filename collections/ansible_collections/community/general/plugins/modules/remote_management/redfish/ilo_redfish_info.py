@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2021-2022 Hewlett Packard Enterprise, Inc. All rights reserved.
-# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
@@ -34,19 +34,19 @@ options:
     type: str
   username:
     description:
-      - User for authentication with iLO.
+      - Username for authenticating to iLO.
     type: str
   password:
     description:
-      - Password for authentication with iLO.
+      - Password for authenticating to iLO.
     type: str
   auth_token:
     description:
-      - Security token for authentication with iLO.
+      - Security token for authenticating to iLO.
     type: str
   timeout:
     description:
-      - Timeout in seconds for URL requests to iLO.
+      - Timeout in seconds for HTTP requests to iLO.
     default: 10
     type: int
 author:
@@ -74,7 +74,7 @@ ilo_redfish_info:
             type: dict
             contains:
                 ret:
-                    description: Check variable to see if the information was succesfully retrived.
+                    description: Check variable to see if the information was successfully retrieved.
                     type: bool
                 msg:
                     description: Information of all active iLO sessions.

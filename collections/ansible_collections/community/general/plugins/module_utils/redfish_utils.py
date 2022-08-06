@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2017-2018 Dell EMC Inc.
-# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -188,7 +188,12 @@ class RedfishUtils(object):
                 body = error.read().decode('utf-8')
                 data = json.loads(body)
                 ext_info = data['error']['@Message.ExtendedInfo']
-                msg = ext_info[0]['Message']
+                # if the ExtendedInfo contains a user friendly message send it
+                # otherwise try to send the entire contents of ExtendedInfo
+                try:
+                    msg = ext_info[0]['Message']
+                except Exception:
+                    msg = str(data['error']['@Message.ExtendedInfo'])
             except Exception:
                 pass
         return msg
@@ -732,14 +737,22 @@ class RedfishUtils(object):
     def get_multi_volume_inventory(self):
         return self.aggregate_systems(self.get_volume_inventory)
 
-    def manage_indicator_led(self, command):
+    def manage_system_indicator_led(self, command):
+        return self.manage_indicator_led(command, self.systems_uri)
+
+    def manage_chassis_indicator_led(self, command):
+        return self.manage_indicator_led(command, self.chassis_uri)
+
+    def manage_indicator_led(self, command, resource_uri=None):
         result = {}
         key = 'IndicatorLED'
+        if resource_uri is None:
+            resource_uri = self.chassis_uri
 
         payloads = {'IndicatorLedOn': 'Lit', 'IndicatorLedOff': 'Off', "IndicatorLedBlink": 'Blinking'}
 
         result = {}
-        response = self.get_request(self.root_uri + self.chassis_uri)
+        response = self.get_request(self.root_uri + resource_uri)
         if response['ret'] is False:
             return response
         result['ret'] = True
@@ -749,7 +762,7 @@ class RedfishUtils(object):
 
         if command in payloads.keys():
             payload = {'IndicatorLED': payloads[command]}
-            response = self.patch_request(self.root_uri + self.chassis_uri, payload)
+            response = self.patch_request(self.root_uri + resource_uri, payload)
             if response['ret'] is False:
                 return response
         else:
@@ -1875,14 +1888,13 @@ class RedfishUtils(object):
                         for property in properties:
                             if property in data:
                                 chassis_power_result[property] = data[property]
-                else:
-                    return {'ret': False, 'msg': 'Key PowerControl not found.'}
                 chassis_power_results.append(chassis_power_result)
-            else:
-                return {'ret': False, 'msg': 'Key Power not found.'}
 
-        result['entries'] = chassis_power_results
-        return result
+        if len(chassis_power_results) > 0:
+            result['entries'] = chassis_power_results
+            return result
+        else:
+            return {'ret': False, 'msg': 'Power information not found.'}
 
     def get_chassis_thermals(self):
         result = {}
@@ -2174,9 +2186,8 @@ class RedfishUtils(object):
             else:
                 if media_match_strict:
                     continue
-            # if ejected, 'Inserted' should be False and 'ImageName' cleared
-            if (not data.get('Inserted', False) and
-                    not data.get('ImageName')):
+            # if ejected, 'Inserted' should be False
+            if (not data.get('Inserted', False)):
                 return uri, data
         return None, None
 
@@ -2212,7 +2223,7 @@ class RedfishUtils(object):
         return resources, headers
 
     @staticmethod
-    def _insert_virt_media_payload(options, param_map, data, ai):
+    def _insert_virt_media_payload(options, param_map, data, ai, image_only=False):
         payload = {
             'Image': options.get('image_url')
         }
@@ -2226,17 +2237,24 @@ class RedfishUtils(object):
                                        options.get(option), option,
                                        allowable)}
                 payload[param] = options.get(option)
+
+        # Some hardware (such as iLO 4 or Supermicro) only supports the Image property
+        # Inserted and WriteProtected are not writable
+        if image_only:
+            del payload['Inserted']
+            del payload['WriteProtected']
         return payload
 
-    def virtual_media_insert_via_patch(self, options, param_map, uri, data):
+    def virtual_media_insert_via_patch(self, options, param_map, uri, data, image_only=False):
         # get AllowableValues
         ai = dict((k[:-24],
                    {'AllowableValues': v}) for k, v in data.items()
                   if k.endswith('@Redfish.AllowableValues'))
         # construct payload
-        payload = self._insert_virt_media_payload(options, param_map, data, ai)
-        if 'Inserted' not in payload:
+        payload = self._insert_virt_media_payload(options, param_map, data, ai, image_only)
+        if 'Inserted' not in payload and not image_only:
             payload['Inserted'] = True
+
         # PATCH the resource
         response = self.patch_request(self.root_uri + uri, payload)
         if response['ret'] is False:
@@ -2252,6 +2270,7 @@ class RedfishUtils(object):
             'TransferProtocolType': 'transfer_protocol_type',
             'TransferMethod': 'transfer_method'
         }
+        image_only = False
         image_url = options.get('image_url')
         if not image_url:
             return {'ret': False,
@@ -2265,6 +2284,19 @@ class RedfishUtils(object):
         data = response['data']
         if 'VirtualMedia' not in data:
             return {'ret': False, 'msg': "VirtualMedia resource not found"}
+
+        # Some hardware (such as iLO 4) only supports the Image property on the PATCH operation
+        # Inserted and WriteProtected are not writable
+        if data["FirmwareVersion"].startswith("iLO 4"):
+            image_only = True
+
+        # Supermicro does also not support Inserted and WriteProtected
+        # Supermicro uses as firmware version only a number so we can't check for it because we
+        # can't be sure that this firmware version is nut used by another vendor
+        # Tested with Supermicro Firmware 01.74.02
+        if 'Supermicro' in data['Oem']:
+            image_only = True
+
         virt_media_uri = data["VirtualMedia"]["@odata.id"]
         response = self.get_request(self.root_uri + virt_media_uri)
         if response['ret'] is False:
@@ -2307,7 +2339,7 @@ class RedfishUtils(object):
                             'msg': "%s action not found and PATCH not allowed"
                             % '#VirtualMedia.InsertMedia'}
             return self.virtual_media_insert_via_patch(options, param_map,
-                                                       uri, data)
+                                                       uri, data, image_only)
 
         # get the action property
         action = data['Actions']['#VirtualMedia.InsertMedia']
@@ -2319,19 +2351,25 @@ class RedfishUtils(object):
         # get ActionInfo or AllowableValues
         ai = self._get_all_action_info_values(action)
         # construct payload
-        payload = self._insert_virt_media_payload(options, param_map, data, ai)
+        payload = self._insert_virt_media_payload(options, param_map, data, ai, image_only)
         # POST to action
         response = self.post_request(self.root_uri + action_uri, payload)
         if response['ret'] is False:
             return response
         return {'ret': True, 'changed': True, 'msg': "VirtualMedia inserted"}
 
-    def virtual_media_eject_via_patch(self, uri):
+    def virtual_media_eject_via_patch(self, uri, image_only=False):
         # construct payload
         payload = {
             'Inserted': False,
             'Image': None
         }
+
+        # Some hardware (such as iLO 4) only supports the Image property on the PATCH operation
+        # Inserted is not writable
+        if image_only:
+            del payload['Inserted']
+
         # PATCH resource
         response = self.patch_request(self.root_uri + uri, payload)
         if response['ret'] is False:
@@ -2352,6 +2390,16 @@ class RedfishUtils(object):
         data = response['data']
         if 'VirtualMedia' not in data:
             return {'ret': False, 'msg': "VirtualMedia resource not found"}
+
+        # Some hardware (such as iLO 4) only supports the Image property on the PATCH operation
+        # Inserted is not writable
+        image_only = False
+        if data["FirmwareVersion"].startswith("iLO 4"):
+            image_only = True
+
+        if 'Supermicro' in data['Oem']:
+            image_only = True
+
         virt_media_uri = data["VirtualMedia"]["@odata.id"]
         response = self.get_request(self.root_uri + virt_media_uri)
         if response['ret'] is False:
@@ -2376,7 +2424,7 @@ class RedfishUtils(object):
                         return {'ret': False,
                                 'msg': "%s action not found and PATCH not allowed"
                                        % '#VirtualMedia.EjectMedia'}
-                return self.virtual_media_eject_via_patch(uri)
+                return self.virtual_media_eject_via_patch(uri, image_only)
             else:
                 # POST to the EjectMedia Action
                 action = data['Actions']['#VirtualMedia.EjectMedia']
@@ -2980,3 +3028,26 @@ class RedfishUtils(object):
         if not result["entries"]:
             return {'ret': False, 'msg': "No HostInterface objects found"}
         return result
+
+    def get_manager_inventory(self, manager_uri):
+        result = {}
+        inventory = {}
+        # Get these entries, but does not fail if not found
+        properties = ['FirmwareVersion', 'ManagerType', 'Manufacturer', 'Model',
+                      'PartNumber', 'PowerState', 'SerialNumber', 'Status', 'UUID']
+
+        response = self.get_request(self.root_uri + manager_uri)
+        if response['ret'] is False:
+            return response
+        result['ret'] = True
+        data = response['data']
+
+        for property in properties:
+            if property in data:
+                inventory[property] = data[property]
+
+        result["entries"] = inventory
+        return result
+
+    def get_multi_manager_inventory(self):
+        return self.aggregate_managers(self.get_manager_inventory)

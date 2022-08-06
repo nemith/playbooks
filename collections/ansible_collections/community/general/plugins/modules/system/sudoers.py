@@ -23,6 +23,7 @@ options:
     description:
       - The commands allowed by the sudoers rule.
       - Multiple can be added by passing a list of commands.
+      - Use C(ALL) for all commands.
     type: list
     elements: str
   group:
@@ -64,6 +65,15 @@ options:
       - The name of the user for the sudoers rule.
       - This option cannot be used in conjunction with I(group).
     type: str
+  validation:
+    description:
+      - If C(absent), the sudoers rule will be added without validation.
+      - If C(detect) and visudo is available, then the sudoers rule will be validated by visudo.
+      - If C(required), visudo must be available to validate the sudoers rule.
+    type: str
+    default: detect
+    choices: [ absent, detect, required ]
+    version_added: 5.2.0
 '''
 
 EXAMPLES = '''
@@ -80,7 +90,7 @@ EXAMPLES = '''
     state: present
     user: bob
     runas: alice
-    commands: ANY
+    commands: ALL
 
 - name: >-
     Allow the monitoring group to run sudo /usr/local/bin/gather-app-metrics
@@ -114,7 +124,11 @@ from ansible.module_utils.common.text.converters import to_native
 
 class Sudoers(object):
 
+    FILE_MODE = 0o440
+
     def __init__(self, module):
+        self.module = module
+
         self.check_mode = module.check_mode
         self.name = module.params['name']
         self.user = module.params['user']
@@ -125,6 +139,7 @@ class Sudoers(object):
         self.sudoers_path = module.params['sudoers_path']
         self.file = os.path.join(self.sudoers_path, self.name)
         self.commands = module.params['commands']
+        self.validation = module.params['validation']
 
     def write(self):
         if self.check_mode:
@@ -132,6 +147,8 @@ class Sudoers(object):
 
         with open(self.file, 'w') as f:
             f.write(self.content())
+
+        os.chmod(self.file, self.FILE_MODE)
 
     def delete(self):
         if self.check_mode:
@@ -144,7 +161,12 @@ class Sudoers(object):
 
     def matches(self):
         with open(self.file, 'r') as f:
-            return f.read() == self.content()
+            content_matches = f.read() == self.content()
+
+        current_mode = os.stat(self.file).st_mode & 0o777
+        mode_matches = current_mode == self.FILE_MODE
+
+        return content_matches and mode_matches
 
     def content(self):
         if self.user:
@@ -157,10 +179,29 @@ class Sudoers(object):
         runas_str = '({runas})'.format(runas=self.runas) if self.runas is not None else ''
         return "{owner} ALL={runas}{nopasswd} {commands}\n".format(owner=owner, runas=runas_str, nopasswd=nopasswd_str, commands=commands_str)
 
+    def validate(self):
+        if self.validation == 'absent':
+            return
+
+        visudo_path = self.module.get_bin_path('visudo', required=self.validation == 'required')
+        if visudo_path is None:
+            return
+
+        check_command = [visudo_path, '-c', '-f', '-']
+        rc, stdout, stderr = self.module.run_command(check_command, data=self.content())
+
+        if rc != 0:
+            raise Exception('Failed to validate sudoers rule:\n{stdout}'.format(stdout=stdout))
+
     def run(self):
-        if self.state == 'absent' and self.exists():
-            self.delete()
-            return True
+        if self.state == 'absent':
+            if self.exists():
+                self.delete()
+                return True
+            else:
+                return False
+
+        self.validate()
 
         if self.exists() and self.matches():
             return False
@@ -196,6 +237,10 @@ def main():
             'choices': ['present', 'absent'],
         },
         'user': {},
+        'validation': {
+            'default': 'detect',
+            'choices': ['absent', 'detect', 'required']
+        },
     }
 
     module = AnsibleModule(
