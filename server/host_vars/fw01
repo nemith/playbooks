@@ -15,10 +15,35 @@ networkd:
       priority: 10
   netdevs:
     - netdev:
+        name: lan0.2001
+        kind: vlan
+      vlan: 
+        id: 2001
+
+    - netdev:
+        name: lan0.2004
+        kind: vlan
+      vlan: 
+        id: 2004
+
+    - netdev:
+        name: lan0.2012
+        kind: vlan
+      vlan: 
+        id: 2012
+
+    - netdev:
+        name: lan0.2014
+        kind: vlan
+      vlan: 
+        id: 2014
+
+    - netdev:
         name: lan0.2254
         kind: vlan
       vlan:
         id: 2254
+
   networks:
     - match: {name: wan0}
       network:
@@ -26,6 +51,7 @@ networkd:
         ipv6_accept_ra: yes
       dhcpv6:
         prefix_delegation_hint: ::/60
+
     - match: {name: lan0}
       network:
         addresses:
@@ -39,11 +65,48 @@ networkd:
         ipv6_send_ra: yes
         dhcpv6_prefix_delegation: yes
         vlans:
+          - lan0.2004
+          - lan0.2012
+          - lan0.2014
           - lan0.2254
       dhcpv6_prefix_delegation:
         subnet_id: "0x1"
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:1::/64"
+
+    - match: {name: lan0.2004}
+      network:
+        addresses: 
+          - 192.168.4.1/24
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation:
+          subnet_id: "0x4"
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}:4::/64"
+
+    - match: {name: lan0.2012}
+      network:
+        addresses: 
+          - 192.168.12.1/24
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation:
+          subnet_id: "0xc"
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}:c::/64"
+
+    - match: {name: lan0.2014}
+      network:
+        addresses: 
+          - 192.168.14.1/24
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation:
+          subnet_id: "0xe"
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}:e::/64"
+
     - match: {name: lan0.2254}
       network:
         addresses: 
