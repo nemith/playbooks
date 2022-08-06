@@ -23,6 +23,7 @@
   become: yes
   ansible.builtin.yum_repository:
     name: gh-cli
+    description: packages for the GitHub CLI
     baseurl: https://cli.github.com/packages/rpm
     enabled: yes
     gpgkey: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xc99b11deb97541f0
@@ -31,6 +32,7 @@
   become: yes
   ansible.builtin.yum_repository:
     name: hashicorp
+    description: Hashicorp Stable - $basearch
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
     enabled: yes
     gpgkey: https://rpm.releases.hashicorp.com/gpg
