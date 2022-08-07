@@ -45,6 +45,7 @@
   loop_control:
     loop_var: cfg
   become: yes
+  when: "netword.netdevs is defined"
 
 - name: setup networks
   ansible.builtin.template:

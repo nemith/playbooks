@@ -3,9 +3,33 @@
 # drop any existing nftables ruleset
 flush ruleset
 
-define NIC_WAN = wan0
-define NIC_TRUST = lan0
-define NIC_IOT = lan0.2254
+
+define if_trust = { lan0, lan0.2004 }
+define if_iot = { lan0.2012, lan0.2254 }
+define if_wan = wan0
+define if_lan = { $if_trust, $if_iot }
+
+define allowed_icmp_types = {
+    echo-request,
+    echo-reply,
+    time-exceeded,
+    parameter-problem,
+    destination-unreachable,
+}
+
+define allowed_icmpv6_types = {
+    echo-request,
+    echo-reply,
+    time-exceeded,
+    parameter-problem,
+    destination-unreachable,
+    packet-too-big,
+    nd-router-advert,
+    nd-router-solicit,
+    nd-neighbor-solicit,
+    nd-neighbor-advert,
+    mld-listener-query,
+}
 
 # a common table for both IPv4 and IPv6
 table inet filter {
@@ -20,32 +44,14 @@ table inet filter {
         ct state established,related accept
         ct state invalid drop
 
-        ip protocol icmp icmp type {
-            echo-request,
-            echo-reply,
-            time-exceeded,
-            parameter-problem,
-            destination-unreachable,
-        } accept
-        
-        ip6 nexthdr icmpv6 icmpv6 type {
-            echo-request,
-            echo-reply,
-            time-exceeded,
-            parameter-problem,
-            destination-unreachable,
-            packet-too-big,
-            nd-router-advert,
-            nd-router-solicit,
-            nd-neighbor-solicit,
-            nd-neighbor-advert,
-            mld-listener-query
-        } accept
+        ip protocol icmp icmp type $allowed_icmp_types accept
+
+        ip6 nexthdr icmpv6 icmpv6 type $allowed_icmpv6_types accept
 
         iifname vmap {
-            $NIC_IOT: jump input_iot,
-            $NIC_TRUST: jump input_trust,
-            $NIC_WAN: jump input_wan,
+            $if_iot: jump input_iot,
+            $if_trust: jump input_trust,
+            $if_wan: jump input_wan,
         }
 
         log prefix "Dropped: " flags all drop
@@ -98,9 +104,10 @@ table inet filter {
         ct state invalid drop
         ct state established,related accept
 
-        iifname $NIC_TRUST oifname $NIC_IOT jump forward_trust_to_iot
-        iifname $NIC_IOT oifname $NIC_TRUST jump forward_iot_to_trust
-        iifname {$NIC_IOT, $NIC_TRUST} oifname $NIC_WAN accept
+        iifname $if_trust oifname $if_iot jump forward_trust_to_iot
+        iifname $if_iot oifname $if_trust jump forward_iot_to_trust
+        iifname $if_trust oifname $if_trust accept
+        iifname $if_lan oifname $if_wan accept
     }
 
     chain forward_trust_to_iot {
