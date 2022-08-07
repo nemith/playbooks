@@ -1,10 +1,5 @@
 hostname: kube01
 networkd:
-  links:
-    - match: {path: pci-0000:01:00.0}
-      link: {name: eno0}
-      priority: 10
-
   networks:
     - match: {name: eno0}
       network:
@@ -15,4 +10,5 @@ networkd:
         domains: [purgatory.lan]
         lldp: yes
         emit_lldp: yes
-        dhcpv6_prefix_delegation: yes
+      route:
+        gateway: 192.168.4.1

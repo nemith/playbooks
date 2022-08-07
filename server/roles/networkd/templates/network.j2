@@ -44,6 +44,14 @@ DHCPv6PrefixDelegation={{ bool(cfg.network.dhcpv6_prefix_delegation) }}
 VLAN={{ vlan }}
 {% endfor %}{% endif %}
 
+{# ROUTE SECTION #}
+{% if cfg.route is defined %}
+{% endif -%}
+[Route]
+{% if cfg.route.gateway is defined %}
+Gateway={{ cfg.route.gateway }}
+{% endif %}
+
 {# DHCPv6 SECTION #}
 {% if cfg.dhcpv6 is defined %}
 [DHCPv6]
