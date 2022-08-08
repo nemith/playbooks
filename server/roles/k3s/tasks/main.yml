@@ -1,0 +1,55 @@
+---
+- name: install k3s binary
+  become: yes
+  ansible.builtin.get_url:
+    url: "{{ k3s_url }}"
+    checksum: "{{ k3s_checksum }}"
+    dest: /usr/local/bin/k3s
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart_k3s
+
+- name: add k3s rpm repo (for selinux) 
+  become: yes
+  ansible.builtin.yum_repository:
+    name: rancher-k3s-common-{{ k3s_channel }}
+    description: Rancher K3 Common ({{ k3s_channel }})
+    baseurl: https://{{ k3s_rpm_site }}/k3s/{{ k3s_channel }}/common/centos/8/noarch
+    gpgkey: https://{{ k3s_rpm_site }}/public.key
+
+- name: install k3s-selinux package
+  become: yes
+  ansible.builtin.dnf:
+    name: k3s-selinux
+    state: present
+  notify: restart_k3s
+
+- name: setup symlinks
+  become: yes
+  ansible.builtin.file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/{{ item }}
+    state: link
+  loop:
+    - kubectl
+    - crictl
+    - ctr
+
+- name: setup k3s service
+  become: yes
+  ansible.builtin.template:
+    src: "k3s.service.j2"
+    dest: "/etc/systemd/system/k3s.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart_k3s
+
+- name: enable k3s service
+  become: yes
+  ansible.builtin.systemd:
+    name: k3s
+    enabled: yes
+    daemon_reload: yes
+  notify: restart_k3s

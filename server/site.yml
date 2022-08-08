@@ -20,3 +20,9 @@
     - nftables
     - ddns
     - nginx
+    - bird
+
+- name: kube setup
+  hosts: kube
+  roles:
+    - k3s

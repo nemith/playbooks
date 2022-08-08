@@ -1,0 +1,13 @@
+---
+k3s_version: v1.24.3-rc1+k3s1
+k3s_url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
+k3s_checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-amd64.txt 
+
+# testing required for centos 9 due to gpg key issues
+# see: https://github.com/k3s-io/k3s/issues/5588
+k3s_channel: testing
+k3s_rpm_site: rpm-testing.rancher.io
+# k3s_rpm_site: rpm.rancher.io
+# k3s_channel: stable
+
+k3s_args: "server --no-deploy servicelb --no-deploy traefik"
