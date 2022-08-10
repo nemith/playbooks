@@ -5,16 +5,17 @@
     - users
     - sudo
     - epel
+    - ipmi
     - ixgbe
     - networkd
     - dnf
     - chrony
     - utils
-  
+
 - name: firewall setup
   hosts: fw
-  roles: 
-    - dnsmasq 
+  roles:
+    - dnsmasq
     - mdnsrepeater
     - ip_forward
     - nftables

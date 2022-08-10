@@ -55,20 +55,31 @@ networkd:
     - match: {name: lan0}
       network:
         addresses:
-          - 192.168.1.1/24
-          - "{{ ula_prefix }}:1::1/64"
+          - 192.168.0.1/24
+          - "{{ ula_prefix }}::1/64"
         dns: "192.168.1.1"
         domains: [purgatory.lan]
         lldp: yes
         emit_lldp: yes
         configure_without_carrier: yes
         ipv6_send_ra: yes
-        dhcpv6_prefix_delegation: yes
         vlans:
+          - lan0.2001
           - lan0.2004
           - lan0.2012
           - lan0.2014
           - lan0.2254
+      ipv6_prefixes:
+        - prefix: "{{ ula_prefix }}::/64"
+
+    - match: {name: lan0.2001}
+      network:
+        addresses: 
+          - 192.168.1.1/24
+          - "{{ ula_prefix }}:1::1/64"
+        configure_without_carrier: yes
+        ipv6_send_ra: yes
+        dhcpv6_prefix_delegation: yes
       dhcpv6_prefix_delegation:
         subnet_id: "0x1"
       ipv6_prefixes:
@@ -81,8 +92,9 @@ networkd:
           - "{{ ula_prefix }}:4::1/64"
         configure_without_carrier: yes
         ipv6_send_ra: yes
-        dhcpv6_prefix_delegation:
-          subnet_id: "0x4"
+        dhcpv6_prefix_delegation: yes
+      dhcpv6_prefix_delegation:
+        subnet_id: "0x4"
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:4::/64"
 
@@ -93,8 +105,9 @@ networkd:
           - "{{ ula_prefix }}:c::1/64"
         configure_without_carrier: yes
         ipv6_send_ra: yes
-        dhcpv6_prefix_delegation:
-          subnet_id: "0xc"
+        dhcpv6_prefix_delegation: yes
+      dhcpv6_prefix_delegation:
+        subnet_id: "0xc"
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:c::/64"
 
@@ -105,8 +118,9 @@ networkd:
           - "{{ ula_prefix }}:e::1/64"
         configure_without_carrier: yes
         ipv6_send_ra: yes
-        dhcpv6_prefix_delegation:
-          subnet_id: "0xe"
+        dhcpv6_prefix_delegation: yes
+      dhcpv6_prefix_delegation:
+        subnet_id: "0xe"
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:e::/64"
 
@@ -117,8 +131,9 @@ networkd:
           - "{{ ula_prefix }}:fe::1/64"
         configure_without_carrier: yes
         ipv6_send_ra: yes
-        dhcpv6_prefix_delegation:
-          subnet_id: "0xf"
+        dhcpv6_prefix_delegation: yes
+      dhcpv6_prefix_delegation:
+        subnet_id: "0xf"
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:fe::/64"
 

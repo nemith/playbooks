@@ -4,7 +4,7 @@
 flush ruleset
 
 
-define if_trust = { lan0, lan0.2004 }
+define if_trust = { lan0, lan0.2001, lan0.2004 }
 define if_iot = { lan0.2012, lan0.2254 }
 define if_wan = wan0
 define if_lan = { $if_trust, $if_iot }
@@ -90,6 +90,8 @@ table inet filter {
         tcp dport domain accept
 
         udp dport mdns accept
+    
+        udp dport ntp accept
 
         # nginx
         tcp dport http accept

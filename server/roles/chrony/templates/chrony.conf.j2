@@ -1,16 +1,18 @@
 # Managed by ansible.  Do not modify
 
-# facebook time servers
-server time1.facebook.com iburst prefer
-server time2.facebook.com iburst prefer
-server time3.facebook.com iburst prefer
-server time4.facebook.com iburst prefer
-server time5.facebook.com iburst prefer
-# backup fedora pool 
-pool 2.fedora.pool.ntp.org iburst
+{% for server in chrony.servers %}
+server {{ server.hostname }} 
+{%- if server.iburst is defined %} iburst{% endif -%}
+{%- if server.prefer is defined %} prefer{% endif -%}
+{% endfor %}
 
-# Use NTP servers from DHCP.
-sourcedir /run/chrony-dhcp
+{% if chrony.pools is defined %}
+{% for pool in chrony.pools %}
+pool {{ pool.hostname }}
+{%- if pool.iburst is defined %} iburst{% endif -%}
+{%- if pool.prefer is defined %} perfer{% endif -%}
+{% endfor %}
+{% endif %}
 
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
@@ -40,3 +42,9 @@ leapsectz right/UTC
 
 # Specify directory for log files.
 logdir /var/log/chrony
+
+{% if chrony.allow is defined %}
+{% for subnet in chrony.allow -%}
+allow {{ subnet }}
+{% endfor %}
+{% endif %}

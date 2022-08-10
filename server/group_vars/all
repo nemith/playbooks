@@ -3,3 +3,9 @@ users:
     ssh_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJcTaOfvmCSpVhukFMUr//EiG614vOQRJrk1iMXXhHqg brandon@brbe.me
 
 ula_prefix: fdda:56e3:932d 
+
+chrony: 
+  servers:
+    - hostname: fw01.purgatory.lan
+      iburst: yes
+      prefered: yes

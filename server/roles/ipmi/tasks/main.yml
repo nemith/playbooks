@@ -1,0 +1,8 @@
+---
+- name: install packages
+  become: yes
+  ansible.builtin.dnf:
+    name:
+      - OpenIPMI
+      - ipmitool
+    state: present

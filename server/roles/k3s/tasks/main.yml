@@ -10,7 +10,7 @@
     mode: 0755
   notify: restart_k3s
 
-- name: add k3s rpm repo (for selinux) 
+- name: add k3s rpm repo (for selinux)
   become: yes
   ansible.builtin.yum_repository:
     name: rancher-k3s-common-{{ k3s_channel }}

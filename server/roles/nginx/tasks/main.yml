@@ -4,7 +4,7 @@
     name: nginx
     state: present
   become: yes
-  notify: 
+  notify:
 
 - name: enable service
   ansible.builtin.service:
@@ -12,7 +12,7 @@
     enabled: yes
   become: yes
 
-- name: set selinux httpd_can_network_connect to 1 
+- name: set selinux httpd_can_network_connect to 1
   ansible.posix.seboolean:
     name: httpd_can_network_connect
     state: yes

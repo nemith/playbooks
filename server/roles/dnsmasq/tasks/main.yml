@@ -24,10 +24,9 @@
     group: dnsmasq
     mode: 0644
     validate: dnsmasq --conf-file=%s --test
-  with_fileglob: 'dnsmasq.d/*.conf'
+  with_fileglob: "dnsmasq.d/*.conf"
   become: yes
   notify: restart_dnsmasq
-
 
 - name: enable dnsmasq service
   ansible.builtin.service:

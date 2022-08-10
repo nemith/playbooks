@@ -20,7 +20,7 @@
 
 - name: configure entry config
   ansible.builtin.copy:
-    src: nftables.conf 
+    src: nftables.conf
     dest: /etc/sysconfig/nftables.conf
     owner: root
     group: root
@@ -42,5 +42,3 @@
     enabled: true
   become: yes
   notify: restart_nftables
-
-    

@@ -6,7 +6,7 @@
   become: yes
 
 - name: disable network manager
-  ansible.builtin.service: 
+  ansible.builtin.service:
     name: NetworkManager
     enabled: false
   become: yes

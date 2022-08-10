@@ -9,7 +9,7 @@
   ansible.builtin.user:
     name: "{{ item.unixname }}"
     shell: /bin/zsh
-    groups: wheel 
+    groups: wheel
     append: yes
     password: "!"
   become: yes
@@ -18,7 +18,7 @@
 - name: add authorized key
   ansible.builtin.authorized_key:
     user: "{{ item.unixname }}"
-    key:  "{{ item.ssh_key }}"
+    key: "{{ item.ssh_key }}"
     state: present
   become: yes
   loop: "{{ users }}"

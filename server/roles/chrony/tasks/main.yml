@@ -1,7 +1,8 @@
 ---
 - name: configure chrony
-  ansible.builtin.copy:
-    src: chrony.conf
-    dest: /etc/chrony.conf
   become: yes
   notify: restart chronyd
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    trim_blocks: no
