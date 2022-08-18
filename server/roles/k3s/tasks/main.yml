@@ -13,10 +13,10 @@
 - name: add k3s rpm repo (for selinux)
   become: yes
   ansible.builtin.yum_repository:
-    name: rancher-k3s-common-{{ k3s_channel }}
-    description: Rancher K3 Common ({{ k3s_channel }})
-    baseurl: https://{{ k3s_rpm_site }}/k3s/{{ k3s_channel }}/common/centos/8/noarch
-    gpgkey: https://{{ k3s_rpm_site }}/public.key
+    name: rancher-k3s-common-{{ k3s_rpm_channel }}
+    description: Rancher K3 Common ({{ k3s_rpm_channel }})
+    baseurl: "{{ k3s_rpm_baseurl }}"
+    gpgkey: "{{ k3s_rpm_gpgkey }}"
 
 - name: install k3s-selinux package
   become: yes
@@ -36,6 +36,32 @@
     - crictl
     - ctr
 
+- name: create k3s config dir
+  become: yes
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: '0755'
+
+- name: configure k3s sever
+  become: yes
+  ansible.builtin.template:
+    src: "config.yaml.j2"
+    dest: "/etc/rancher/k3s/config.yaml"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart_k3s
+
+- name: setup cluster token
+  become: yes
+  ansible.builtin.template:
+    src: "token.j2"
+    dest: "/etc/rancher/k3s/token"
+    owner: root
+    group: root
+    mode: '0600'
+
 - name: setup k3s service
   become: yes
   ansible.builtin.template:
@@ -43,7 +69,7 @@
     dest: "/etc/systemd/system/k3s.service"
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
   notify: restart_k3s
 
 - name: enable k3s service
