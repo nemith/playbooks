@@ -5,16 +5,3 @@
     name:
       - akmod-nvidia
       - xorg-x11-drv-nvidia-cuda
-
-- block:
-  - name: enable asus copr repo
-    become: yes
-    community.general.copr:
-      name: lukenukem/asus-linux
-
-  - name: install supergfxctl package
-    become: yes
-    ansible.builtin.dnf:
-      name:
-        - supergfxctl
-  when: nvidia == "hybrid"
