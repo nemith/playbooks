@@ -4,10 +4,13 @@
     name:
       - bind-utils # dig
       - htop
+      - lsof
+      - nmap
+      - pciutils
       - screen
+      - smartmontools
+      - tar
       - tcpdump
       - wget
-      - nmap
-      - lsof
     state: present
   become: yes
