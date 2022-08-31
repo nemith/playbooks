@@ -1,9 +1,9 @@
 - name: core setup
   hosts: all
   roles:
+    - sudo     # sudo needs to be first
     - hostname
     - users
-    - sudo
     - epel
     - ipmi
     - ixgbe
