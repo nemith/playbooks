@@ -1,4 +1,17 @@
 ---
+- name: install chrony
+  become: yes
+  notify: restart chronyd
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+
+- name: enable chronyd service
+  become: yes
+  ansible.builtin.systemd:
+    name: chronyd
+    enabled: yes
+
 - name: configure chrony
   become: yes
   notify: restart chronyd
