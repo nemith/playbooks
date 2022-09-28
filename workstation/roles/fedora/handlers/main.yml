@@ -1,0 +1,4 @@
+---
+- name: regenerate initramfs
+  become: yes
+  shell: dracut -f -v

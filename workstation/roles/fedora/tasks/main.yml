@@ -54,6 +54,7 @@
       - vdpauinfo
       - libva-vdpau-driver
       - libva-utils
+      - intel-media-driver
       - "@multimedia"
       - "@sound-and-video"
       - "@Development Tools"
@@ -96,6 +97,16 @@
       - com.spotify.Client
       - io.typora.Typora
       - us.zoom.Zoom
+
+- name: i915 module config
+  become: yes
+  ansible.builtin.copy:
+    src: modprobe/i915.conf
+    dest: /etc/modprobe.d/i915.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: regenerate initramfs
 
 - import_tasks: dnf.yml
 - import_tasks: asus_g14.yml
