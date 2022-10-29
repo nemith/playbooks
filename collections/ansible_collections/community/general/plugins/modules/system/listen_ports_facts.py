@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2017, Nathan Davison <ndavison85@gmail.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2017, Nathan Davison <ndavison85@gmail.com>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -70,7 +71,7 @@ EXAMPLES = r'''
 - name: Gather facts on all ports and override which command to use
   community.general.listen_ports_facts:
     command: 'netstat'
-    include_non_listening: 'yes'
+    include_non_listening: true
 '''
 
 RETURN = r'''
@@ -256,8 +257,6 @@ def netStatParse(raw):
             }
             if result not in results:
                 results.append(result)
-            else:
-                raise EnvironmentError('Could not get process information for the listening ports.')
     return results
 
 

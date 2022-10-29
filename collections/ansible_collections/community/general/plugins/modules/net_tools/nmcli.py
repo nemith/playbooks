@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2015, Chris Long <alcamie@gmail.com> <chlong@redhat.com>
-# Copyright: (c) 2017, Ansible Project
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2015, Chris Long <alcamie@gmail.com> <chlong@redhat.com>
+# Copyright (c) 2017, Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -34,7 +35,7 @@ options:
             - Whether the connection should start on boot.
             - Whether the connection profile can be automatically activated
         type: bool
-        default: yes
+        default: true
     conn_name:
         description:
             - The name used to call the connection. Pattern is <type>[-<ifname>][-<num>].
@@ -66,6 +67,12 @@ options:
         type: str
         choices: [ 802.3ad, active-backup, balance-alb, balance-rr, balance-tlb, balance-xor, broadcast ]
         default: balance-rr
+    transport_mode:
+        description:
+            - This option sets the connection type of Infiniband IPoIB devices.
+        type: str
+        choices: [ datagram, connected ]
+        version_added: 5.8.0
     master:
         description:
             - Master <master (ifname, or connection UUID or conn_name) of bridge, team, bond master connection profile.
@@ -154,7 +161,7 @@ options:
             - Set as default route.
             - This parameter is mutually_exclusive with gw4 parameter.
         type: bool
-        default: no
+        default: false
         version_added: 2.0.0
     dns4:
         description:
@@ -318,6 +325,11 @@ options:
         description:
             - This is only used with bond - updelay.
         type: int
+    xmit_hash_policy:
+        description:
+            - This is only used with bond - xmit_hash_policy type.
+        type: str
+        version_added: 5.6.0
     arp_interval:
         description:
             - This is only used with bond - ARP interval.
@@ -330,7 +342,7 @@ options:
         description:
             - This is only used with bridge and controls whether Spanning Tree Protocol (STP) is enabled for this bridge.
         type: bool
-        default: yes
+        default: true
     priority:
         description:
             - This is only used with 'bridge' - sets STP priority.
@@ -922,7 +934,6 @@ options:
                 description: This defines the service type of connection.
                 type: str
                 required: true
-                choices: [ pptp, l2tp ]
             gateway:
                 description: The gateway to connection. It can be an IP address (for example C(192.0.2.1))
                     or a FQDN address (for example C(vpn.example.com)).
@@ -948,7 +959,7 @@ options:
             ipsec-enabled:
                 description:
                     - Enable or disable IPSec tunnel to L2TP host.
-                    - This option is need when C(service-type) is C(l2tp).
+                    - This option is need when C(service-type) is C(org.freedesktop.NetworkManager.l2tp).
                 type: bool
                 choices: [ yes, no ]
             ipsec-psk:
@@ -1182,7 +1193,7 @@ EXAMPLES = r'''
       ip4: 192.0.2.100/24
       gw4: 192.0.2.1
       state: present
-      autoconnect: yes
+      autoconnect: true
 
   - name: Optionally, at the same time specify IPv6 addresses for the device
     community.general.nmcli:
@@ -1349,7 +1360,7 @@ EXAMPLES = r'''
     conn_name: my-vpn-connection
     vpn:
         permissions: "{{ ansible_user }}"
-        service-type: l2tp
+        service-type: org.freedesktop.NetworkManager.l2tp
         gateway: vpn.example.com
         password-flags: 2
         user: brittany
@@ -1440,6 +1451,7 @@ class Nmcli(object):
         self.primary = module.params['primary']
         self.downdelay = module.params['downdelay']
         self.updelay = module.params['updelay']
+        self.xmit_hash_policy = module.params['xmit_hash_policy']
         self.arp_interval = module.params['arp_interval']
         self.arp_ip_target = module.params['arp_ip_target']
         self.slavepriority = module.params['slavepriority']
@@ -1475,6 +1487,7 @@ class Nmcli(object):
         self.gsm = module.params['gsm']
         self.wireguard = module.params['wireguard']
         self.vpn = module.params['vpn']
+        self.transport_mode = module.params['transport_mode']
 
         if self.method4:
             self.ipv4_method = self.method4
@@ -1580,6 +1593,7 @@ class Nmcli(object):
                 'mode': self.mode,
                 'primary': self.primary,
                 'updelay': self.updelay,
+                'xmit_hash_policy': self.xmit_hash_policy,
             })
         elif self.type == 'bond-slave':
             options.update({
@@ -1669,7 +1683,7 @@ class Nmcli(object):
                 for name, value in self.vpn.items():
                     if name == 'service-type':
                         options.update({
-                            'vpn-type': value,
+                            'vpn.service-type': value,
                         })
                     elif name == 'permissions':
                         options.update({
@@ -1686,6 +1700,11 @@ class Nmcli(object):
                     options.update({
                         'vpn.data': vpn_data_values,
                     })
+        elif self.type == 'infiniband':
+            options.update({
+                'infiniband.transport-mode': self.transport_mode,
+            })
+
         # Convert settings values based on the situation.
         for setting, value in options.items():
             setting_type = self.settings_type(setting)
@@ -1730,6 +1749,7 @@ class Nmcli(object):
             '802-11-wireless',
             'gsm',
             'wireguard',
+            'vpn',
         )
 
     @property
@@ -2091,16 +2111,19 @@ class Nmcli(object):
                     # MAC addresses are case insensitive, nmcli always reports them in uppercase
                     value = value.upper()
                     # ensure current_value is also converted to uppercase in case nmcli changes behaviour
-                    current_value = current_value.upper()
+                    if current_value:
+                        current_value = current_value.upper()
                 if key == 'gsm.apn':
                     # Depending on version nmcli adds double-qoutes to gsm.apn
                     # Need to strip them in order to compare both
-                    current_value = current_value.strip('"')
+                    if current_value:
+                        current_value = current_value.strip('"')
                 if key == self.mtu_setting and self.mtu is None:
                     self.mtu = 0
                 if key == 'vpn.data':
-                    current_value = list(map(str.strip, current_value.split(',')))
-                    value = list(map(str.strip, value.split(',')))
+                    if current_value:
+                        current_value = sorted(re.sub(r'\s*=\s*', '=', part.strip(), count=1) for part in current_value.split(','))
+                    value = sorted(part.strip() for part in value.split(','))
             else:
                 # parameter does not exist
                 current_value = None
@@ -2227,6 +2250,7 @@ def main():
             miimon=dict(type='int'),
             downdelay=dict(type='int'),
             updelay=dict(type='int'),
+            xmit_hash_policy=dict(type='str'),
             arp_interval=dict(type='int'),
             arp_ip_target=dict(type='str'),
             primary=dict(type='str'),
@@ -2273,6 +2297,7 @@ def main():
             gsm=dict(type='dict'),
             wireguard=dict(type='dict'),
             vpn=dict(type='dict'),
+            transport_mode=dict(type='str', choices=['datagram', 'connected']),
         ),
         mutually_exclusive=[['never_default4', 'gw4'],
                             ['routes4_extended', 'routes4'],

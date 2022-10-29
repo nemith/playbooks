@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2014, Kevin Carter <kevin.carter@rackspace.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2014, Kevin Carter <kevin.carter@rackspace.com>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -84,13 +85,13 @@ options:
         type: str
     lxc_path:
         description:
-          - Place container under PATH.
+          - Place container under C(PATH).
         type: path
     container_log:
         description:
           - Enable a container log for host actions to the container.
         type: bool
-        default: 'no'
+        default: false
     container_log_level:
         choices:
           - Info
@@ -103,7 +104,7 @@ options:
           - debug
           - DEBUG
         description:
-          - Set the log level for a container where *container_log* was set.
+          - Set the log level for a container where I(container_log) was set.
         type: str
         required: false
         default: INFO
@@ -118,13 +119,13 @@ options:
           - This is not supported by all container storage backends.
           - Enabling this may fail if the backing store does not support snapshots.
         type: bool
-        default: 'no'
+        default: false
     archive:
         description:
           - Create an archive of a container.
           - This will create a tarball of the running container.
         type: bool
-        default: 'no'
+        default: false
     archive_path:
         description:
           - Path the save the archived container.
@@ -163,30 +164,30 @@ options:
         type: list
         elements: str
 requirements:
-  - 'lxc >= 1.0 # OS package'
-  - 'python >= 2.6 # OS Package'
-  - 'lxc-python2 >= 0.1 # PIP Package from https://github.com/lxc/python2-lxc'
+  - 'lxc >= 2.0 # OS package'
+  - 'python3 >= 3.5 # OS Package'
+  - 'python3-lxc # OS Package'
 notes:
   - Containers must have a unique name. If you attempt to create a container
     with a name that already exists in the users namespace the module will
     simply return as "unchanged".
-  - The "container_command" can be used with any state except "absent". If
-    used with state "stopped" the container will be "started", the command
-    executed, and then the container "stopped" again. Likewise if the state
-    is "stopped" and the container does not exist it will be first created,
-    "started", the command executed, and then "stopped". If you use a "|"
+  - The I(container_command) can be used with any state except C(absent). If
+    used with state C(stopped) the container will be C(started), the command
+    executed, and then the container C(stopped) again. Likewise if I(state=stopped)
+    and the container does not exist it will be first created,
+    C(started), the command executed, and then C(stopped). If you use a "|"
     in the variable you can use common script formatting within the variable
-    itself The "container_command" option will always execute as BASH.
-    When using "container_command" a log file is created in the /tmp/ directory
-    which contains both stdout and stderr of any command executed.
-  - If "archive" is **true** the system will attempt to create a compressed
-    tarball of the running container. The "archive" option supports LVM backed
+    itself. The I(container_command) option will always execute as BASH.
+    When using I(container_command), a log file is created in the C(/tmp/) directory
+    which contains both C(stdout) and C(stderr) of any command executed.
+  - If I(archive=true) the system will attempt to create a compressed
+    tarball of the running container. The I(archive) option supports LVM backed
     containers and will create a snapshot of the running container when
     creating the archive.
-  - If your distro does not have a package for "python2-lxc", which is a
+  - If your distro does not have a package for C(python3-lxc), which is a
     requirement for this module, it can be installed from source at
-    "https://github.com/lxc/python2-lxc" or installed via pip using the package
-    name lxc-python2.
+    U(https://github.com/lxc/python3-lxc) or installed via pip using the
+    package name C(lxc).
 '''
 
 EXAMPLES = r"""
@@ -412,7 +413,7 @@ lxc_container:
             description: if the container was cloned
             returned: success, when clone_name is specified
             type: bool
-            sample: True
+            sample: true
 """
 
 import os
@@ -432,8 +433,7 @@ else:
     HAS_LXC = True
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.parsing.convert_bool import BOOLEANS_FALSE, BOOLEANS_TRUE
-from ansible.module_utils.six.moves import xrange
+from ansible.module_utils.parsing.convert_bool import boolean, BOOLEANS_FALSE
 from ansible.module_utils.common.text.converters import to_text, to_bytes
 
 
@@ -558,7 +558,7 @@ popd
 def create_script(command):
     """Write out a script onto a target.
 
-    This method should be backward compatible with Python 2.4+ when executing
+    This method should be backward compatible with Python when executing
     from within the container.
 
     :param command: command to run, this can be a script and can use spacing
@@ -607,10 +607,10 @@ class LxcContainerManagement(object):
         :type module: ``object``
         """
         self.module = module
-        self.state = self.module.params.get('state', None)
+        self.state = self.module.params['state']
         self.state_change = False
         self.lxc_vg = None
-        self.lxc_path = self.module.params.get('lxc_path', None)
+        self.lxc_path = self.module.params['lxc_path']
         self.container_name = self.module.params['name']
         self.container = self.get_container_bind()
         self.archive_info = None
@@ -643,10 +643,7 @@ class LxcContainerManagement(object):
         :returns: True or False if the container is found.
         :rtype: ``bol``
         """
-        if [i for i in lxc.list_containers(config_path=lxc_path) if i == container_name]:
-            return True
-        else:
-            return False
+        return any(c == container_name for c in lxc.list_containers(config_path=lxc_path))
 
     @staticmethod
     def _add_variables(variables_dict, build_command):
@@ -678,13 +675,13 @@ class LxcContainerManagement(object):
         for v in LXC_BACKING_STORE[self.module.params['backing_store']]:
             variables.pop(v, None)
 
-        return_dict = dict()
         false_values = BOOLEANS_FALSE.union([None, ''])
-        for k, v in variables.items():
-            _var = self.module.params.get(k)
-            if _var not in false_values:
-                return_dict[v] = _var
-        return return_dict
+        result = dict(
+            (k, v)
+            for k, v in variables.items()
+            if self.module.params[k] not in false_values
+        )
+        return result
 
     def _config(self):
         """Configure an LXC container.
@@ -694,7 +691,7 @@ class LxcContainerManagement(object):
         restart the container upon completion.
         """
 
-        _container_config = self.module.params.get('container_config')
+        _container_config = self.module.params['container_config']
         if not _container_config:
             return False
 
@@ -784,12 +781,12 @@ class LxcContainerManagement(object):
         )
 
         # Load logging for the instance when creating it.
-        if self.module.params.get('clone_snapshot') in BOOLEANS_TRUE:
+        if self.module.params['clone_snapshot']:
             build_command.append('--snapshot')
         # Check for backing_store == overlayfs if so force the use of snapshot
         # If overlay fs is used and snapshot is unset the clone command will
         # fail with an unsupported type.
-        elif self.module.params.get('backing_store') == 'overlayfs':
+        elif self.module.params['backing_store'] == 'overlayfs':
             build_command.append('--snapshot')
 
         rc, return_data, err = self.module.run_command(build_command)
@@ -837,7 +834,7 @@ class LxcContainerManagement(object):
         )
 
         # Load logging for the instance when creating it.
-        if self.module.params.get('container_log') in BOOLEANS_TRUE:
+        if self.module.params['container_log']:
             # Set the logging path to the /var/log/lxc if uid is root. else
             # set it to the home folder of the user executing.
             try:
@@ -862,7 +859,7 @@ class LxcContainerManagement(object):
             ])
 
         # Add the template commands to the end of the command if there are any
-        template_options = self.module.params.get('template_options', None)
+        template_options = self.module.params['template_options']
         if template_options:
             build_command.append('--')
             build_command += shlex.split(template_options)
@@ -919,7 +916,7 @@ class LxcContainerManagement(object):
     def _execute_command(self):
         """Execute a shell command."""
 
-        container_command = self.module.params.get('container_command')
+        container_command = self.module.params['container_command']
         if container_command:
             container_state = self._get_state()
             if container_state == 'frozen':
@@ -938,18 +935,17 @@ class LxcContainerManagement(object):
         """
 
         self.container = self.get_container_bind()
-        for dummy in xrange(timeout):
-            if self._get_state() != 'running':
-                self.container.start()
-                self.state_change = True
-                # post startup sleep for 1 second.
-                time.sleep(1)
-            else:
+        for dummy in range(timeout):
+            if self._get_state() == 'running':
                 return True
+
+            self.container.start()
+            self.state_change = True
+            # post startup sleep for 1 second.
+            time.sleep(1)
         self.failure(
             lxc_container=self._container_data(),
-            error='Failed to start container'
-                  ' [ %s ]' % self.container_name,
+            error='Failed to start container [ %s ]' % self.container_name,
             rc=1,
             msg='The container [ %s ] failed to start. Check to lxc is'
                 ' available and that the container is in a functional'
@@ -962,7 +958,7 @@ class LxcContainerManagement(object):
         This will store archive_info in as self.archive_info
         """
 
-        if self.module.params.get('archive') in BOOLEANS_TRUE:
+        if self.module.params['archive']:
             self.archive_info = {
                 'archive': self._container_create_tar()
             }
@@ -973,7 +969,7 @@ class LxcContainerManagement(object):
         This will store archive_info in as self.archive_info
         """
 
-        clone_name = self.module.params.get('clone_name')
+        clone_name = self.module.params['clone_name']
         if clone_name:
             if not self._container_exists(container_name=clone_name, lxc_path=self.lxc_path):
                 self.clone_info = {
@@ -991,7 +987,7 @@ class LxcContainerManagement(object):
         :type timeout: ``int``
         """
 
-        for dummy in xrange(timeout):
+        for dummy in range(timeout):
             if not self._container_exists(container_name=self.container_name, lxc_path=self.lxc_path):
                 break
 
@@ -1339,11 +1335,11 @@ class LxcContainerManagement(object):
 
         old_umask = os.umask(int('0077', 8))
 
-        archive_path = self.module.params.get('archive_path')
+        archive_path = self.module.params['archive_path']
         if not os.path.isdir(archive_path):
             os.makedirs(archive_path)
 
-        archive_compression = self.module.params.get('archive_compression')
+        archive_compression = self.module.params['archive_compression']
         compression_type = LXC_COMPRESSION_MAP[archive_compression]
 
         # remove trailing / if present.
@@ -1357,9 +1353,7 @@ class LxcContainerManagement(object):
 
         build_command = [
             self.module.get_bin_path('tar', True),
-            '--directory=%s' % os.path.realpath(
-                os.path.expanduser(source_dir)
-            ),
+            '--directory=%s' % os.path.realpath(source_dir),
             compression_type['argument'],
             archive_name,
             '.'
@@ -1702,7 +1696,6 @@ def main():
             ),
             clone_name=dict(
                 type='str',
-                required=False
             ),
             clone_snapshot=dict(
                 type='bool',
@@ -1731,9 +1724,8 @@ def main():
             msg='The `lxc` module is not importable. Check the requirements.'
         )
 
-    lv_name = module.params.get('lv_name')
-    if not lv_name:
-        module.params['lv_name'] = module.params.get('name')
+    if not module.params['lv_name']:
+        module.params['lv_name'] = module.params['name']
 
     lxc_manage = LxcContainerManagement(module=module)
     lxc_manage.run()

@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2012, Afterburn <https://github.com/afterburn>
-# Copyright: (c) 2013, Aaron Bull Schaefer <aaron@elasticdog.com>
-# Copyright: (c) 2015, Indrajit Raychaudhuri <irc+code@indrajit.com>
-# Copyright: (c) 2022, Jean Raby <jean@raby.sh>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2012, Afterburn <https://github.com/afterburn>
+# Copyright (c) 2013, Aaron Bull Schaefer <aaron@elasticdog.com>
+# Copyright (c) 2015, Indrajit Raychaudhuri <irc+code@indrajit.com>
+# Copyright (c) 2022, Jean Raby <jean@raby.sh>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 
@@ -44,10 +45,10 @@ options:
     force:
         description:
             - When removing packages, forcefully remove them, without any checks.
-              Same as C(extra_args="--nodeps --nodeps").
+              Same as I(extra_args="--nodeps --nodeps").
               When combined with I(update_cache), force a refresh of all package databases.
-              Same as C(update_cache_extra_args="--refresh --refresh").
-        default: no
+              Same as I(update_cache_extra_args="--refresh --refresh").
+        default: false
         type: bool
 
     remove_nosave:
@@ -55,7 +56,7 @@ options:
             - When removing packages, do not save modified configuration files as C(.pacsave) files.
               (passes C(--nosave) to pacman)
         version_added: 4.6.0
-        default: no
+        default: false
         type: bool
 
     executable:
@@ -114,7 +115,7 @@ options:
     reason_for:
         description:
             - Set the install reason for C(all) packages or only for C(new) packages.
-            - In case of C(state=latest) already installed packages which will be updated to a newer version are not counted as C(new).
+            - In case of I(state=latest) already installed packages which will be updated to a newer version are not counted as C(new).
         default: new
         choices: [ all, new ]
         type: str
@@ -197,7 +198,7 @@ EXAMPLES = """
   community.general.pacman:
     name: foo
     state: latest
-    update_cache: yes
+    update_cache: true
 
 - name: Remove packages foo and bar
   community.general.pacman:
@@ -214,11 +215,11 @@ EXAMPLES = """
 
 - name: Run the equivalent of "pacman -Sy" as a separate step
   community.general.pacman:
-    update_cache: yes
+    update_cache: true
 
 - name: Run the equivalent of "pacman -Su" as a separate step
   community.general.pacman:
-    upgrade: yes
+    upgrade: true
 
 - name: Run the equivalent of "pacman -Syu" as a separate step
   # Since community.general 5.0.0 the 'changed' state of this call
@@ -231,14 +232,14 @@ EXAMPLES = """
   #   register: result
   #   changed_when: result.packages | length > 0
   community.general.pacman:
-    update_cache: yes
-    upgrade: yes
+    update_cache: true
+    upgrade: true
 
 - name: Run the equivalent of "pacman -Rdd", force remove package baz
   community.general.pacman:
     name: baz
     state: absent
-    force: yes
+    force: true
 
 - name: Install foo as dependency and leave reason untouched if already installed
   community.general.pacman:

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # (c) 2020, Alexei Znamensky <russoz@gmail.com>
-# Copyright: (c) 2020, Ansible Project
-# Simplified BSD License (see simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
+# Copyright (c) 2020, Ansible Project
+# Simplified BSD License (see LICENSES/BSD-2-Clause.txt or https://opensource.org/licenses/BSD-2-Clause)
+# SPDX-License-Identifier: BSD-2-Clause
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -83,8 +84,16 @@ class StateModuleHelper(StateMixin, ModuleHelper):
 
 
 class CmdModuleHelper(CmdMixin, ModuleHelper):
+    """
+    THIS CLASS IS BEING DEPRECATED.
+    See the deprecation notice in ``CmdMixin.__init__()``.
+    """
     pass
 
 
 class CmdStateModuleHelper(CmdMixin, StateMixin, ModuleHelper):
+    """
+    THIS CLASS IS BEING DEPRECATED.
+    See the deprecation notice in ``CmdMixin.__init__()``.
+    """
     pass

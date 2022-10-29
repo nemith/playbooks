@@ -1,3 +1,8 @@
+---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 notifications: true
 automerge: true
 files:
@@ -120,6 +125,8 @@ files:
     labels: xenserver
   $filters/counter.py:
     maintainers: keilr
+  $filters/crc32.py:
+    maintainers: jouir
   $filters/dict.py:
     maintainers: felixfontein
   $filters/dict_kv.py:
@@ -216,7 +223,8 @@ files:
   $lookups/dnstxt.py:
     maintainers: jpmens
   $lookups/dsv.py:
-    maintainers: amigus endlesstrax delineaKrehl tylerezimmerman
+    maintainers: delineaKrehl tylerezimmerman
+    ignore: amigus
   $lookups/etcd3.py:
     maintainers: eric-belhomme
   $lookups/etcd.py:
@@ -253,7 +261,8 @@ files:
     maintainers: RevBits
   $lookups/shelvefile.py: {}
   $lookups/tss.py:
-    maintainers: amigus endlesstrax delineaKrehl tylerezimmerman
+    maintainers: delineaKrehl tylerezimmerman
+    ignore: amigus
   $module_utils/:
     labels: module_utils
   $module_utils/gconftool2.py:
@@ -290,6 +299,9 @@ files:
   $module_utils/oracle/oci_utils.py:
     maintainers: $team_oracle
     labels: cloud
+  $module_utils/pipx.py:
+    maintainers: russoz
+    labels: pipx
   $module_utils/pure.py:
     maintainers: $team_purestorage
     labels: pure pure_storage
@@ -366,6 +378,8 @@ files:
   $modules/cloud/misc/proxmox_template.py:
     maintainers: UnderGreen
     ignore: skvidal
+  $modules/cloud/misc/proxmox_disk.py:
+    maintainers: castorsky
   $modules/cloud/misc/rhevm.py:
     maintainers: $team_virt TimothyVandenbrande
     labels: rhevm virt
@@ -447,6 +461,10 @@ files:
     maintainers: $team_scaleway
   $modules/cloud/scaleway/scaleway_compute_private_network.py:
     maintainers: pastral
+  $modules/cloud/scaleway/scaleway_container_registry.py:
+     maintainers: Lunik
+  $modules/cloud/scaleway/scaleway_container_registry_info.py:
+     maintainers: Lunik
   $modules/cloud/scaleway/scaleway_database_backup.py:
     maintainers: guillaume_ro_fr
   $modules/cloud/scaleway/scaleway_image_info.py:
@@ -546,6 +564,8 @@ files:
     maintainers: jpmens noseka1
   $modules/files/iso_create.py:
     maintainers: Tomorrow9
+  $modules/files/iso_customize.py:
+    maintainers: ZouYuhua
   $modules/files/iso_extract.py:
     maintainers: dagwieers jhoekx ribbons
   $modules/files/read_csv.py:
@@ -575,6 +595,8 @@ files:
     maintainers: Gaetan2907
   $modules/identity/keycloak/keycloak_client_rolemapping.py:
     maintainers: Gaetan2907
+  $modules/identity/keycloak/keycloak_user_rolemapping.py:
+    maintainers: bratwurzt
   $modules/identity/keycloak/keycloak_group.py:
     maintainers: adamgoossens
   $modules/identity/keycloak/keycloak_identity_provider.py:
@@ -798,6 +820,8 @@ files:
     maintainers: bcoca matburt maxamillion
   $modules/packaging/language/pipx.py:
     maintainers: russoz
+  $modules/packaging/language/pipx_info.py:
+    maintainers: russoz
   $modules/packaging/language/yarn.py:
     maintainers: chrishoffman verkaufer
   $modules/packaging/os/apk.py:
@@ -960,6 +984,10 @@ files:
     maintainers: elad661
   $modules/remote_management/manageiq/manageiq_group.py:
     maintainers: evertmulder
+  $modules/remote_management/manageiq/manageiq_policies_info.py:
+    maintainers: russoz $team_manageiq
+  $modules/remote_management/manageiq/manageiq_tags_info.py:
+    maintainers: russoz $team_manageiq
   $modules/remote_management/manageiq/manageiq_tenant.py:
     maintainers: evertmulder
   $modules/remote_management/oneview/:

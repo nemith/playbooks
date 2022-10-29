@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2016, Kenneth D. Evensen <kevensen@redhat.com>
-# Copyright: (c) 2017, Abhijeet Kasurde <akasurde@redhat.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2016, Kenneth D. Evensen <kevensen@redhat.com>
+# Copyright (c) 2017, Abhijeet Kasurde <akasurde@redhat.com>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -22,7 +23,7 @@ options:
     description:
     - A GConf preference key is an element in the GConf repository
       that corresponds to an application preference. See man gconftool-2(1)
-    required: yes
+    required: true
   value:
     type: str
     description:
@@ -38,7 +39,7 @@ options:
     type: str
     description:
     - The action to take upon the key/value.
-    required: yes
+    required: true
     choices: [ absent, get, present ]
   config_source:
     type: str
@@ -51,7 +52,7 @@ options:
       specified then the config_source must be specified as well.
       See man gconftool-2(1)
     type: bool
-    default: 'no'
+    default: false
 '''
 
 EXAMPLES = """
@@ -186,11 +187,11 @@ def main():
                                  % str(state))
 
         if direct and config_source is None:
-            module.fail_json(msg='If "direct" is "yes" then the ' +
+            module.fail_json(msg='If "direct" is "true" then the ' +
                                  '"config_source" must be specified')
         elif not direct and config_source is not None:
             module.fail_json(msg='If the "config_source" is specified ' +
-                                 'then "direct" must be "yes"')
+                                 'then "direct" must be "true"')
 
     # Create a gconf2 preference
     gconf_pref = GConf2Preference(module, key, value_type,

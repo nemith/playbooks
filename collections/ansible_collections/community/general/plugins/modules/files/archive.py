@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright: (c) 2016, Ben Doherty <bendohmv@gmail.com>
+# Copyright (c) 2016, Ben Doherty <bendohmv@gmail.com>
 # Sponsored by Oomph, Inc. http://www.oomphinc.com
-# Copyright: (c) 2017, Ansible Project
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2017, Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -63,15 +64,17 @@ options:
     description:
       - Remove any added source files and trees after adding to archive.
     type: bool
-    default: no
+    default: false
 notes:
-    - Requires tarfile, zipfile, gzip and bzip2 packages on target host.
-    - Requires lzma or backports.lzma if using xz format.
-    - Can produce I(gzip), I(bzip2), I(lzma) and I(zip) compressed files or archives.
+    - Can produce I(gzip), I(bzip2), I(lzma), and I(zip) compressed files or archives.
+    - This module uses C(tarfile), C(zipfile), C(gzip), and C(bz2) packages on the target host to create archives.
+      These are part of the Python standard library for Python 2 and 3.
+requirements:
+    - Requires C(lzma) (standard library of Python 3) or L(backports.lzma, https://pypi.org/project/backports.lzma/) (Python 2) if using C(xz) format.
 seealso:
-- module: ansible.builtin.unarchive
+    - module: ansible.builtin.unarchive
 author:
-- Ben Doherty (@bendoh)
+    - Ben Doherty (@bendoh)
 '''
 
 EXAMPLES = r'''
@@ -83,7 +86,7 @@ EXAMPLES = r'''
 - name: Compress regular file /path/to/foo into /path/to/foo.gz and remove it
   community.general.archive:
     path: /path/to/foo
-    remove: yes
+    remove: true
 
 - name: Create a zip archive of /path/to/foo
   community.general.archive:
@@ -574,6 +577,11 @@ class TarArchive(Archive):
             self.file.add(path, archive_name, recursive=False, exclude=py26_filter)
 
     def _get_checksums(self, path):
+        if HAS_LZMA:
+            LZMAError = lzma.LZMAError
+        else:
+            # Just picking another exception that's also listed below
+            LZMAError = tarfile.ReadError
         try:
             if self.format == 'xz':
                 with lzma.open(_to_native_ascii(path), 'r') as f:
@@ -584,7 +592,7 @@ class TarArchive(Archive):
                 archive = tarfile.open(_to_native_ascii(path), 'r|' + self.format)
                 checksums = set((info.name, info.chksum) for info in archive.getmembers())
                 archive.close()
-        except (lzma.LZMAError, tarfile.ReadError, tarfile.CompressionError):
+        except (LZMAError, tarfile.ReadError, tarfile.CompressionError):
             try:
                 # The python implementations of gzip, bz2, and lzma do not support restoring compressed files
                 # to their original names so only file checksum is returned

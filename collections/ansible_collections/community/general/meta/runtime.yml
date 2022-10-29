@@ -1,4 +1,8 @@
 ---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 requires_ansible: '>=2.11.0'
 plugin_routing:
   connection:
@@ -556,6 +560,8 @@ plugin_routing:
       redirect: community.general.files.iso_create
     iso_extract:
       redirect: community.general.files.iso_extract
+    iso_customize:
+      redirect: community.general.files.iso_customize
     jabber:
       redirect: community.general.notification.jabber
     java_cert:
@@ -608,6 +614,8 @@ plugin_routing:
       redirect: community.general.identity.keycloak.keycloak_role
     keycloak_user_federation:
       redirect: community.general.identity.keycloak.keycloak_user_federation
+    keycloak_user_rolemapping:
+      redirect: community.general.identity.keycloak.keycloak_user_rolemapping
     keyring:
       redirect: community.general.system.keyring
     keyring_info:
@@ -702,10 +710,14 @@ plugin_routing:
       redirect: community.general.remote_management.manageiq.manageiq_group
     manageiq_policies:
       redirect: community.general.remote_management.manageiq.manageiq_policies
+    manageiq_policies_info:
+      redirect: community.general.remote_management.manageiq.manageiq_policies_info
     manageiq_provider:
       redirect: community.general.remote_management.manageiq.manageiq_provider
     manageiq_tags:
       redirect: community.general.remote_management.manageiq.manageiq_tags
+    manageiq_tags_info:
+      redirect: community.general.remote_management.manageiq.manageiq_tags_info
     manageiq_tenant:
       redirect: community.general.remote_management.manageiq.manageiq_tenant
     manageiq_user:
@@ -1127,6 +1139,8 @@ plugin_routing:
       redirect: community.general.packaging.language.pip_package_info
     pipx:
       redirect: community.general.packaging.language.pipx
+    pipx_info:
+      redirect: community.general.packaging.language.pipx_info
     pkg5:
       redirect: community.general.packaging.os.pkg5
     pkg5_publisher:
@@ -1207,6 +1221,8 @@ plugin_routing:
       redirect: community.general.cloud.profitbricks.profitbricks_volume_attachments
     proxmox:
       redirect: community.general.cloud.misc.proxmox
+    proxmox_disk:
+      redirect: community.general.cloud.misc.proxmox_disk
     proxmox_domain_info:
       redirect: community.general.cloud.misc.proxmox_domain_info
     proxmox_group_info:
@@ -1363,6 +1379,10 @@ plugin_routing:
       redirect: community.general.cloud.scaleway.scaleway_compute
     scaleway_compute_private_network:
       redirect: community.general.cloud.scaleway.scaleway_compute_private_network
+    scaleway_container_registry:
+       redirect: community.general.cloud.scaleway.scaleway_container_registry
+    scaleway_container_registry_info:
+       redirect: community.general.cloud.scaleway.scaleway_container_registry_info
     scaleway_database_backup:
       redirect: community.general.cloud.scaleway.scaleway_database_backup
     scaleway_image_facts:

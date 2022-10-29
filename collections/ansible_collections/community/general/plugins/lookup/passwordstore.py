@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-# (c) 2017, Patrick Deelman <patrick@patrickdeelman.nl>
-# (c) 2017 Ansible Project
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2017, Patrick Deelman <patrick@patrickdeelman.nl>
+# Copyright (c) 2017 Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -19,7 +20,7 @@ DOCUMENTATION = '''
     options:
       _terms:
         description: query key.
-        required: True
+        required: true
       passwordstore:
         description:
           - Location of the password store.
@@ -40,7 +41,7 @@ DOCUMENTATION = '''
       overwrite:
         description: Overwrite the password if it does already exist.
         type: bool
-        default: 'no'
+        default: false
       umask:
         description:
           - Sets the umask for the created .gpg files. The first octed must be greater than 3 (user readable).
@@ -51,7 +52,7 @@ DOCUMENTATION = '''
       returnall:
         description: Return all the content of the password, not only the first line.
         type: bool
-        default: 'no'
+        default: false
       subkey:
         description: Return a specific subkey of the password. When set to C(password), always returns the first line.
         default: password
@@ -62,13 +63,13 @@ DOCUMENTATION = '''
         type: integer
         default: 16
       backup:
-        description: Used with C(overwrite=yes). Backup the previous password in a subkey.
+        description: Used with C(overwrite=true). Backup the previous password in a subkey.
         type: bool
-        default: 'no'
+        default: false
       nosymbols:
         description: use alphanumeric characters.
         type: bool
-        default: 'no'
+        default: false
       missing:
         description:
           - List of preference about what to do if the password file is missing.
