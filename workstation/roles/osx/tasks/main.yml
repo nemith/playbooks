@@ -12,17 +12,41 @@
 - name: install packages
   community.general.homebrew:
     name:
+      - colordiff
       - coreutils
+      - gh
       - gnu-tar
       - htop
+      - kubectl
+      - powerline-go
+      - watch
       - xz
+      - zsh-completions
+      # languages
+      - golang
+      - rustup
+      - zig
+      # hashicrap^H^H^H^Hstack
+      - consul
+      - nomad
+      - vault
 
-- name: install applications 
+- name: install applications
   community.general.homebrew_cask:
     name:
-      - raycast
-      - tidal
-      - rectangle
-      - steam
-      - parallels
+      - bitwarden
+      - discord
       - firefox
+      - iterm2
+      - karabiner-elements
+      - parallels
+      - protonmail-bridge
+      - raycast
+      - rectangle
+      - slack
+      - spotify
+      - steam
+      - whatsapp
+      - zoom
+      # fonts
+      -  homebrew/cask-fonts/font-meslo-for-powerline

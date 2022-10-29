@@ -1,6 +1,10 @@
-# use vscode if it exists 
-[[ -x "$(whiff code)" ]] && EDITOR="code"
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  export EDITOR="code -w"
+  alias vi="code -w"
+  return
+fi
 
+# use vscode if it exists 
 if [[ -x "$(whiff nvim)" ]]; then
   EDITOR="${EDITOR:-nvim}"
   alias vi='nvim'

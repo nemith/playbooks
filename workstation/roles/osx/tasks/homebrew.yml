@@ -9,3 +9,6 @@
     cmd: install-homebrew.sh
   when: not result_brew_binary.stat.exists
 
+- name: tap fonts repo
+  community.general.homebrew_tap:
+    name: homebrew/cask-fonts

@@ -1,10 +1,17 @@
 [user]
-    name = Brandon Bennett
-    email = brandon@brbe.me
+	name = Brandon Bennett
+	email = brandon@brbe.me
 [credential]
-    helper = libsecret
+	helper = libsecret
 [init]
-    defaultBranch = main
+	defaultBranch = main
 [alias]
-    amend = commit --amend --no-edit -a
-    addremove = !git add . && git add -u
+	amend = commit --amend --no-edit -a
+	addremove = !git add . && git add -u
+	co = checkout
+	s = status
+	feature = git checkout -b
+	f = git checkout -b
+	br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+[rebase]
+	updateRefs = true

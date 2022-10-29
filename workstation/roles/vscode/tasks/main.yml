@@ -13,6 +13,7 @@
     - ms-vscode-remote.vscode-remote-extensionpack
     - ms-vscode.cpptools
     - phgn.vscode-starlark
+    - redhat.vscode-yaml
     - rust-lang.rust-analyzer
     - tiehuis.zig
     - vscodevim.vim
