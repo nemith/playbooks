@@ -1,6 +1,6 @@
 ---
 - name: configure git
-  ansible.builtin.copy:
-    src: gitconfig
+  ansible.builtin.template:
+    src: gitconfig.j2
     dest: "{{ ansible_env.HOME }}/.gitconfig"
     backup: yes
