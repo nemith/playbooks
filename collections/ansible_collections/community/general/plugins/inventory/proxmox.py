@@ -113,10 +113,9 @@ DOCUMENTATION = '''
         description:
           - Whether to set C(ansbile_host) for proxmox nodes.
           - When set to C(true) (default), will use the first available interface. This can be different from what you expect.
-          - This currently defaults to C(true), but the default is deprecated since community.general 4.8.0.
-            The default will change to C(false) in community.general 6.0.0. To avoid a deprecation warning, please
-            set this parameter explicitly.
+          - The default of this option changed from C(true) to C(false) in community.general 6.0.0.
         type: bool
+        default: false
       filters:
         version_added: 4.6.0
         description: A list of Jinja templates that allow filtering hosts.
@@ -223,7 +222,6 @@ from ansible.module_utils.common.text.converters import to_native
 from ansible.module_utils.six import string_types
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.utils.display import Display
-from ansible.template import Templar
 
 from ansible_collections.community.general.plugins.module_utils.version import LooseVersion
 
@@ -567,14 +565,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.inventory.add_group(nodes_group)
 
         want_proxmox_nodes_ansible_host = self.get_option("want_proxmox_nodes_ansible_host")
-        if want_proxmox_nodes_ansible_host is None:
-            display.deprecated(
-                'The want_proxmox_nodes_ansible_host option of the community.general.proxmox inventory plugin'
-                ' currently defaults to `true`, but this default has been deprecated and will change to `false`'
-                ' in community.general 6.0.0. To keep the current behavior and remove this deprecation warning,'
-                ' explicitly set `want_proxmox_nodes_ansible_host` to `true` in your inventory configuration',
-                version='6.0.0', collection_name='community.general')
-            want_proxmox_nodes_ansible_host = True
 
         # gather vm's on nodes
         self._get_auth()
@@ -621,40 +611,23 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         # read config from file, this sets 'options'
         self._read_config_data(path)
 
-        t = Templar(loader=loader)
+        # read and template auth options
+        for o in ('url', 'user', 'password', 'token_id', 'token_secret'):
+            v = self.get_option(o)
+            if self.templar.is_template(v):
+                v = self.templar.template(v, disable_looups=False)
+            setattr(self, 'proxmox_%s' % o, v)
 
-        # read options
-        proxmox_url = self.get_option('url')
-        if t.is_template(proxmox_url):
-            proxmox_url = t.template(variable=proxmox_url, disable_lookups=False)
-        self.proxmox_url = proxmox_url.rstrip('/')
+        # some more cleanup and validation
+        self.proxmox_url = self.proxmox_url.rstrip('/')
 
-        proxmox_user = self.get_option('user')
-        if t.is_template(proxmox_user):
-            proxmox_user = t.template(variable=proxmox_user, disable_lookups=False)
-        self.proxmox_user = proxmox_user
-
-        proxmox_password = self.get_option('password')
-        if t.is_template(proxmox_password):
-            proxmox_password = t.template(variable=proxmox_password, disable_lookups=False)
-        self.proxmox_password = proxmox_password
-
-        proxmox_token_id = self.get_option('token_id')
-        if t.is_template(proxmox_token_id):
-            proxmox_token_id = t.template(variable=proxmox_token_id, disable_lookups=False)
-        self.proxmox_token_id = proxmox_token_id
-
-        proxmox_token_secret = self.get_option('token_secret')
-        if t.is_template(proxmox_token_secret):
-            proxmox_token_secret = t.template(variable=proxmox_token_secret, disable_lookups=False)
-        self.proxmox_token_secret = proxmox_token_secret
-
-        if proxmox_password is None and (proxmox_token_id is None or proxmox_token_secret is None):
+        if self.proxmox_password is None and (self.proxmox_token_id is None or self.proxmox_token_secret is None):
             raise AnsibleError('You must specify either a password or both token_id and token_secret.')
 
         if self.get_option('qemu_extended_statuses') and not self.get_option('want_facts'):
             raise AnsibleError('You must set want_facts to True if you want to use qemu_extended_statuses.')
 
+        # read rest of options
         self.cache_key = self.get_cache_key(path)
         self.use_cache = cache and self.get_option('cache')
         self.host_filters = self.get_option('filters')

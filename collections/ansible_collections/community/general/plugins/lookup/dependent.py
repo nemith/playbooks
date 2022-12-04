@@ -16,7 +16,7 @@ description:
      or template expressions which evaluate to lists or dicts, composed of the elements of
      the input evaluated lists and dictionaries."
 options:
-  _raw:
+  _terms:
     description:
       - A list where the elements are one-element dictionaries, mapping a name to a string, list, or dictionary.
         The name is the index that is used in the result object. The value is iterated over as described below.
@@ -125,7 +125,15 @@ from ansible.errors import AnsibleLookupError
 from ansible.module_utils.common._collections_compat import Mapping, Sequence
 from ansible.module_utils.six import string_types
 from ansible.plugins.lookup import LookupBase
+from ansible.release import __version__ as ansible_version
 from ansible.template import Templar
+
+from ansible_collections.community.general.plugins.module_utils.version import LooseVersion
+
+
+# Whether Templar has a cache, which can be controlled by Templar.template()'s cache option.
+# The cache was removed for ansible-core 2.14 (https://github.com/ansible/ansible/pull/78419)
+_TEMPLAR_HAS_TEMPLATE_CACHE = LooseVersion(ansible_version) < LooseVersion('2.14.0')
 
 
 class LookupModule(LookupBase):
@@ -136,7 +144,10 @@ class LookupModule(LookupBase):
         ``variables`` are the variables to use.
         """
         templar.available_variables = variables or {}
-        return templar.template("{0}{1}{2}".format("{{", expression, "}}"), cache=False)
+        expression = "{0}{1}{2}".format("{{", expression, "}}")
+        if _TEMPLAR_HAS_TEMPLATE_CACHE:
+            return templar.template(expression, cache=False)
+        return templar.template(expression)
 
     def __process(self, result, terms, index, current, templar, variables):
         """Fills ``result`` list with evaluated items.
@@ -180,6 +191,8 @@ class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
         """Generate list."""
+        self.set_options(var_options=variables, direct=kwargs)
+
         result = []
         if len(terms) > 0:
             templar = Templar(loader=self._templar._loader)

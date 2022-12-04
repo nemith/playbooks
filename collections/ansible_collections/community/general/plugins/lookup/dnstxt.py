@@ -20,6 +20,13 @@ DOCUMENTATION = '''
         required: true
         type: list
         elements: string
+      real_empty:
+        description:
+          - Return empty result without empty strings, and return empty list instead of C(NXDOMAIN).
+          - The default for this option will likely change to C(true) in the future.
+        default: false
+        type: bool
+        version_added: 6.0.0
 '''
 
 EXAMPLES = """
@@ -71,9 +78,12 @@ from ansible.plugins.lookup import LookupBase
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
+        self.set_options(var_options=variables, direct=kwargs)
 
         if HAVE_DNS is False:
             raise AnsibleError("Can't LOOKUP(dnstxt): module dns.resolver is not installed")
+
+        real_empty = self.get_option('real_empty')
 
         ret = []
         for term in terms:
@@ -86,10 +96,16 @@ class LookupModule(LookupBase):
                     string.append(s[1:-1])  # Strip outside quotes on TXT rdata
 
             except dns.resolver.NXDOMAIN:
+                if real_empty:
+                    continue
                 string = 'NXDOMAIN'
             except dns.resolver.Timeout:
+                if real_empty:
+                    continue
                 string = ''
             except dns.resolver.NoAnswer:
+                if real_empty:
+                    continue
                 string = ''
             except DNSException as e:
                 raise AnsibleError("dns.resolver unhandled exception %s" % to_native(e))
