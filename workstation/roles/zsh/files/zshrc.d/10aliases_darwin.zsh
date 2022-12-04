@@ -6,3 +6,4 @@ else
     export LSCOLORS=GxFxCxDxBxegedabagaced
     alias ls="ls -GFh"
 fi
+

@@ -4,12 +4,12 @@
   community.general.pacman:
     name:
       - gdm
-      - gimp           # image editor
+      - gimp # image editor
       - gnome
       - gnome-firmware # frontend for fwupd
       - gnome-todo
       - gnome-tweaks
-      - python-psutil  # needed for dconf module below
+      - python-psutil # needed for dconf module below
       - gnome-software-packagekit-plugin
       - ttf-fira-code
     state: present
@@ -19,4 +19,3 @@
   ansible.builtin.systemd:
     name: gdm.service
     enabled: yes
-

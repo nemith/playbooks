@@ -2,7 +2,7 @@
 - name: install development packages
   become: yes
   community.general.pacman:
-    name: 
+    name:
       - go
       - go-tools
       - nodejs
@@ -11,6 +11,6 @@
     state: present
 
 - name: set rustup default toolchain
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: rustup default stable
     creates: "{{ ansible_env.HOME }}/.rustup/settings.toml"

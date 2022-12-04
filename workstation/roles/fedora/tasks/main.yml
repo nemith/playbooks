@@ -4,15 +4,15 @@
   ansible.builtin.rpm_key:
     key: "{{ item }}"
   loop:
-      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
-      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+    - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
+    - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
 
 - name: add rpmfusion reposiories
   become: yes
   ansible.builtin.dnf:
     name:
-      - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm 
-      - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm 
+      - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
+      - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
 
 - name: install openconnect copr
   become: yes
@@ -105,7 +105,7 @@
     dest: /etc/modprobe.d/i915.conf
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: regenerate initramfs
 
 - import_tasks: dnf.yml

@@ -12,13 +12,28 @@
 - name: install packages
   community.general.homebrew:
     name:
+      - bat
       - colordiff
       - coreutils
+      - duf
+      - fd
       - gh
       - gnu-tar
       - htop
+      - httpie
+      - iperf
+      - jq
       - kubectl
+      - make
+      - mtr
+      - ncdu
+      - nmap
       - powerline-go
+      - procs
+      - scc
+      - sqlite
+      - tldr
+      - tree
       - watch
       - xz
       - zsh-completions
@@ -26,6 +41,7 @@
       - golang
       - rustup
       - zig
+      - node
       # hashicrap^H^H^H^Hstack
       - consul
       - nomad
@@ -34,20 +50,27 @@
 - name: install applications
   community.general.homebrew_cask:
     name:
+      - alt-tab
+      - autodesk-fusion360
       - bitwarden
       - discord
       - firefox
       - google-drive
+      - httpie
       - iterm2
       - karabiner-elements
+      - logseq
       - parallels
       - protonmail-bridge
+      - prusaslicer
       - raycast
       - rectangle
+      - shottr
       - slack
       - spotify
       - steam
+      - superslicer
       - whatsapp
       - zoom
       # fonts
-      -  homebrew/cask-fonts/font-meslo-for-powerline
+      - homebrew/cask-fonts/font-meslo-for-powerline

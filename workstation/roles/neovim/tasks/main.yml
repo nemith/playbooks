@@ -1,11 +1,11 @@
 ---
-- include_tasks: "{{ ansible_distribution|lower }}.yml" 
+- include_tasks: "{{ ansible_distribution|lower }}.yml"
 
 - name: create paq directory
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: download paq
   ansible.builtin.get_url:
@@ -22,7 +22,7 @@
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/nvim"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: copy nvim config
   ansible.builtin.copy:

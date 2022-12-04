@@ -2,7 +2,7 @@
 - name: install packages (arch)
   become: yes
   community.general.pacman:
-    name: 
-      - ansible  # not sure how we got this far
+    name:
+      - ansible # not sure how we got this far
       - ansible-lint
-    state: present 
+    state: present

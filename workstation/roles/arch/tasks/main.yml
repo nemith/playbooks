@@ -16,7 +16,7 @@
     name:
       # tools
       - acpi
-      - bind      # for dig
+      - bind # for dig
       - dmidecode
       - fwupd
       - git
@@ -34,7 +34,7 @@
       # applications
       - firefox
       - discord
-      - steam 
+      - steam
 
       # graphics
       - libva-utils
@@ -57,9 +57,9 @@
     use: makepkg
     state: present
 
-- name: install aur packages 
+- name: install aur packages
   kewlfft.aur.aur:
-    name: 
+    name:
       - tidal-hifi-bin
       - mangohud
       - lib32-mangohud

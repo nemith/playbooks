@@ -2,5 +2,5 @@
 - name: install packages
   become: yes
   ansible.builtin.dnf:
-    name: 
+    name:
       - neovim

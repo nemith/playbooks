@@ -1,5 +1,5 @@
 ---
-- include_tasks: "{{ ansible_distribution|lower }}.yml" 
+- include_tasks: "{{ ansible_distribution|lower }}.yml"
 
 - name: change user shell to zsh
   become: true

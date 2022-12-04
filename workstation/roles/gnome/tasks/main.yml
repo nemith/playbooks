@@ -16,6 +16,6 @@
     key: /org/gnome/settings-daemon/plugins/media-keys/{{ item.key }}
     value: "{{ item.value | string }}"
   loop:
-    - {key: "previous", value: "['<Super>comma']"}
-    - {key: "next", value: "['<Super>period']"}
-    - {key: "play", value: "['<Super>slash']"}
+    - { key: "previous", value: "['<Super>comma']" }
+    - { key: "next", value: "['<Super>period']" }
+    - { key: "play", value: "['<Super>slash']" }

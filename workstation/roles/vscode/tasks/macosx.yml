@@ -2,4 +2,3 @@
 - name: install packages
   community.general.homebrew_cask:
     name: visual-studio-code
-

@@ -11,7 +11,7 @@
     description: Visual Studio Code
     baseurl: https://packages.microsoft.com/yumrepos/vscode
 
-- name: install packages 
+- name: install packages
   become: yes
   ansible.builtin.dnf:
     name: code

@@ -2,7 +2,7 @@
 - name: instal podman packages
   become: yes
   ansible.builtin.dnf:
-    name: 
+    name:
       - podman
       - docker-compose
 
@@ -10,4 +10,3 @@
   ansible.builtin.systemd:
     state: enabled
     name: podman.socket
-

@@ -1,5 +1,5 @@
 ---
 - name: install psutil
   become: yes
-  ansible.builtin.dnf: 
+  ansible.builtin.dnf:
     name: python3-psutil

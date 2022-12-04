@@ -1,4 +1,6 @@
 ---
+- include_tasks: "{{ ansible_distribution|lower }}.yml"
+
 - name: configure git
   ansible.builtin.template:
     src: gitconfig.j2

@@ -2,7 +2,7 @@
 - name: install packages
   become: yes
   community.general.pacman:
-    name: 
+    name:
       - neovim
       - python-pynvim
     state: present
