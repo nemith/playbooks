@@ -1,2 +1,3 @@
-k3s_hosts: "{{ groups['kube'] | sort}}"
+---
+k3s_hosts: "{{ groups['kube'] | sort }}"
 k3s_primary_host: "{{ k3s_hosts[0] }}"

@@ -1,11 +1,21 @@
+{% import "_helpers.j2" as helpers %}
 # Managed by ansible.  Do not modify
 
 [Match]
-{% if cfg.match.path %}
+{% if cfg.match.path is defined %}
 Path={{ cfg.match.path }}
+{% endif %}
+{% if cfg.match.macaddress is defined %}
+MACAddress={{ cfg.match.macaddress }}
 {% endif %}
 
 [Link]
 {% if cfg.link.name %}
 Name={{ cfg.link.name }}
+{% endif %}
+{% if cfg.link.tso is defined %}
+TCPSegmentationOffload={{ helpers.bool(cfg.link.tso) }}
+{% endif %}
+{% if cfg.link.tso6 is defined %}
+TCP6SegmentationOffload={{ cfg.link.tso6 }}
 {% endif %}

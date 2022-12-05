@@ -1,41 +1,41 @@
 hostname: fw01
 networkd:
   links:
-    - match: {path: pci-0000:01:00.0}
+    - match: {macaddress: 38:f3:ab:c8:9a:f1}
       link: {name: lan0}
       priority: 10
-    - match: {path: pci-0000:01:00.1}
-      link: {name: lan1}
+    - match: {macaddress: 00:1f:29:54:2d:aa}
+      link:
+        name: wan0
+        tso: false
       priority: 10
-    - match: {path: pci-0000:02:00.0}
-      link: {name: wan0}
-      priority: 10
-    - match: {path: pci-0000:02:00.1}
+    - match: {macaddress: 00:1f:29:54:2d:ab}
       link: {name: wan1}
       priority: 10
+
   netdevs:
     - netdev:
         name: lan0.2001
         kind: vlan
-      vlan: 
+      vlan:
         id: 2001
 
     - netdev:
         name: lan0.2004
         kind: vlan
-      vlan: 
+      vlan:
         id: 2004
 
     - netdev:
         name: lan0.2012
         kind: vlan
-      vlan: 
+      vlan:
         id: 2012
 
     - netdev:
         name: lan0.2014
         kind: vlan
-      vlan: 
+      vlan:
         id: 2014
 
     - netdev:
@@ -74,7 +74,7 @@ networkd:
 
     - match: {name: lan0.2001}
       network:
-        addresses: 
+        addresses:
           - 192.168.1.1/24
           - "{{ ula_prefix }}:1::1/64"
         configure_without_carrier: yes
@@ -87,7 +87,7 @@ networkd:
 
     - match: {name: lan0.2004}
       network:
-        addresses: 
+        addresses:
           - 192.168.4.1/24
           - "{{ ula_prefix }}:4::1/64"
         configure_without_carrier: yes
@@ -100,7 +100,7 @@ networkd:
 
     - match: {name: lan0.2012}
       network:
-        addresses: 
+        addresses:
           - 192.168.12.1/24
           - "{{ ula_prefix }}:c::1/64"
         configure_without_carrier: yes
@@ -113,7 +113,7 @@ networkd:
 
     - match: {name: lan0.2014}
       network:
-        addresses: 
+        addresses:
           - 192.168.14.1/24
           - "{{ ula_prefix }}:e::1/64"
         configure_without_carrier: yes
@@ -126,7 +126,7 @@ networkd:
 
     - match: {name: lan0.2254}
       network:
-        addresses: 
+        addresses:
           - 192.168.254.1/24
           - "{{ ula_prefix }}:fe::1/64"
         configure_without_carrier: yes
@@ -137,4 +137,4 @@ networkd:
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:fe::/64"
 
-  
+

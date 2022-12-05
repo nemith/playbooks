@@ -1,7 +1,8 @@
+---
 - name: core setup
   hosts: all
   roles:
-    - sudo     # sudo needs to be first
+    - sudo # sudo needs to be first
     - hostname
     - users
     - epel
@@ -20,7 +21,6 @@
     - ip_forward
     - nftables
     - ddns
-    - nginx
     - bird
 
 - name: kube setup

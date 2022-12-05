@@ -1,21 +1,24 @@
 ---
-- name: install chrony
-  become: yes
-  notify: restart chronyd
+- name: Install chrony
+  become: true
+  notify: Restart chronyd
   ansible.builtin.dnf:
     name: chrony
     state: present
 
-- name: enable chronyd service
-  become: yes
+- name: Enable chronyd service
+  become: true
   ansible.builtin.systemd:
     name: chronyd
-    enabled: yes
+    enabled: true
 
-- name: configure chrony
-  become: yes
-  notify: restart chronyd
+- name: Configure chrony
+  become: true
+  notify: Restart chronyd
   ansible.builtin.template:
     src: chrony.conf.j2
     dest: /etc/chrony.conf
-    trim_blocks: no
+    owner: root
+    group: root
+    mode: "0644"
+    trim_blocks: false

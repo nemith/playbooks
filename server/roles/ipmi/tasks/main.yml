@@ -1,6 +1,6 @@
 ---
-- name: install packages
-  become: yes
+- name: Install packages
+  become: true
   ansible.builtin.dnf:
     name:
       - OpenIPMI

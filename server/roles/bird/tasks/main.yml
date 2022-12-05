@@ -1,6 +1,6 @@
 ---
-- name: install bird
-  become: yes
+- name: Install bird
+  become: true
   ansible.builtin.dnf:
     name: bird
     state: present

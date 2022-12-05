@@ -1,11 +1,11 @@
 ---
-- name: install dnsmasq
+- name: Install dnsmasq
   ansible.builtin.dnf:
     name: dnsmasq
     state: present
-  become: yes
+  become: true
 
-- name: dnsmasq config
+- name: Configure dnsmasq
   ansible.builtin.copy:
     src: dnsmasq.conf
     dest: /etc/dnsmasq.conf
@@ -13,35 +13,35 @@
     group: dnsmasq
     mode: 0644
     validate: dnsmasq --conf-file=%s --test
-  become: yes
-  notify: restart_dnsmasq
+  become: true
+  notify: Restart dnsmasq
 
-- name: dnsmasq subconfigs
+- name: Configure dnsmasq.d/*
   ansible.builtin.copy:
-    src: dnsmasq.d/{{ item|basename }}
-    dest: /etc/dnsmasq.d/{{ item|basename }}
+    src: dnsmasq.d/{{ item | basename }}
+    dest: /etc/dnsmasq.d/{{ item | basename }}
     owner: root
     group: dnsmasq
     mode: 0644
     validate: dnsmasq --conf-file=%s --test
-  with_fileglob: "dnsmasq.d/*.conf"
-  become: yes
-  notify: restart_dnsmasq
+  with_fileglob: dnsmasq.d/*.conf
+  become: true
+  notify: Restart dnsmasq
 
-- name: enable dnsmasq service
+- name: Enable dnsmasq service
   ansible.builtin.service:
     name: dnsmasq
-    enabled: yes
+    enabled: true
     state: started
-  become: yes
-  notify: restart_dnsmasq
+  become: true
+  notify: Restart dnsmasq
 
-- name: setup /etc/hosts
+- name: Setup /etc/hosts
   ansible.builtin.template:
     src: hosts.j2
     dest: /etc/hosts
     owner: root
     group: root
-    mode: 644
-  become: yes
-  notify: restart_dnsmasq
+    mode: "0644"
+  become: true
+  notify: Restart dnsmasq

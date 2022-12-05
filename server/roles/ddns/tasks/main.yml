@@ -1,5 +1,5 @@
 ---
-- name: install ddns client
+- name: Install ddns client
   ansible.builtin.get_url:
     url: "{{ client_url }}"
     dest: /usr/local/bin/cloudflare-ddns
@@ -7,4 +7,4 @@
     owner: root
     group: root
     checksum: "{{ client_checksum }}"
-  become: yes
+  become: true

@@ -1,5 +1,5 @@
 ---
-- name: install utils
+- name: Install utils
   ansible.builtin.dnf:
     name:
       - bind-utils # dig
@@ -13,4 +13,4 @@
       - tcpdump
       - wget
     state: present
-  become: yes
+  become: true

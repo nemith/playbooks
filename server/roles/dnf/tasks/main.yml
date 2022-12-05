@@ -1,13 +1,13 @@
 ---
-- name: install dnf-automatic
+- name: Install dnf-automatic
   become: true
-  dnf:
+  ansible.builtin.dnf:
     name: dnf-automatic
     state: present
 
-- name: start dnf-automatic timer
+- name: Start dnf-automatic timer
   become: true
-  systemd:
+  ansible.builtin.systemd:
     name: dnf-automatic.timer
     state: started
-    enabled: yes
+    enabled: true

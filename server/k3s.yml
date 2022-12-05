@@ -1,3 +1,4 @@
+---
 - name: kube setup
   hosts: kube
   roles:

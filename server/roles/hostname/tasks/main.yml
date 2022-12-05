@@ -1,5 +1,6 @@
 ---
-- name: set hostname
+- name: Set hostname
+  become: true
   ansible.builtin.hostname:
     name: "{{ hostname }}"
     use: systemd

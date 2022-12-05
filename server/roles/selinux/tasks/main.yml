@@ -1,6 +1,6 @@
 ---
-- name: install policycoreutils-python-utils
+- name: Install policycoreutils-python-utils
   ansible.builtin.dnf:
     name: policycoreutils-python-utils
     state: present
-  become: yes
+  become: true

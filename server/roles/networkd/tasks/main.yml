@@ -1,24 +1,23 @@
 ---
-- name: install networkd
+- name: Install networkd
   ansible.builtin.dnf:
     name: systemd-networkd
     state: present
-  become: yes
+  become: true
 
-- name: disable network manager
+- name: Disable network manager
   ansible.builtin.service:
     name: NetworkManager
     enabled: false
-  become: yes
-  ignore_errors: yes # NetworkManager may be uninstalled
+  become: true
 
-- name: enable networkd
+- name: Enable networkd
   ansible.builtin.service:
     name: systemd-networkd
     enabled: true
-  become: yes
+  become: true
 
-- name: setup links
+- name: Setup links
   ansible.builtin.template:
     src: link.j2
     dest: /etc/systemd/network/{{ cfg.priority }}-{{ filename }}.link
@@ -30,10 +29,10 @@
   loop: "{{ networkd.links }}"
   loop_control:
     loop_var: cfg
-  become: yes
-  when: "netword.links is defined"
+  become: true
+  when: networkd.links is defined
 
-- name: setup netdevs
+- name: Setup netdevs
   ansible.builtin.template:
     src: netdev.j2
     dest: /etc/systemd/network/{{ filename }}.netdev
@@ -45,10 +44,10 @@
   loop: "{{ networkd.netdevs }}"
   loop_control:
     loop_var: cfg
-  become: yes
-  when: "netword.netdevs is defined"
+  become: true
+  when: networkd.netdevs is defined
 
-- name: setup networks
+- name: Setup networks
   ansible.builtin.template:
     src: network.j2
     dest: /etc/systemd/network/{{ filename }}.network
@@ -60,4 +59,4 @@
   loop: "{{ networkd.networks }}"
   loop_control:
     loop_var: cfg
-  become: yes
+  become: true

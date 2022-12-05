@@ -1,6 +1,6 @@
 ---
-- name: install k3s binary
-  become: yes
+- name: Istall k3s binary
+  become: true
   ansible.builtin.get_url:
     url: "{{ k3s_url }}"
     checksum: "{{ k3s_checksum }}"
@@ -8,25 +8,25 @@
     owner: root
     group: root
     mode: 0755
-  notify: restart_k3s
+  notify: Restart k3s
 
-- name: add k3s rpm repo (for selinux)
-  become: yes
+- name: Add k3s rpm repo (for selinux)
+  become: true
   ansible.builtin.yum_repository:
     name: rancher-k3s-common-{{ k3s_rpm_channel }}
     description: Rancher K3 Common ({{ k3s_rpm_channel }})
     baseurl: "{{ k3s_rpm_baseurl }}"
     gpgkey: "{{ k3s_rpm_gpgkey }}"
 
-- name: install k3s-selinux package
-  become: yes
+- name: Install k3s-selinux package
+  become: true
   ansible.builtin.dnf:
     name: k3s-selinux
     state: present
-  notify: restart_k3s
+  notify: Restart k3s
 
-- name: setup symlinks
-  become: yes
+- name: Setup symlinks
+  become: true
   ansible.builtin.file:
     src: /usr/local/bin/k3s
     dest: /usr/local/bin/{{ item }}
@@ -36,46 +36,46 @@
     - crictl
     - ctr
 
-- name: create k3s config dir
-  become: yes
+- name: Create k3s config dir
+  become: true
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
-    mode: '0755'
+    mode: "0755"
 
-- name: configure k3s sever
-  become: yes
+- name: Configure k3s sever
+  become: true
   ansible.builtin.template:
-    src: "config.yaml.j2"
-    dest: "/etc/rancher/k3s/config.yaml"
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
     owner: root
     group: root
-    mode: '0644'
-  notify: restart_k3s
+    mode: "0644"
+  notify: Restart k3s
 
-- name: setup cluster token
-  become: yes
+- name: Setup cluster token
+  become: true
   ansible.builtin.template:
-    src: "token.j2"
-    dest: "/etc/rancher/k3s/token"
+    src: token.j2
+    dest: /etc/rancher/k3s/token
     owner: root
     group: root
-    mode: '0600'
+    mode: "0600"
 
-- name: setup k3s service
-  become: yes
+- name: Setup k3s service
+  become: true
   ansible.builtin.template:
-    src: "k3s.service.j2"
-    dest: "/etc/systemd/system/k3s.service"
+    src: k3s.service.j2
+    dest: /etc/systemd/system/k3s.service
     owner: root
     group: root
-    mode: '0644'
-  notify: restart_k3s
+    mode: "0644"
+  notify: Restart k3s
 
-- name: enable k3s service
-  become: yes
+- name: Enable k3s service
+  become: true
   ansible.builtin.systemd:
     name: k3s
-    enabled: yes
-    daemon_reload: yes
-  notify: restart_k3s
+    enabled: true
+    daemon_reload: true
+  notify: Restart k3s
