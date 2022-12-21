@@ -16,6 +16,9 @@ Name={{ cfg.link.name }}
 {% if cfg.link.tso is defined %}
 TCPSegmentationOffload={{ helpers.bool(cfg.link.tso) }}
 {% endif %}
+{% if cfg.link.gso is defined %}
+GenericSegmentationOffload={{ helpers.bool(cfg.link.gso) }}
+{% endif %}
 {% if cfg.link.tso6 is defined %}
-TCP6SegmentationOffload={{ cfg.link.tso6 }}
+TCP6SegmentationOffload={{ helpers.bool(cfg.link.tso6) }}
 {% endif %}
