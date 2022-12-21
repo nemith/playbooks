@@ -1,0 +1,43 @@
+---
+- name: Add nextdns repos
+  become: true
+  ansible.builtin.yum_repository:
+    name: nextdns
+    description: nextdns
+    baseurl: https://repo.nextdns.io/rpm
+    gpgkey: https://repo.nextdns.io/nextdns-armored.gpg
+    gpgcheck: false
+    repo_gpgcheck: true
+
+- name: Install nextdns proxy
+  become: true
+  ansible.builtin.dnf:
+    name: nextdns
+
+- name: Configure nextdns proxy
+  become: true
+  ansible.builtin.copy:
+    src: nextdns.conf
+    dest: /etc/nextdns.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nextdns
+
+- name: Setup nextdns service
+  become: true
+  ansible.builtin.copy:
+    src: nextdns.service
+    dest: /etc/systemd/system/nextdns.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nextdns
+
+- name: Enable nextdns service
+  become: true
+  ansible.builtin.systemd:
+    name: nextdns
+    enabled: true
+    daemon_reload: true
+  notify: Restart nextdns

@@ -16,6 +16,7 @@
 - name: firewall setup
   hosts: fw
   roles:
+    - nextdns
     - dnsmasq
     - mdnsrepeater
     - ip_forward

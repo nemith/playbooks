@@ -11,7 +11,7 @@
     dest: /etc/dnsmasq.conf
     owner: root
     group: dnsmasq
-    mode: 0644
+    mode: "0644"
     validate: dnsmasq --conf-file=%s --test
   become: true
   notify: Restart dnsmasq
@@ -22,11 +22,31 @@
     dest: /etc/dnsmasq.d/{{ item | basename }}
     owner: root
     group: dnsmasq
-    mode: 0644
+    mode: "0644"
     validate: dnsmasq --conf-file=%s --test
   with_fileglob: dnsmasq.d/*.conf
   become: true
   notify: Restart dnsmasq
+
+- name: Setup tftproot Directory
+  ansible.builtin.file:
+    path: /srv/tftp
+    state: directory
+    owner: dnsmasq
+    group: dnsmasq
+    mode: "0775"
+  become: true
+
+- name: Update selinux context for tftproot
+  community.general.sefcontext:
+    target: '/srv/tftp(/.*)?'
+    setype: dnsmasq_var_run_t
+    state: present
+  become: true
+
+- name: Apply new SELinux file context for tftproot
+  ansible.builtin.command: restorecon -irv /srv/tftp
+  become: true
 
 - name: Enable dnsmasq service
   ansible.builtin.service:
