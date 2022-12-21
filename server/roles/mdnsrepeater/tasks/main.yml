@@ -11,7 +11,7 @@
     dest: /etc/sysconfig/mdns-repeater
     owner: root
     group: root
-    mode: "06444"
+    mode: "0644"
   become: true
   notify: Restart mdnsrepeater
 
