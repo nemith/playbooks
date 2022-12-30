@@ -34,15 +34,15 @@ options:
         type: str
     username:
         description:
-            - access.redhat.com or Sat6 username
+            - access.redhat.com or Red Hat Satellite or Katello username
         type: str
     password:
         description:
-            - access.redhat.com or Sat6 password
+            - access.redhat.com or Red Hat Satellite or Katello password
         type: str
     server_hostname:
         description:
-            - Specify an alternative Red Hat Subscription Management or Sat6 server
+            - Specify an alternative Red Hat Subscription Management or Red Hat Satellite or Katello server
         type: str
     server_insecure:
         description:
@@ -50,12 +50,12 @@ options:
         type: str
     server_prefix:
         description:
-            - Specify the prefix when registering to the Red Hat Subscription Management or Sat6 server.
+            - Specify the prefix when registering to the Red Hat Subscription Management or Red Hat Satellite or Katello server.
         type: str
         version_added: 3.3.0
     server_port:
         description:
-            - Specify the port when registering to the Red Hat Subscription Management or Sat6 server.
+            - Specify the port when registering to the Red Hat Subscription Management or Red Hat Satellite or Katello server.
         type: str
         version_added: 3.3.0
     rhsm_baseurl:
@@ -98,7 +98,7 @@ options:
         type: str
     environment:
         description:
-            - Register with a specific environment in the destination org. Used with Red Hat Satellite 6.x or Katello
+            - Register with a specific environment in the destination org. Used with Red Hat Satellite or Katello
         type: str
     pool:
         description:
@@ -229,7 +229,7 @@ EXAMPLES = '''
     org_id: 222333444
     pool: '^Red Hat Enterprise Server$'
 
-- name: Register as user credentials into given environment (against Red Hat Satellite 6.x), and auto-subscribe.
+- name: Register as user credentials into given environment (against Red Hat Satellite or Katello), and auto-subscribe.
   community.general.redhat_subscription:
     state: present
     username: joe_user
@@ -264,7 +264,7 @@ RETURN = '''
 subscribed_pool_ids:
     description: List of pool IDs to which system is now subscribed
     returned: success
-    type: complex
+    type: dict
     sample: {
         "8a85f9815ab905d3015ab928c7005de4": "1"
     }
@@ -394,10 +394,11 @@ class Rhsm(RegistrationBase):
 
     def register(self, username, password, auto_attach, activationkey, org_id,
                  consumer_type, consumer_name, consumer_id, force_register, environment,
-                 rhsm_baseurl, server_insecure, server_hostname, server_proxy_hostname,
-                 server_proxy_port, server_proxy_user, server_proxy_password, release):
+                 release):
         '''
-            Register the current system to the provided RHSM or Sat6 server
+            Register the current system to the provided RHSM or Red Hat Satellite
+            or Katello server
+
             Raises:
               * Exception - if error occurs while running command
         '''
@@ -407,44 +408,31 @@ class Rhsm(RegistrationBase):
         if force_register:
             args.extend(['--force'])
 
-        if rhsm_baseurl:
-            args.extend(['--baseurl', rhsm_baseurl])
-
-        if server_insecure:
-            args.extend(['--insecure'])
-
-        if server_hostname:
-            args.extend(['--serverurl', server_hostname])
-
         if org_id:
             args.extend(['--org', org_id])
 
-        if server_proxy_hostname and server_proxy_port:
-            args.extend(['--proxy', server_proxy_hostname + ':' + server_proxy_port])
+        if auto_attach:
+            args.append('--auto-attach')
 
-        if server_proxy_user:
-            args.extend(['--proxyuser', server_proxy_user])
+        if consumer_type:
+            args.extend(['--type', consumer_type])
 
-        if server_proxy_password:
-            args.extend(['--proxypassword', server_proxy_password])
+        if consumer_name:
+            args.extend(['--name', consumer_name])
+
+        if consumer_id:
+            args.extend(['--consumerid', consumer_id])
+
+        if environment:
+            args.extend(['--environment', environment])
 
         if activationkey:
             args.extend(['--activationkey', activationkey])
         else:
-            if auto_attach:
-                args.append('--auto-attach')
             if username:
                 args.extend(['--username', username])
             if password:
                 args.extend(['--password', password])
-            if consumer_type:
-                args.extend(['--type', consumer_type])
-            if consumer_name:
-                args.extend(['--name', consumer_name])
-            if consumer_id:
-                args.extend(['--consumerid', consumer_id])
-            if environment:
-                args.extend(['--environment', environment])
 
         if release:
             args.extend(['--release', release])
@@ -922,8 +910,7 @@ def main():
                 rhsm.configure(**module.params)
                 rhsm.register(username, password, auto_attach, activationkey, org_id,
                               consumer_type, consumer_name, consumer_id, force_register,
-                              environment, rhsm_baseurl, server_insecure, server_hostname,
-                              server_proxy_hostname, server_proxy_port, server_proxy_user, server_proxy_password, release)
+                              environment, release)
                 if syspurpose and 'sync' in syspurpose and syspurpose['sync'] is True:
                     rhsm.sync_syspurpose()
                 if pool_ids:
