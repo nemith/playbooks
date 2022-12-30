@@ -1,6 +1,6 @@
 ---
-- name: setup dnf
-  become: yes
+- name: Setup dnf
+  become: true
   ansible.builtin.copy:
     src: dnf.conf
     dest: /etc/dnf/dnf.conf

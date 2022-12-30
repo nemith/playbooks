@@ -1,23 +1,28 @@
 ---
-- name: install packages (arch)
-  become: yes
+- name: Install packages (arch)
+  become: true
   community.general.pacman:
     name: wezterm
     state: present
   when: ansible_facts['distribution'] == "Arch"
 
-- name: install packages (osx)
+- name: Install packages (osx)
   community.general.homebrew_cask:
     name: wezterm
   when: ansible_facts['distribution'] == "MacOSX"
 
-- name: create wezterm config dir
+- name: Create wezterm config dir
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/wezterm"
+    path: "{{ main_user_home }}/.config/wezterm"
     state: directory
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
     mode: "0755"
 
-- name: configure wezterm
+- name: Configure wezterm
   ansible.builtin.copy:
     src: wezterm.lua
-    dest: "{{ ansible_env.HOME }}/.config/wezterm/wezterm.lua"
+    dest: "{{ main_user_home }}/.config/wezterm/wezterm.lua"
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
+    mode: "0644"

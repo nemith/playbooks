@@ -1,17 +1,17 @@
 ---
-- name: setup pacman
-  become: yes
+- name: Setup pacman
+  become: true
   ansible.builtin.template:
     src: pacman.conf.j2
     dest: /etc/pacman.conf
     mode: 0644
-  notify: refresh pacman database
+  notify: Refresh pacman database
 
-- name: flush handlers
-  meta: flush_handlers
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
 
-- name: install packages
-  become: yes
+- name: Install packages
+  become: true
   community.general.pacman:
     name:
       # tools
@@ -51,13 +51,13 @@
       - ttf-carlito
       - gsfonts
 
-- name: install yay
+- name: Install yay
   kewlfft.aur.aur:
     name: yay
     use: makepkg
     state: present
 
-- name: install aur packages
+- name: Install aur packages
   kewlfft.aur.aur:
     name:
       - tidal-hifi-bin
@@ -65,18 +65,25 @@
       - lib32-mangohud
     state: present
 
-- name: enable fstrim.service
-  become: yes
+- name: Enable fstrim.service
+  become: true
   ansible.builtin.systemd:
     name: fstrim.service
-    enabled: yes
+    enabled: true
 
-- import_tasks: systemd.yml
-- import_tasks: bluetooth.yml
-- import_tasks: devel.yml
+- name: Configure systemd
+  ansible.builtin.import_tasks: systemd.yml
 
-- import_tasks: asus_g14.yml
+- name: Configure bluetooth
+  ansible.builtin.import_tasks: bluetooth.yml
+
+- name: Configure Development Environment
+  ansible.builtin.import_tasks: devel.yml
+
+- name: Configure Asus G14
+  ansible.builtin.import_tasks: asus_g14.yml
   when: asus_g14 is defined
 
-- import_tasks: nvidia.yml
+- name: Configure NVIDIA
+  ansible.builtin.import_tasks: nvidia.yml
   when: nvidia is defined

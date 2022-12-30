@@ -1,6 +1,6 @@
 ---
-- name: install development packages
-  become: yes
+- name: Install development packages
+  become: true
   community.general.pacman:
     name:
       - go
@@ -10,7 +10,8 @@
       - zig
     state: present
 
-- name: set rustup default toolchain
+- name: Set rustup default toolchain
+  become: "{{ main_user_unixname }}"
   ansible.builtin.command:
     cmd: rustup default stable
-    creates: "{{ ansible_env.HOME }}/.rustup/settings.toml"
+    creates: "{{ main_user_home }}/.rustup/settings.toml"

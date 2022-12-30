@@ -1,14 +1,14 @@
 ---
-- name: check existing homebrew
+- name: Check existing homebrew
   ansible.builtin.stat:
     path: /opt/homebrew/bin/brew
   register: result_brew_binary
 
-- name: install homebrew
+- name: Install homebrew
   ansible.builtin.script:
     cmd: install-homebrew.sh
   when: not result_brew_binary.stat.exists
 
-- name: tap fonts repo
+- name: Tap fonts repo
   community.general.homebrew_tap:
     name: homebrew/cask-fonts

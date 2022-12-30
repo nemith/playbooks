@@ -1,17 +1,17 @@
 ---
-- name: refresh pacman database
-  become: yes
+- name: Refresh pacman database
+  become: true
   community.general.pacman:
-    update_cache: yes
+    update_cache: true
 
-- name: restart bluetooth.service
-  become: yes
+- name: Restart bluetooth.service
+  become: true
   ansible.builtin.systemd:
     name: bluetooth.service
     state: restarted
 
-- name: restart systemd-timesyncd.service
-  become: yes
+- name: Restart systemd-timesyncd.service
+  become: true
   ansible.builtin.systemd:
     name: systemd-timesyncd.service
     state: restarted

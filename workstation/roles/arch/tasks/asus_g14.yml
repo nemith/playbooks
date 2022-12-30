@@ -1,29 +1,29 @@
 ---
-- name: install asus_g14 packages
-  become: yes
+- name: Install asus_g14 packages
+  become: true
   community.general.pacman:
     name:
       - asusctl
       - supergfxctl
       - acpi_call
 
-- name: enable power-profiles-daemon.service
-  become: yes
+- name: Enable power-profiles-daemon.service
+  become: true
   ansible.builtin.systemd:
     name: power-profiles-daemon.service
     state: started
-    enabled: yes
+    enabled: true
 
-- name: enable supergfxd.service
-  become: yes
+- name: Enable supergfxd.service
+  become: true
   ansible.builtin.systemd:
     name: supergfxd.service
     state: started
-    enabled: yes
+    enabled: true
 
-- name: enable asus-notify.server
+- name: Enable asus-notify.server
   ansible.builtin.systemd:
     name: asus-notify.service
     scope: user
     state: started
-    enabled: yes
+    enabled: true

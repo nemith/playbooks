@@ -1,7 +1,6 @@
 ---
-- name: install packages
-  become: yes
+- name: Install packages (arch)
+  become: true
   community.general.pacman:
     name:
       - zsh
-    state: present

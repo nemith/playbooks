@@ -1,4 +1,4 @@
 ---
-- name: regenerate initramfs
-  become: yes
-  shell: dracut -f -v
+- name: Regenerate initramfs
+  become: true
+  ansible.builtin.command: dracut -f -v

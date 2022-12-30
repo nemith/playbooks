@@ -1,17 +1,17 @@
 ---
-- name: install nvidia packages
-  become: yes
+- name: Install nvidia packages
+  become: true
   ansible.builtin.dnf:
     name:
       - akmod-nvidia
       - xorg-x11-drv-nvidia-cuda
 
-- name: nvidia module config
-  become: yes
+- name: Nvidia module config
+  become: true
   ansible.builtin.copy:
     src: modprobe/nvidia.conf
     dest: /etc/modprobe.d/nvidia.conf
     owner: root
     group: root
     mode: "0644"
-  notify: regenerate initramfs
+  notify: Regenerate initramfs

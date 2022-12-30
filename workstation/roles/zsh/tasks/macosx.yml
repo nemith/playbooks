@@ -1,2 +1,6 @@
 ---
-# zsh is the default on osx
+- name: Install packages (osx)
+  community.general.homebrew:
+    name:
+      # zsh is the default on osx
+      - jandedobbeleer/oh-my-posh/oh-my-posh

@@ -1,1 +1,15 @@
+_home_root_dir_map:
+  _default: /home
+  macosx: /Users
+home_root_dir: "{{ _home_root_dir_map[ansible_distribution | lower] | default(_home_root_dir_map['_default']) }}"
+
+_default_group_map:
+  _default: "{{ main_user_unixname }}"
+  macosx: staff
+
+main_user_unixname: bbennett
+main_user_home: "{{ home_root_dir }}/{{ main_user_unixname }}"
+main_user_group: "{{ _default_group_map[ansible_distribution | lower] | default(_default_group_map['_default']) }}"
+
+
 git_credential_helper: libsecret

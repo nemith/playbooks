@@ -1,5 +1,5 @@
 ---
-- name: install packages (arch)
+- name: Install packages (arch)
   kewlfft.aur.aur:
     name: visual-studio-code-bin
     state: present

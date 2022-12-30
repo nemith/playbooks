@@ -1,21 +1,22 @@
 ---
-- include_tasks: "{{ ansible_distribution|lower }}.yml"
+- name: Install Packages
+  ansible.builtin.include_tasks: "{{ ansible_distribution | lower }}.yml"
 
-- name: set xkb-options
+- name: Set xkb-options
   community.general.dconf:
     key: /org/gnome/desktop/input-sources/xkb-options
     value: "['lv3:ralt_switch', 'ctrl:nocaps']"
 
-- name: set darkmode
+- name: Set darkmode
   community.general.dconf:
     key: /org/gnome/desktop/interface/color-scheme
     value: "'prefer-dark'"
 
-- name: set media keys
+- name: Set media keys
   community.general.dconf:
     key: /org/gnome/settings-daemon/plugins/media-keys/{{ item.key }}
     value: "{{ item.value | string }}"
   loop:
-    - { key: "previous", value: "['<Super>comma']" }
-    - { key: "next", value: "['<Super>period']" }
-    - { key: "play", value: "['<Super>slash']" }
+    - { key: previous, value: "['<Super>comma']" }
+    - { key: next, value: "['<Super>period']" }
+    - { key: play, value: "['<Super>slash']" }

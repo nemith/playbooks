@@ -1,44 +1,44 @@
 ---
-- name: install rpmfusion gpg keys
-  become: yes
+- name: Install rpmfusion gpg keys
+  become: true
   ansible.builtin.rpm_key:
     key: "{{ item }}"
   loop:
     - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
     - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
 
-- name: add rpmfusion reposiories
-  become: yes
+- name: Add rpmfusion reposiories
+  become: true
   ansible.builtin.dnf:
     name:
       - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
       - https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
 
-- name: install openconnect copr
-  become: yes
+- name: Install openconnect copr
+  become: true
   community.general.copr:
-    name: "dwmw2/openconnect"
+    name: dwmw2/openconnect
 
-- name: add github cli repo
-  become: yes
+- name: Add github cli repo
+  become: true
   ansible.builtin.yum_repository:
     name: gh-cli
     description: packages for the GitHub CLI
     baseurl: https://cli.github.com/packages/rpm
-    enabled: yes
+    enabled: true
     gpgkey: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xc99b11deb97541f0
 
-- name: add hashicorp repos
-  become: yes
+- name: Add hashicorp repos
+  become: true
   ansible.builtin.yum_repository:
     name: hashicorp
     description: Hashicorp Stable - $basearch
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
-    enabled: yes
+    enabled: true
     gpgkey: https://rpm.releases.hashicorp.com/gpg
 
-- name: install packages
-  become: yes
+- name: Install packages
+  become: true
   ansible.builtin.dnf:
     name:
       # cli utilities
@@ -81,15 +81,15 @@
       - vault
       - consul
 
-- name: enable flathub
+- name: Enable flathub
   become: true
   community.general.flatpak_remote:
     name: flathub
     state: present
     flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
 
-- name: install flatpaks
-  become: yes
+- name: Install flatpaks
+  become: true
   community.general.flatpak:
     name:
       - com.discordapp.Discord
@@ -98,18 +98,23 @@
       - io.typora.Typora
       - us.zoom.Zoom
 
-- name: i915 module config
-  become: yes
+- name: Configure i915 kernel module
+  become: true
   ansible.builtin.copy:
     src: modprobe/i915.conf
     dest: /etc/modprobe.d/i915.conf
     owner: root
     group: root
     mode: "0644"
-  notify: regenerate initramfs
+  notify: Regenerate initramfs
 
-- import_tasks: dnf.yml
-- import_tasks: asus_g14.yml
+- name: Configure DNF
+  ansible.builtin.import_tasks: dnf.yml
+
+- name: Configure Asus G14 Specific Components
+  ansible.builtin.import_tasks: asus_g14.yml
   when: asus_g14 is defined
-- import_tasks: nvidia.yml
+
+- name: Configure NVIDIA
+  ansible.builtin.import_tasks: nvidia.yml
   when: nvidia is defined

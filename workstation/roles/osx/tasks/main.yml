@@ -1,7 +1,8 @@
 ---
-- import_tasks: homebrew.yml
+- name: Setup Homebrew
+  ansible.builtin.import_tasks: homebrew.yml
 
-- name: turn off desktop icons
+- name: Turn off desktop icons
   community.general.osx_defaults:
     domain: com.apple.finder
     key: CreateDesktop
@@ -9,13 +10,16 @@
     value: false
     state: present
 
-- name: install packages
+- name: Install packages
   community.general.homebrew:
     name:
       - bat
+      - black
+      - broot
       - colordiff
       - coreutils
       - duf
+      - exa
       - fd
       - gh
       - gnu-tar
@@ -37,8 +41,10 @@
       - watch
       - xz
       - zsh-completions
+      - zstd
       # languages
       - golang
+      - golangci-lint
       - rustup
       - zig
       - node
@@ -47,7 +53,7 @@
       - nomad
       - vault
 
-- name: install applications
+- name: Install applications
   community.general.homebrew_cask:
     name:
       - alt-tab

@@ -1,6 +1,6 @@
 ---
-- name: install packages (arch)
-  become: yes
+- name: Install packages (arch)
+  become: true
   community.general.pacman:
     name:
       - ansible # not sure how we got this far

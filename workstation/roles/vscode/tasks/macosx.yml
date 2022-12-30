@@ -1,4 +1,4 @@
 ---
-- name: install packages
+- name: Install packages (osx)
   community.general.homebrew_cask:
     name: visual-studio-code

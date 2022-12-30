@@ -1,30 +1,41 @@
 ---
-- include_tasks: "{{ ansible_distribution|lower }}.yml"
+- name: Install Packages
+  ansible.builtin.include_tasks: "{{ ansible_distribution | lower }}.yml"
 
-- name: create paq directory
+- name: Create paq directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
+    path: "{{ main_user_home }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
     state: directory
     mode: "0755"
 
-- name: download paq
+- name: Download paq
   ansible.builtin.get_url:
     url: https://github.com/savq/paq-nvim/archive/refs/tags/v1.0.2.tar.gz
-    dest: "{{ ansible_env.HOME }}/.local/share/nvim/paq-1.0.2.tar.gz"
+    dest: "{{ main_user_home }}/.local/share/nvim/paq-1.0.2.tar.gz"
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
+    mode: "0644"
 
-- name: install paq
+- name: Install paq
   ansible.builtin.unarchive:
-    src: "{{ ansible_env.HOME }}/.local/share/nvim/paq-1.0.2.tar.gz"
-    dest: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
-    extra_opts: "--strip-components=1"
+    src: "{{ main_user_home }}/.local/share/nvim/paq-1.0.2.tar.gz"
+    dest: "{{ main_user_home }}/.local/share/nvim/site/pack/paqs/start/paq-nvim"
+    extra_opts: --strip-components=1
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
 
-- name: create nvim config directory
+- name: Create nvim config directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/nvim"
+    path: "{{ main_user_home }}/.config/nvim"
     state: directory
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
     mode: "0755"
 
-- name: copy nvim config
+- name: Copy nvim config
   ansible.builtin.copy:
     src: init.lua
-    dest: "{{ ansible_env.HOME }}/.config/nvim/init.lua"
+    dest: "{{ main_user_home }}/.config/nvim/init.lua"
+    owner: "{{ main_user_unixname }}"
+    group: "{{ main_user_group }}"
+    mode: "0644"

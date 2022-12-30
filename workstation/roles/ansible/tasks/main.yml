@@ -1,8 +1,9 @@
 ---
-- include_tasks: "{{ ansible_distribution|lower }}.yml"
+- name: Include Distro Tasks
+  ansible.builtin.include_tasks: "{{ ansible_distribution | lower }}.yml"
 
-- name: add ansible-local
-  become: yes
+- name: Install ansible-local script
+  become: true
   ansible.builtin.copy:
     src: ansible-local
     dest: /usr/local/bin/ansible-local

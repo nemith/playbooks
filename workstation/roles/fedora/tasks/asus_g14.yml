@@ -1,11 +1,11 @@
 ---
-- name: enable asus copr repo
-  become: yes
+- name: Enable asus copr repo
+  become: true
   community.general.copr:
     name: lukenukem/asus-linux
 
-- name: install asus package
-  become: yes
+- name: Install asus package
+  become: true
   ansible.builtin.dnf:
     name:
       - asusctl

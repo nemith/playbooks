@@ -1,8 +1,7 @@
 ---
-- name: install packages
-  become: yes
+- name: Install packages (arch)
+  become: true
   community.general.pacman:
     name:
       - neovim
       - python-pynvim
-    state: present

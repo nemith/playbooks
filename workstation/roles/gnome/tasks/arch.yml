@@ -1,6 +1,6 @@
 ---
-- name: install packagees
-  become: yes
+- name: Install packagees
+  become: true
   community.general.pacman:
     name:
       - gdm
@@ -14,8 +14,8 @@
       - ttf-fira-code
     state: present
 
-- name: enable gdm
-  become: yes
+- name: Enable gdm
+  become: true
   ansible.builtin.systemd:
     name: gdm.service
-    enabled: yes
+    enabled: true

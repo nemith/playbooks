@@ -1,6 +1,6 @@
 ---
-- name: install nvidia packages
-  become: yes
+- name: Install nvidia packages
+  become: true
   community.general.pacman:
     name:
       - nvidia
