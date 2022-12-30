@@ -1,5 +1,5 @@
 ---
-- name: Istall k3s binary
+- name: Install k3s binary
   become: true
   ansible.builtin.get_url:
     url: "{{ k3s_url }}"

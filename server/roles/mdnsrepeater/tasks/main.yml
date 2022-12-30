@@ -16,7 +16,7 @@
   notify: Restart mdnsrepeater
 
 - name: Enable service
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: mdns-repeater
     enabled: true
     state: started

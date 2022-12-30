@@ -49,7 +49,7 @@
   become: true
 
 - name: Enable dnsmasq service
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: dnsmasq
     enabled: true
     state: started

@@ -12,6 +12,7 @@
     - dnf
     - chrony
     - utils
+    - node_exporter
 
 - name: firewall setup
   hosts: fw
