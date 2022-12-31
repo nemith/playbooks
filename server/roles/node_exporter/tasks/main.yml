@@ -10,4 +10,3 @@
     name: prometheus-node-exporter.service
     enabled: true
     state: started
-

@@ -39,14 +39,11 @@
 
 - name: Update selinux context for tftproot
   community.general.sefcontext:
-    target: '/srv/tftp(/.*)?'
+    target: /srv/tftp(/.*)?
     setype: dnsmasq_var_run_t
     state: present
   become: true
-
-- name: Apply new SELinux file context for tftproot
-  ansible.builtin.command: restorecon -irv /srv/tftp
-  become: true
+  notify: Apply new SELinux file context for tftproot
 
 - name: Enable dnsmasq service
   ansible.builtin.systemd:
