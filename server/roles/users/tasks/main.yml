@@ -22,3 +22,13 @@
     password: "!"
   become: true
   loop: "{{ users }}"
+
+- name: Configure zsh
+  become: true
+  ansible.builtin.copy:
+    dest: "/home/{{ item.unixname }}/.zshrc"
+    content: ""
+    owner: "{{ item.unixname }}"
+    group: "{{ item.unixname }}"
+    mode: "0644"
+  loop: "{{ users }}"

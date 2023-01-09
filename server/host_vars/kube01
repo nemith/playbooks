@@ -1,7 +1,7 @@
-hostname: kube01
+hostname: kube01.purgatory.lan
 networkd:
   networks:
-    - match: {name: eno0}
+    - match: {name: eno1}
       network:
         addresses:
           - 192.168.4.32/24

@@ -1,4 +1,4 @@
-hostname: fw01
+hostname: fw01.purgatory.lan
 networkd:
   links:
     - match: {macaddress: 38:f3:ab:c8:9a:f1}

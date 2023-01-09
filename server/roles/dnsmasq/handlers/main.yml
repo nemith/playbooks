@@ -4,3 +4,7 @@
     name: dnsmasq
     state: restarted
   become: true
+
+- name: Apply new SELinux file context for tftproot
+  ansible.builtin.command: restorecon -irv /srv/tftp
+  become: true

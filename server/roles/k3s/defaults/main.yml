@@ -1,5 +1,5 @@
 ---
-k3s_version: v1.24.3+k3s1
+k3s_version: v1.25.4+k3s1
 k3s_url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
 k3s_checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-amd64.txt
 
@@ -9,3 +9,5 @@ k3s_rpm_baseurl: https://{{ k3s_rpm_site }}/k3s/{{ k3s_rpm_channel }}/common/cen
 k3s_rpm_gpgkey: https://{{ k3s_rpm_site }}/public.key
 
 k3s_cluster_token: 06i2C7rkfkdEvaovuw2LJ8OVvkPDgYC1HnrQ0Watr8WAilZI1s
+
+k3s_node_name: "{{ hostname.split('.')[0] }}"
