@@ -1,0 +1,10 @@
+---
+checksums:
+  go1.20.1.darwin-arm64.tar.gz: sha256:f1a8e06c7f1ba1c008313577f3f58132eb166a41ceb95ce6e9af30bc5a3efca4
+
+
+go_version: 1.20.1
+go_tarball: go{{ go_version }}.{{ ansible_os_family | lower }}-{{ _goarch_map[ansible_architecture] }}.tar.gz
+go_url: https://go.dev/dl/{{ go_tarball }}
+go_checksum: "{{ checksums[go_tarball] }}"
+go_install_dir: /opt

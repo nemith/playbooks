@@ -1,27 +1,28 @@
 ---
-- name: arch setup
+- name: Arch setup
   hosts: arch
   roles:
     - arch
     - gnome
 
-- name: fedora setup
+- name: Fedora setup
   hosts: fedora
   roles:
     - fedora
     - gnome
 
-- name: osx setup
+- name: OSX setup
   hosts: osx
   roles:
     - osx
 
-- name: common workstation
+- name: Common workstation
   hosts: all
   roles:
     - ansible
-    - zsh
     - git
+    - go
     - neovim
     - vscode
     - wezterm
+    - zsh

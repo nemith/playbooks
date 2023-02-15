@@ -3,8 +3,6 @@
   become: true
   community.general.pacman:
     name:
-      - go
-      - go-tools
       - nodejs
       - rustup
       - zig

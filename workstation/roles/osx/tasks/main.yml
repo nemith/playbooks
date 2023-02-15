@@ -43,7 +43,6 @@
       - zsh-completions
       - zstd
       # languages
-      - golang
       - golangci-lint
       - rustup
       - zig
