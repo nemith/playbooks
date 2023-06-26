@@ -1,7 +1,7 @@
 hostname: fw01.purgatory.lan
 networkd:
   links:
-    - match: {macaddress: 38:f3:ab:c8:9a:f1}
+    - match: {path: pci-0000:00:1f.6}
       link:
         name: lan0
         # These are causing kernel panics on at least the onboard lan port
@@ -9,14 +9,14 @@ networkd:
         tso6: false
         gso: false
       priority: 10
-    - match: {macaddress: 00:1f:29:54:2d:aa}
+    - match: {path: pci-0000:01:00.0}
       link:
         name: wan0
         tso: false
         tso6: false
         gso: false
       priority: 10
-    - match: {macaddress: 00:1f:29:54:2d:ab}
+    - match: {path: pci-0000:01:00.1}
       link:
         name: wan1
         tso: false

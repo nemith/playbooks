@@ -7,7 +7,7 @@
     baseurl: https://repo.nextdns.io/rpm
     gpgkey: https://repo.nextdns.io/nextdns-armored.gpg
     gpgcheck: false
-    repo_gpgcheck: true
+    repo_gpgcheck: false
 
 - name: Install nextdns proxy
   become: true
