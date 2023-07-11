@@ -15,7 +15,14 @@ module: flowdock
 author: "Matt Coddington (@mcodd)"
 short_description: Send a message to a flowdock
 description:
-   - Send a message to a flowdock team inbox or chat using the push API (see https://www.flowdock.com/api/team-inbox and https://www.flowdock.com/api/chat)
+  - Send a message to a flowdock team inbox or chat using the push API (see https://www.flowdock.com/api/team-inbox and https://www.flowdock.com/api/chat)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     type: str
@@ -80,7 +87,7 @@ options:
     required: false
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     required: false
     default: true

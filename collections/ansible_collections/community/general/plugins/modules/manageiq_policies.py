@@ -15,20 +15,27 @@ module: manageiq_policies
 
 short_description: Management of resource policy_profiles in ManageIQ
 extends_documentation_fragment:
-- community.general.manageiq
+  - community.general.manageiq
+  - community.general.attributes
 
 author: Daniel Korn (@dkorn)
 description:
   - The manageiq_policies module supports adding and deleting policy_profiles in ManageIQ.
 
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
+
 options:
   state:
     type: str
     description:
-      - C(absent) - policy_profiles should not exist,
-      - C(present) - policy_profiles should exist,
+      - V(absent) - policy_profiles should not exist,
+      - V(present) - policy_profiles should exist,
       - >
-        C(list) - list current policy_profiles and policies.
+        V(list) - list current policy_profiles and policies.
         This state is deprecated and will be removed 8.0.0.
         Please use the module M(community.general.manageiq_policies_info) instead.
     choices: ['absent', 'present', 'list']
@@ -37,8 +44,8 @@ options:
     type: list
     elements: dict
     description:
-      - List of dictionaries, each includes the policy_profile C(name) key.
-      - Required if I(state) is C(present) or C(absent).
+      - List of dictionaries, each includes the policy_profile V(name) key.
+      - Required if O(state) is V(present) or V(absent).
   resource_type:
     type: str
     description:
@@ -51,12 +58,12 @@ options:
     type: str
     description:
       - The name of the resource to which the profile should be [un]assigned.
-      - Must be specified if I(resource_id) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_id) is not set. Both options are mutually exclusive.
   resource_id:
     type: int
     description:
       - The ID of the resource to which the profile should be [un]assigned.
-      - Must be specified if I(resource_name) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_name) is not set. Both options are mutually exclusive.
     version_added: 2.2.0
 '''
 
@@ -80,17 +87,6 @@ EXAMPLES = '''
     resource_type: 'provider'
     policy_profiles:
       - name: openscap profile
-    manageiq_connection:
-      url: 'http://127.0.0.1:3000'
-      username: 'admin'
-      password: 'smartvm'
-      validate_certs: false
-
-- name: List current policy_profile and policies for a provider in ManageIQ
-  community.general.manageiq_policies:
-    state: list
-    resource_name: 'EngLab'
-    resource_type: 'provider'
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'

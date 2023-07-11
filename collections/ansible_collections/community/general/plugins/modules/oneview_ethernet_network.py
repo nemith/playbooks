@@ -19,13 +19,18 @@ author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
     - Adriane Cardozo (@adriane-cardozo)
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     state:
         description:
             - Indicates the desired state for the Ethernet Network resource.
-                - C(present) will ensure data properties are compliant with OneView.
-                - C(absent) will remove the resource from OneView, if it exists.
-                - C(default_bandwidth_reset) will reset the network connection template to the default.
+                - V(present) will ensure data properties are compliant with OneView.
+                - V(absent) will remove the resource from OneView, if it exists.
+                - V(default_bandwidth_reset) will reset the network connection template to the default.
         type: str
         default: present
         choices: [present, absent, default_bandwidth_reset]
@@ -35,8 +40,9 @@ options:
         type: dict
         required: true
 extends_documentation_fragment:
-- community.general.oneview
-- community.general.oneview.validateetag
+    - community.general.oneview
+    - community.general.oneview.validateetag
+    - community.general.attributes
 
 '''
 

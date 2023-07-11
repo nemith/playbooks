@@ -12,13 +12,20 @@ DOCUMENTATION = r'''
 ---
 module: open_iscsi
 author:
-- Serge van Ginderachter (@srvg)
+    - Serge van Ginderachter (@srvg)
 short_description: Manage iSCSI targets with Open-iSCSI
 description:
     - Discover targets on given portal, (dis)connect targets, mark targets to
       manually or auto start, return device nodes of connected targets.
 requirements:
     - open_iscsi library and tools (iscsiadm)
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     portal:
         description:
@@ -78,7 +85,7 @@ options:
         - Whether the list of target nodes on the portal should be
           (re)discovered and added to the persistent iSCSI database.
         - Keep in mind that C(iscsiadm) discovery resets configuration, like C(node.startup)
-          to manual, hence combined with I(auto_node_startup=true) will always return
+          to manual, hence combined with O(auto_node_startup=true) will always return
           a changed state.
         type: bool
         default: false
@@ -90,7 +97,7 @@ options:
     rescan:
         description:
         - Rescan an established session for discovering new targets.
-        - When I(target) is omitted, will rescan all sessions.
+        - When O(target) is omitted, will rescan all sessions.
         type: bool
         default: false
         version_added: 4.1.0

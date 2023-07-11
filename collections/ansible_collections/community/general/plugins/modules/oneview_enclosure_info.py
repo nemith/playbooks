@@ -22,6 +22,10 @@ author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
     - Adriane Cardozo (@adriane-cardozo)
+attributes:
+    check_mode:
+        version_added: 3.3.0
+        # This was backported to 2.5.4 and 1.3.11 as well, since this was a bugfix
 options:
     name:
       description:
@@ -30,7 +34,7 @@ options:
     options:
       description:
         - "List with options to gather additional information about an Enclosure and related resources.
-          Options allowed: C(script), C(environmentalConfiguration), and C(utilization). For the option C(utilization),
+          Options allowed: V(script), V(environmentalConfiguration), and V(utilization). For the option V(utilization),
           you can provide specific parameters."
       type: list
       elements: raw

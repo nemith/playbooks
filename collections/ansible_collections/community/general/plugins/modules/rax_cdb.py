@@ -16,8 +16,11 @@ description:
   - creates / deletes or resize a Rackspace Cloud Databases instance
     and optionally waits for it to be 'running'. The name option needs to be
     unique since it's used to identify the instance.
-  - This module relies on the C(pyrax) package which is deprecated in favour of using Openstack API.
-  - Unless maintainers step up to work on the module, it will be marked as deprecated in community.general 7.0.0 and removed in version 9.0.0.
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   name:
     type: str
@@ -44,7 +47,7 @@ options:
     type: str
     description:
       - version of database (MySQL supports 5.1 and 5.6, MariaDB supports 10, Percona supports 5.6)
-      - "The available choices are: C(5.1), C(5.6) and  C(10)."
+      - "The available choices are: V(5.1), V(5.6) and  V(10)."
     default: '5.6'
     aliases: ['version']
   state:
@@ -65,8 +68,9 @@ options:
     default: 300
 author: "Simon JAILLET (@jails)"
 extends_documentation_fragment:
-- community.general.rackspace
-- community.general.rackspace.openstack
+  - community.general.rackspace
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

@@ -15,6 +15,9 @@ module: iptables_state
 short_description: Save iptables state into a file or restore it from a file
 version_added: '1.1.0'
 author: quidame (@quidame)
+extends_documentation_fragment:
+  - community.general.attributes
+  - community.general.attributes.flow
 description:
   - C(iptables) is used to set up, maintain, and inspect the tables of IP
     packet filter rules in the Linux kernel.
@@ -31,17 +34,25 @@ description:
 notes:
   - The rollback feature is not a module option and depends on task's
     attributes. To enable it, the module must be played asynchronously, i.e.
-    by setting task attributes I(poll) to C(0), and I(async) to a value less
-    or equal to C(ANSIBLE_TIMEOUT). If I(async) is greater, the rollback will
+    by setting task attributes C(poll) to V(0), and C(async) to a value less
+    or equal to C(ANSIBLE_TIMEOUT). If C(async) is greater, the rollback will
     still happen if it shall happen, but you will experience a connection
     timeout instead of more relevant info returned by the module after its
     failure.
-  - This module supports I(check_mode).
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+  action:
+    support: full
+  async:
+    support: full
 options:
   counters:
     description:
       - Save or restore the values of all packet and byte counters.
-      - When C(true), the module is not idempotent.
+      - When V(true), the module is not idempotent.
     type: bool
     default: false
   ip_version:
@@ -54,14 +65,14 @@ options:
     description:
       - Specify the path to the C(modprobe) program internally used by iptables
         related commands to load kernel modules.
-      - By default, C(/proc/sys/kernel/modprobe) is inspected to determine the
+      - By default, V(/proc/sys/kernel/modprobe) is inspected to determine the
         executable's path.
     type: path
   noflush:
     description:
-      - For I(state=restored), ignored otherwise.
-      - If C(false), restoring iptables rules from a file flushes (deletes)
-        all previous contents of the respective table(s). If C(true), the
+      - For O(state=restored), ignored otherwise.
+      - If V(false), restoring iptables rules from a file flushes (deletes)
+        all previous contents of the respective table(s). If V(true), the
         previous rules are left untouched (but policies are updated anyway,
         for all built-in chains).
     type: bool
@@ -81,10 +92,10 @@ options:
     required: true
   table:
     description:
-      - When I(state=restored), restore only the named table even if the input
+      - When O(state=restored), restore only the named table even if the input
         file contains other tables. Fail if the named table is not declared in
         the file.
-      - When I(state=saved), restrict output to the specified table. If not
+      - When O(state=saved), restrict output to the specified table. If not
         specified, output includes all active tables.
     type: str
     choices: [ filter, nat, mangle, raw, security ]

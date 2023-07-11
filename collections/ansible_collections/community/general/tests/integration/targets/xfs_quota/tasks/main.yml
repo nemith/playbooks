@@ -8,12 +8,22 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-- block: 
+- name: setup Alpine
+  when: ansible_distribution == 'Alpine'
+  package:
+    name:
+      - xfsprogs
+      - xfsprogs-extra
+      - mount
+      - umount
+    state: latest
+
+- block:
     - name: Create test user
       user:
         name: xfsquotauser
         state: present
-      become: yes
+      become: true
 
     - include_tasks: uquota.yml
     - include_tasks: gquota.yml
@@ -24,4 +34,4 @@
       user:
         name: xfsquotauser
         state: absent
-      become: yes
+      become: true

@@ -14,6 +14,8 @@ from ansible_collections.community.general.tests.unit.plugins.modules.utils impo
 class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
     module = rhsm_release
 
+    SUBMAN_KWARGS = dict(check_rc=True, expand_user_and_vars=False)
+
     def setUp(self):
         super(RhsmRepositoryReleaseModuleTestCase, self).setUp()
 
@@ -30,9 +32,16 @@ class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
         self.get_bin_path = self.mock_get_bin_path.start()
         self.get_bin_path.return_value = '/testbin/subscription-manager'
 
+        # subscription-manager needs to be run as root
+        self.mock_os_getuid = patch('ansible_collections.community.general.plugins.modules.rhsm_release.'
+                                    'os.getuid')
+        self.os_getuid = self.mock_os_getuid.start()
+        self.os_getuid.return_value = 0
+
     def tearDown(self):
         self.mock_run_command.stop()
         self.mock_get_bin_path.stop()
+        self.mock_os_getuid.stop()
         super(RhsmRepositoryReleaseModuleTestCase, self).tearDown()
 
     def module_main(self, exit_exc):
@@ -56,8 +65,8 @@ class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
         self.assertTrue(result['changed'])
         self.assertEqual('7.5', result['current_release'])
         self.module_main_command.assert_has_calls([
-            call('/testbin/subscription-manager release --show', check_rc=True),
-            call('/testbin/subscription-manager release --set 7.5', check_rc=True),
+            call(['/testbin/subscription-manager', 'release', '--show'], **self.SUBMAN_KWARGS),
+            call(['/testbin/subscription-manager', 'release', '--set', '7.5'], **self.SUBMAN_KWARGS),
         ])
 
     def test_release_set_idempotent(self):
@@ -74,7 +83,7 @@ class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
         self.assertFalse(result['changed'])
         self.assertEqual('7.5', result['current_release'])
         self.module_main_command.assert_has_calls([
-            call('/testbin/subscription-manager release --show', check_rc=True),
+            call(['/testbin/subscription-manager', 'release', '--show'], **self.SUBMAN_KWARGS),
         ])
 
     def test_release_unset(self):
@@ -93,8 +102,8 @@ class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
         self.assertTrue(result['changed'])
         self.assertIsNone(result['current_release'])
         self.module_main_command.assert_has_calls([
-            call('/testbin/subscription-manager release --show', check_rc=True),
-            call('/testbin/subscription-manager release --unset', check_rc=True),
+            call(['/testbin/subscription-manager', 'release', '--show'], **self.SUBMAN_KWARGS),
+            call(['/testbin/subscription-manager', 'release', '--unset'], **self.SUBMAN_KWARGS),
         ])
 
     def test_release_unset_idempotent(self):
@@ -111,7 +120,7 @@ class RhsmRepositoryReleaseModuleTestCase(ModuleTestCase):
         self.assertFalse(result['changed'])
         self.assertIsNone(result['current_release'])
         self.module_main_command.assert_has_calls([
-            call('/testbin/subscription-manager release --show', check_rc=True),
+            call(['/testbin/subscription-manager', 'release', '--show'], **self.SUBMAN_KWARGS),
         ])
 
     def test_release_insane(self):

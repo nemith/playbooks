@@ -22,8 +22,15 @@ description:
 extends_documentation_fragment:
   - community.general.scaleway
   - community.general.scaleway_waitable_resource
+  - community.general.attributes
 requirements:
   - passlib[argon2] >= 1.7.4
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -44,7 +51,7 @@ options:
   region:
     type: str
     description:
-      - Scaleway region to use (for example C(fr-par)).
+      - Scaleway region to use (for example V(fr-par)).
     required: true
     choices:
       - fr-par
@@ -114,7 +121,7 @@ options:
   privacy:
     description:
       - Privacy policies define whether a function can be executed anonymously.
-      - Choose C(public) to enable anonymous execution, or C(private) to protect your function with an authentication mechanism provided by the Scaleway API.
+      - Choose V(public) to enable anonymous execution, or V(private) to protect your function with an authentication mechanism provided by the Scaleway API.
     type: str
     default: public
     choices:
@@ -153,7 +160,7 @@ EXAMPLES = '''
 RETURN = '''
 function:
   description: The function information.
-  returned: when I(state=present)
+  returned: when O(state=present)
   type: dict
   sample:
     cpu_limit: 140
@@ -184,7 +191,7 @@ function:
 from copy import deepcopy
 
 from ansible_collections.community.general.plugins.module_utils.scaleway import (
-    SCALEWAY_ENDPOINT, SCALEWAY_REGIONS, scaleway_argument_spec, Scaleway,
+    SCALEWAY_REGIONS, scaleway_argument_spec, Scaleway,
     scaleway_waitable_resource_argument_spec, resource_attributes_should_be_changed,
     SecretVariables
 )

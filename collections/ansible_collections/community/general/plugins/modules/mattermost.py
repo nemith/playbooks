@@ -21,6 +21,13 @@ short_description: Send Mattermost notifications
 description:
     - Sends notifications to U(http://your.mattermost.url) via the Incoming WebHook integration.
 author: "Benjamin Jolivot (@bjolivot)"
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   url:
     type: str
@@ -32,26 +39,26 @@ options:
     description:
       - Mattermost webhook api key. Log into your mattermost site, go to
         Menu -> Integration -> Incoming Webhook -> Add Incoming Webhook.
-        This will give you full URL. api_key is the last part.
+        This will give you full URL. O(api_key) is the last part.
         http://mattermost.example.com/hooks/C(API_KEY)
     required: true
   text:
     type: str
     description:
       - Text to send. Note that the module does not handle escaping characters.
-      - Required when I(attachments) is not set.
+      - Required when O(attachments) is not set.
   attachments:
     type: list
     elements: dict
     description:
       - Define a list of attachments.
       - For more information, see U(https://developers.mattermost.com/integrate/admin-guide/admin-message-attachments/).
-      - Required when I(text) is not set.
+      - Required when O(text) is not set.
     version_added: 4.3.0
   channel:
     type: str
     description:
-      - Channel to send the message to. If absent, the message goes to the channel selected for the I(api_key).
+      - Channel to send the message to. If absent, the message goes to the channel selected for the O(api_key).
   username:
     type: str
     description:
@@ -60,11 +67,11 @@ options:
   icon_url:
     type: str
     description:
-      - Url for the message sender's icon.
-    default: https://www.ansible.com/favicon.ico
+      - URL for the message sender's icon.
+    default: https://docs.ansible.com/favicon.ico
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     default: true
     type: bool
@@ -127,7 +134,7 @@ def main():
             text=dict(type='str'),
             channel=dict(type='str', default=None),
             username=dict(type='str', default='Ansible'),
-            icon_url=dict(type='str', default='https://www.ansible.com/favicon.ico'),
+            icon_url=dict(type='str', default='https://docs.ansible.com/favicon.ico'),
             validate_certs=dict(default=True, type='bool'),
             attachments=dict(type='list', elements='dict'),
         ),

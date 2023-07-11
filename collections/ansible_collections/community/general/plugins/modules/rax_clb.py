@@ -13,9 +13,12 @@ DOCUMENTATION = '''
 module: rax_clb
 short_description: Create / delete a load balancer in Rackspace Public Cloud
 description:
-  - creates / deletes a Rackspace Public Cloud load balancer.
-  - This module relies on the C(pyrax) package which is deprecated in favour of using Openstack API.
-  - Unless maintainers step up to work on the module, it will be marked as deprecated in community.general 7.0.0 and removed in version 9.0.0.
+     - creates / deletes a Rackspace Public Cloud load balancer.
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   algorithm:
     type: str
@@ -107,8 +110,9 @@ author:
     - "Christopher H. Laco (@claco)"
     - "Matt Martz (@sivel)"
 extends_documentation_fragment:
-- community.general.rackspace
-- community.general.rackspace.openstack
+  - community.general.rackspace
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

@@ -14,24 +14,29 @@ module: rax_scaling_policy
 short_description: Manipulate Rackspace Cloud Autoscale Scaling Policy
 description:
     - Manipulate Rackspace Cloud Autoscale Scaling Policy
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   at:
     type: str
     description:
       - The UTC time when this policy will be executed. The time must be
         formatted according to C(yyyy-MM-dd'T'HH:mm:ss.SSS) such as
-        C(2013-05-19T08:07:08Z)
+        V(2013-05-19T08:07:08Z)
   change:
     type: int
     description:
       - The change, either as a number of servers or as a percentage, to make
         in the scaling group. If this is a percentage, you must set
-        I(is_percent) to C(true) also.
+        O(is_percent) to V(true) also.
   cron:
     type: str
     description:
       - The time when the policy will be executed, as a cron entry. For
-        example, if this is parameter is set to C(1 0 * * *)
+        example, if this is parameter is set to V(1 0 * * *).
   cooldown:
     type: int
     description:
@@ -46,7 +51,7 @@ options:
         many servers should be in the scaling group.
   is_percent:
     description:
-      - Whether the value in I(change) is a percent value
+      - Whether the value in O(change) is a percent value
     default: false
     type: bool
   name:
@@ -77,8 +82,9 @@ options:
     default: present
 author: "Matt Martz (@sivel)"
 extends_documentation_fragment:
-- community.general.rackspace
-- community.general.rackspace.openstack
+  - community.general.rackspace
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

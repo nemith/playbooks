@@ -19,7 +19,7 @@ DOCUMENTATION = '''
         elements: raw
         required: true
     notes:
-      - Unlike the R(items lookup,ansible_collections.ansible.builtin.items_lookup) which only flattens 1 level,
+      - Unlike the P(ansible.builtin.items#lookup) lookup which only flattens 1 level,
         this plugin will continue to flatten until it cannot find lists anymore.
       - Aka highlander plugin, there can only be one (list).
 '''
@@ -67,7 +67,12 @@ class LookupModule(LookupBase):
 
             if isinstance(term, string_types):
                 # convert a variable to a list
-                term2 = listify_lookup_plugin_terms(term, templar=self._templar, loader=self._loader)
+                try:
+                    term2 = listify_lookup_plugin_terms(term, templar=self._templar)
+                except TypeError:
+                    # The loader argument is deprecated in ansible-core 2.14+. Fall back to
+                    # pre-2.14 behavior for older ansible-core versions.
+                    term2 = listify_lookup_plugin_terms(term, templar=self._templar, loader=self._loader)
                 # but avoid converting a plain string to a list of one string
                 if term2 != [term]:
                     term = term2

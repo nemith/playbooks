@@ -22,6 +22,11 @@ version_added: '0.2.0'
 author: Huawei Inc. (@huaweicloud)
 requirements:
     - keystoneauth1 >= 3.6.0
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         description:
@@ -68,8 +73,8 @@ options:
     name:
         description:
             - Specifies the ECS name. Value requirements consists of 1 to 64
-              characters, including letters, digits, underscores C(_), hyphens
-              (-), periods (.).
+              characters, including letters, digits, underscores (V(_)), hyphens
+              (V(-)), periods (V(.)).
         type: str
         required: true
     nics:
@@ -225,7 +230,8 @@ options:
         type: str
         required: false
 extends_documentation_fragment:
-- community.general.hwc
+  - community.general.hwc
+  - community.general.attributes
 
 '''
 
@@ -300,8 +306,8 @@ RETURN = '''
     name:
         description:
             - Specifies the ECS name. Value requirements "Consists of 1 to 64
-              characters, including letters, digits, underscores C(_), hyphens
-              (-), periods (.)".
+              characters, including letters, digits, underscores (V(_)), hyphens
+              (V(-)), periods (V(.)).".
         type: str
         returned: success
     nics:

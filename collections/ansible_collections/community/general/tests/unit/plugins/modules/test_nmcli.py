@@ -112,6 +112,12 @@ TESTCASE_CONNECTION = [
         'state': 'absent',
         '_ansible_check_mode': True,
     },
+    {
+        'type': 'macvlan',
+        'conn_name': 'non_existent_nw_device',
+        'state': 'absent',
+        '_ansible_check_mode': True,
+    },
 ]
 
 TESTCASE_GENERIC = [
@@ -494,6 +500,7 @@ TESTCASE_BOND = [
         'conn_name': 'non_existent_nw_device',
         'ifname': 'bond_non_existant',
         'mode': 'active-backup',
+        'xmit_hash_policy': 'layer3+4',
         'ip4': '10.10.10.10/24',
         'gw4': '10.10.10.1',
         'state': 'present',
@@ -516,7 +523,7 @@ ipv4.may-fail:                          yes
 ipv6.method:                            auto
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
-bond.options:                           mode=active-backup,primary=non_existent_primary
+bond.options:                           mode=active-backup,primary=non_existent_primary,xmit_hash_policy=layer3+4
 """
 
 TESTCASE_BRIDGE = [
@@ -562,6 +569,7 @@ TESTCASE_BRIDGE_SLAVE = [
         'type': 'bridge-slave',
         'conn_name': 'non_existent_nw_device',
         'ifname': 'br0_non_existant',
+        'hairpin': True,
         'path_cost': 100,
         'state': 'present',
         '_ansible_check_mode': False,
@@ -602,6 +610,7 @@ ipv6.method:                            auto
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
 team.runner:                            roundrobin
+team.runner-fast-rate:                  no
 """
 
 TESTCASE_TEAM_HWADDR_POLICY_FAILS = [
@@ -614,6 +623,71 @@ TESTCASE_TEAM_HWADDR_POLICY_FAILS = [
         '_ansible_check_mode': False,
     }
 ]
+
+TESTCASE_TEAM_RUNNER_FAST_RATE = [
+    {
+        'type': 'team',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'team0_non_existant',
+        'runner': 'lacp',
+        'runner_fast_rate': True,
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_TEAM_RUNNER_FAST_RATE_FAILS = [
+    {
+        'type': 'team',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'team0_non_existant',
+        'runner_fast_rate': True,
+        'state': 'present',
+        '_ansible_check_mode': False,
+    },
+    {
+        'type': 'team',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'team0_non_existant',
+        'state': 'present',
+        'runner_fast_rate': False,
+        '_ansible_check_mode': False,
+    },
+    {
+        'type': 'team',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'team0_non_existant',
+        'state': 'present',
+        'runner': 'activebackup',
+        'runner_fast_rate': False,
+        '_ansible_check_mode': False,
+    },
+    {
+        'type': 'team',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'team0_non_existant',
+        'state': 'present',
+        'runner': 'activebackup',
+        'runner_fast_rate': True,
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_TEAM_RUNNER_FAST_RATE_SHOW_OUTPUT = """\
+connection.id:                          non_existent_nw_device
+connection.interface-name:              team0_non_existant
+connection.autoconnect:                 yes
+connection.type:                        team
+ipv4.ignore-auto-dns:                   no
+ipv4.ignore-auto-routes:                no
+ipv4.never-default:                     no
+ipv4.may-fail:                          yes
+ipv6.method:                            auto
+ipv6.ignore-auto-dns:                   no
+ipv6.ignore-auto-routes:                no
+team.runner:                            lacp
+team.runner-fast-rate:                  yes
+"""
 
 TESTCASE_TEAM_SLAVE = [
     {
@@ -663,6 +737,7 @@ ipv6.method:                            auto
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
 vlan.id:                                10
+802-3-ethernet.mtu:                     auto
 """
 
 TESTCASE_VXLAN = [
@@ -1339,6 +1414,45 @@ connection.interface-name:              infiniband_non_existant
 infiniband.transport_mode:              connected
 """
 
+TESTCASE_MACVLAN = [
+    {
+        'type': 'macvlan',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'macvlan_non_existant',
+        'macvlan': {
+            'mode': '2',
+            'parent': 'non_existent_parent',
+        },
+        'method4': 'manual',
+        'ip4': '10.10.10.10/24',
+        'method6': 'manual',
+        'ip6': '2001:db8::1/128',
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_MACVLAN_SHOW_OUTPUT = """\
+connection.id:                          non_existent_nw_device
+connection.type:                        macvlan
+connection.interface-name:              macvlan_non_existant
+connection.autoconnect:                 yes
+ipv4.method:                            manual
+ipv4.addresses:                         10.10.10.10/24
+ipv4.never-default:                     no
+ipv4.may-fail:                          yes
+ipv4.ignore-auto-dns:                   no
+ipv4.ignore-auto-routes:                no
+ipv6.method:                            manual
+ipv6.addresses:                         2001:db8::1/128
+ipv6.ignore-auto-dns:                   no
+ipv6.ignore-auto-routes:                no
+macvlan.parent:                         non_existent_parent
+macvlan.mode:                           2 (bridge)
+macvlan.promiscuous:                    yes
+macvlan.tap:                            no
+"""
+
 
 def mocker_set(mocker,
                connection_exists=False,
@@ -1433,6 +1547,13 @@ def mocked_team_connection_unchanged(mocker):
     mocker_set(mocker,
                connection_exists=True,
                execute_return=(0, TESTCASE_TEAM_SHOW_OUTPUT, ""))
+
+
+@pytest.fixture
+def mocked_team_runner_fast_rate_connection_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_TEAM_RUNNER_FAST_RATE_SHOW_OUTPUT, ""))
 
 
 @pytest.fixture
@@ -1742,6 +1863,13 @@ def mocked_infiniband_connection_static_transport_mode_connected_modify(mocker):
 
 
 @pytest.fixture
+def mocked_macvlan_connection_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_MACVLAN_SHOW_OUTPUT, ""))
+
+
+@pytest.fixture
 def mocked_generic_connection_diff_check(mocker):
     mocker_set(mocker,
                connection_exists=True,
@@ -1770,7 +1898,8 @@ def test_bond_connection_create(mocked_generic_connection_create, capfd):
 
     for param in ['ipv4.gateway', 'primary', 'connection.autoconnect',
                   'connection.interface-name', 'bond_non_existant',
-                  'mode', 'active-backup', 'ipv4.addresses']:
+                  'mode', 'active-backup', 'ipv4.addresses',
+                  '+bond.options', 'xmit_hash_policy=layer3+4']:
         assert param in args[0]
 
     out, err = capfd.readouterr()
@@ -2244,6 +2373,63 @@ def test_team_connection_create_hwaddr_policy_fails(mocked_generic_connection_cr
     results = json.loads(out)
     assert results.get('failed')
     assert results['msg'] == "Runner-hwaddr-policy is only allowed for runner activebackup"
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_TEAM_RUNNER_FAST_RATE, indirect=['patch_ansible_module'])
+def test_team_runner_fast_rate_connection_create(mocked_generic_connection_create, capfd):
+    """
+    Test : Team connection created with runner_fast_rate parameter
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'add'
+    assert args[0][3] == 'type'
+    assert args[0][4] == 'team'
+    assert args[0][5] == 'con-name'
+    assert args[0][6] == 'non_existent_nw_device'
+
+    for param in ['connection.autoconnect', 'connection.interface-name', 'team0_non_existant', 'team.runner', 'lacp', 'team.runner-fast-rate', 'yes']:
+        assert param in args[0]
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_TEAM_RUNNER_FAST_RATE, indirect=['patch_ansible_module'])
+def test_team_runner_fast_rate_connection_unchanged(mocked_team_runner_fast_rate_connection_unchanged, capfd):
+    """
+    Test : Team connection unchanged with runner_fast_rate parameter
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_TEAM_RUNNER_FAST_RATE_FAILS, indirect=['patch_ansible_module'])
+def test_team_connection_create_runner_fast_rate_fails(mocked_generic_connection_create, capfd):
+    """
+    Test : Team connection with runner_fast_rate enabled
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert results.get('failed')
+    assert results['msg'] == "runner-fast-rate is only allowed for runner lacp"
 
 
 @pytest.mark.parametrize('patch_ansible_module', TESTCASE_TEAM_SLAVE, indirect=['patch_ansible_module'])
@@ -3847,6 +4033,7 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             state=dict(type='str', required=True, choices=['absent', 'present']),
             conn_name=dict(type='str', required=True),
             master=dict(type='str'),
+            slave_type=dict(type=str, choices=['bond', 'bridge', 'team']),
             ifname=dict(type='str'),
             type=dict(type='str',
                       choices=[
@@ -3867,6 +4054,7 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
                           'vxlan',
                           'wifi',
                           'gsm',
+                          'macvlan',
                           'wireguard',
                           'vpn',
                       ]),
@@ -3916,7 +4104,7 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             route_metric6=dict(type='int'),
             method6=dict(type='str', choices=['ignore', 'auto', 'dhcp', 'link-local', 'manual', 'shared', 'disabled']),
             ip_privacy6=dict(type='str', choices=['disabled', 'prefer-public-addr', 'prefer-temp-addr', 'unknown']),
-            addr_gen_mode6=dict(type='str', choices=['eui64', 'stable-privacy']),
+            addr_gen_mode6=dict(type='str', choices=['default', 'default-or-eui64', 'eui64', 'stable-privacy']),
             # Bond Specific vars
             mode=dict(type='str', default='balance-rr',
                       choices=['802.3ad', 'active-backup', 'balance-alb', 'balance-rr', 'balance-tlb', 'balance-xor', 'broadcast']),
@@ -3946,6 +4134,8 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
                              choices=['broadcast', 'roundrobin', 'activebackup', 'loadbalance', 'lacp']),
             # team active-backup runner specific options
             runner_hwaddr_policy=dict(type='str', choices=['same_all', 'by_active', 'only_active']),
+            # team lacp runner specific options
+            runner_fast_rate=dict(type='bool'),
             # vlan specific vars
             vlanid=dict(type='int'),
             vlandev=dict(type='str'),
@@ -3968,6 +4158,7 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             wifi=dict(type='dict'),
             wifi_sec=dict(type='dict', no_log=True),
             gsm=dict(type='dict'),
+            macvlan=dict(type='dict'),
             wireguard=dict(type='dict'),
             vpn=dict(type='dict'),
             transport_mode=dict(type='str', choices=['datagram', 'connected']),
@@ -3992,3 +4183,372 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             num_of_diff_params += 1
 
     assert num_of_diff_params == 1
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_MACVLAN, indirect=['patch_ansible_module'])
+def test_create_macvlan(mocked_generic_connection_create, capfd):
+    """
+    Test : Create macvlan connection with static IP configuration
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    add_args, add_kw = arg_list[0]
+
+    assert add_args[0][0] == '/usr/bin/nmcli'
+    assert add_args[0][1] == 'con'
+    assert add_args[0][2] == 'add'
+    assert add_args[0][3] == 'type'
+    assert add_args[0][4] == 'macvlan'
+    assert add_args[0][5] == 'con-name'
+    assert add_args[0][6] == 'non_existent_nw_device'
+
+    add_args_text = list(map(to_text, add_args[0]))
+    for param in ['connection.interface-name', 'macvlan_non_existant',
+                  'ipv4.method', 'manual',
+                  'ipv4.addresses', '10.10.10.10/24',
+                  'ipv6.method', 'manual',
+                  'ipv6.addresses', '2001:db8::1/128',
+                  'macvlan.mode', '2',
+                  'macvlan.parent', 'non_existent_parent']:
+        assert param in add_args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_MACVLAN, indirect=['patch_ansible_module'])
+def test_macvlan_connection_unchanged(mocked_macvlan_connection_unchanged, capfd):
+    """
+    Test : Macvlan connection with static IP configuration unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_MACVLAN, indirect=['patch_ansible_module'])
+def test_macvlan_mod(mocked_generic_connection_modify, capfd):
+    """
+    Test : Modify macvlan connection
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'modify'
+    assert args[0][3] == 'non_existent_nw_device'
+
+    args_text = list(map(to_text, args[0]))
+    for param in ['macvlan.mode', '2']:
+        assert param in args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION = [
+    {
+        'type': 'ethernet',
+        'conn_name': 'fake_conn',
+        'ifname': 'fake_eth0',
+        'state': 'present',
+        'slave_type': 'bridge',
+        'master': 'fake_br0',
+        '_ansible_check_mode': False,
+    }
+]
+
+
+TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      --
+connection.slave-type:                  --
+802-3-ethernet.mtu:                     auto
+"""
+
+
+TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION_UNCHANGED_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      fake_br0
+connection.slave-type:                  bridge
+802-3-ethernet.mtu:                     auto
+"""
+
+
+@pytest.fixture
+def mocked_slave_type_bridge_create(mocker):
+    mocker_set(mocker,
+               execute_return=None,
+               execute_side_effect=(
+                   (0, TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION_SHOW_OUTPUT, ""),
+                   (0, "", ""),
+               ))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION, indirect=['patch_ansible_module'])
+def test_create_slave_type_bridge(mocked_slave_type_bridge_create, capfd):
+    """
+    Test : slave for bridge created
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'add'
+    assert args[0][3] == 'type'
+    assert args[0][4] == 'ethernet'
+    assert args[0][5] == 'con-name'
+    assert args[0][6] == 'fake_conn'
+    con_master_index = args[0].index('connection.master')
+    slave_type_index = args[0].index('connection.slave-type')
+    assert args[0][con_master_index + 1] == 'fake_br0'
+    assert args[0][slave_type_index + 1] == 'bridge'
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.fixture
+def mocked_create_slave_type_bridge_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION_UNCHANGED_SHOW_OUTPUT, ""))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_BRIDGE_CONNECTION, indirect=['patch_ansible_module'])
+def test_slave_type_bridge_unchanged(mocked_create_slave_type_bridge_unchanged, capfd):
+    """
+    Test : Existent slave for bridge unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+TESTCASE_SLAVE_TYPE_BOND_CONNECTION = [
+    {
+        'type': 'ethernet',
+        'conn_name': 'fake_conn',
+        'ifname': 'fake_eth0',
+        'state': 'present',
+        'slave_type': 'bond',
+        'master': 'fake_bond0',
+        '_ansible_check_mode': False,
+    }
+]
+
+
+TESTCASE_SLAVE_TYPE_BOND_CONNECTION_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      --
+connection.slave-type:                  --
+802-3-ethernet.mtu:                     auto
+"""
+
+
+TESTCASE_SLAVE_TYPE_BOND_CONNECTION_UNCHANGED_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      fake_bond0
+connection.slave-type:                  bond
+802-3-ethernet.mtu:                     auto
+"""
+
+
+@pytest.fixture
+def mocked_slave_type_bond_create(mocker):
+    mocker_set(mocker,
+               execute_return=None,
+               execute_side_effect=(
+                   (0, TESTCASE_SLAVE_TYPE_BOND_CONNECTION_SHOW_OUTPUT, ""),
+                   (0, "", ""),
+               ))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_BOND_CONNECTION, indirect=['patch_ansible_module'])
+def test_create_slave_type_bond(mocked_slave_type_bond_create, capfd):
+    """
+    Test : slave for bond created
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'add'
+    assert args[0][3] == 'type'
+    assert args[0][4] == 'ethernet'
+    assert args[0][5] == 'con-name'
+    assert args[0][6] == 'fake_conn'
+    con_master_index = args[0].index('connection.master')
+    slave_type_index = args[0].index('connection.slave-type')
+    assert args[0][con_master_index + 1] == 'fake_bond0'
+    assert args[0][slave_type_index + 1] == 'bond'
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.fixture
+def mocked_create_slave_type_bond_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_SLAVE_TYPE_BOND_CONNECTION_UNCHANGED_SHOW_OUTPUT, ""))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_BOND_CONNECTION, indirect=['patch_ansible_module'])
+def test_slave_type_bond_unchanged(mocked_create_slave_type_bond_unchanged, capfd):
+    """
+    Test : Existent slave for bridge unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+TESTCASE_SLAVE_TYPE_TEAM_CONNECTION = [
+    {
+        'type': 'ethernet',
+        'conn_name': 'fake_conn',
+        'ifname': 'fake_eth0',
+        'state': 'present',
+        'slave_type': 'team',
+        'master': 'fake_team0',
+        '_ansible_check_mode': False,
+    }
+]
+
+
+TESTCASE_SLAVE_TYPE_TEAM_CONNECTION_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      --
+connection.slave-type:                  --
+802-3-ethernet.mtu:                     auto
+"""
+
+
+TESTCASE_SLAVE_TYPE_TEAM_CONNECTION_UNCHANGED_SHOW_OUTPUT = """\
+connection.id:                          fake_conn
+connection.type:                        802-3-ethernet
+connection.interface-name:              fake_eth0
+connection.autoconnect:                 yes
+connection.master:                      fake_team0
+connection.slave-type:                  team
+802-3-ethernet.mtu:                     auto
+"""
+
+
+@pytest.fixture
+def mocked_slave_type_team_create(mocker):
+    mocker_set(mocker,
+               execute_return=None,
+               execute_side_effect=(
+                   (0, TESTCASE_SLAVE_TYPE_TEAM_CONNECTION_SHOW_OUTPUT, ""),
+                   (0, "", ""),
+               ))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_TEAM_CONNECTION, indirect=['patch_ansible_module'])
+def test_create_slave_type_team(mocked_slave_type_team_create, capfd):
+    """
+    Test : slave for bond created
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'add'
+    assert args[0][3] == 'type'
+    assert args[0][4] == 'ethernet'
+    assert args[0][5] == 'con-name'
+    assert args[0][6] == 'fake_conn'
+    con_master_index = args[0].index('connection.master')
+    slave_type_index = args[0].index('connection.slave-type')
+    assert args[0][con_master_index + 1] == 'fake_team0'
+    assert args[0][slave_type_index + 1] == 'team'
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.fixture
+def mocked_create_slave_type_team_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_SLAVE_TYPE_TEAM_CONNECTION_UNCHANGED_SHOW_OUTPUT, ""))
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_SLAVE_TYPE_TEAM_CONNECTION, indirect=['patch_ansible_module'])
+def test_slave_type_team_unchanged(mocked_create_slave_type_team_unchanged, capfd):
+    """
+    Test : Existent slave for bridge unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']

@@ -13,7 +13,14 @@ DOCUMENTATION = '''
 module: profitbricks_volume
 short_description: Create or destroy a volume
 description:
-     - Allows you to create or remove a volume from a ProfitBricks datacenter. This module has a dependency on profitbricks >= 1.0.0
+  - Allows you to create or remove a volume from a ProfitBricks datacenter. This module has a dependency on profitbricks >= 1.0.0
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   datacenter:
     description:
@@ -61,7 +68,7 @@ options:
   licence_type:
     description:
       - The licence type for the volume. This is used when the image is non-standard.
-      - "The available choices are: C(LINUX), C(WINDOWS), C(UNKNOWN), C(OTHER)."
+      - "The available choices are: V(LINUX), V(WINDOWS), V(UNKNOWN), V(OTHER)."
     type: str
     required: false
     default: UNKNOWN
@@ -106,7 +113,7 @@ options:
   state:
     description:
       - create or terminate datacenters
-      - "The available choices are: C(present), C(absent)."
+      - "The available choices are: V(present), V(absent)."
     type: str
     required: false
     default: 'present'

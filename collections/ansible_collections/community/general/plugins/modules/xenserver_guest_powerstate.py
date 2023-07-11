@@ -30,12 +30,17 @@ notes:
 requirements:
 - python >= 2.6
 - XenAPI
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   state:
     description:
     - Specify the state VM should be in.
-    - If C(state) is set to value other than C(present), then VM is transitioned into required state and facts are returned.
-    - If C(state) is set to C(present), then VM is just checked for existence and facts are returned.
+    - If O(state) is set to value other than V(present), then VM is transitioned into required state and facts are returned.
+    - If O(state) is set to V(present), then VM is just checked for existence and facts are returned.
     type: str
     default: present
     choices: [ powered-on, powered-off, restarted, shutdown-guest, reboot-guest, suspended, present ]
@@ -43,7 +48,7 @@ options:
     description:
     - Name of the VM to manage.
     - VMs running on XenServer do not necessarily have unique names. The module will fail if multiple VMs with same name are found.
-    - In case of multiple VMs with same name, use C(uuid) to uniquely specify VM to manage.
+    - In case of multiple VMs with same name, use O(uuid) to uniquely specify VM to manage.
     - This parameter is case sensitive.
     type: str
     aliases: [ name_label ]
@@ -60,13 +65,14 @@ options:
     default: false
   state_change_timeout:
     description:
-    - 'By default, module will wait indefinitely for VM to change state or acquire an IP address if C(wait_for_ip_address: true).'
+    - 'By default, module will wait indefinitely for VM to change state or acquire an IP address if O(wait_for_ip_address=true).'
     - If this parameter is set to positive value, the module will instead wait specified number of seconds for the state change.
     - In case of timeout, module will generate an error message.
     type: int
     default: 0
 extends_documentation_fragment:
 - community.general.xenserver.documentation
+- community.general.attributes
 
 '''
 
@@ -173,13 +179,13 @@ instance:
 
 HAS_XENAPI = False
 try:
-    import XenAPI
+    import XenAPI  # noqa: F401, pylint: disable=unused-import
     HAS_XENAPI = True
 except ImportError:
     pass
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.general.plugins.module_utils.xenserver import (xenserver_common_argument_spec, XAPI, XenServerObject, get_object_ref,
+from ansible_collections.community.general.plugins.module_utils.xenserver import (xenserver_common_argument_spec, XenServerObject, get_object_ref,
                                                                                   gather_vm_params, gather_vm_facts, set_vm_power_state,
                                                                                   wait_for_vm_ip_address)
 

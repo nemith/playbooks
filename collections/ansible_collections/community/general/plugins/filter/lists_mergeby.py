@@ -12,9 +12,9 @@ DOCUMENTATION = '''
   version_added: 2.0.0
   author: Vladimir Botka (@vbotka)
   description:
-    - Merge two or more lists by attribute I(index). Optional parameters 'recursive' and 'list_merge'
+    - Merge two or more lists by attribute O(index). Optional parameters O(recursive) and O(list_merge)
       control the merging of the lists in values. The function merge_hash from ansible.utils.vars
-      is used. To learn details on how to use the parameters 'recursive' and 'list_merge' see
+      is used. To learn details on how to use the parameters O(recursive) and O(list_merge) see
       Ansible User's Guide chapter "Using filters to manipulate data" section "Combining
       hashes/dictionaries".
   positional: another_list, index
@@ -102,8 +102,6 @@ from ansible.errors import AnsibleFilterError
 from ansible.module_utils.six import string_types
 from ansible.module_utils.common._collections_compat import Mapping, Sequence
 from ansible.utils.vars import merge_hash
-from ansible.release import __version__ as ansible_version
-from ansible_collections.community.general.plugins.module_utils.version import LooseVersion
 
 from collections import defaultdict
 from operator import itemgetter

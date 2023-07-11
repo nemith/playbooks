@@ -14,15 +14,21 @@ DOCUMENTATION = '''
 ---
 module: udm_dns_record
 author:
-- Tobias Rüetschi (@keachi)
+    - Tobias Rüetschi (@keachi)
 short_description: Manage dns entries on a univention corporate server
 description:
     - "This module allows to manage dns records on a univention corporate server (UCS).
        It uses the python API of the UCS to create a new object or edit it."
 requirements:
-    - Python >= 2.6
     - Univention
-    - ipaddress (for I(type=ptr_record))
+    - ipaddress (for O(type=ptr_record))
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: partial
 options:
     state:
         type: str
@@ -42,21 +48,21 @@ options:
         required: true
         description:
             - Corresponding DNS zone for this record, e.g. example.com.
-            - For PTR records this has to be the full reverse zone (for example C(1.1.192.in-addr.arpa)).
+            - For PTR records this has to be the full reverse zone (for example V(1.1.192.in-addr.arpa)).
     type:
         type: str
         required: true
         description:
-            - "Define the record type. C(host_record) is a A or AAAA record,
-               C(alias) is a CNAME, C(ptr_record) is a PTR record, C(srv_record)
-               is a SRV record and C(txt_record) is a TXT record."
-            - "The available choices are: C(host_record), C(alias), C(ptr_record), C(srv_record), C(txt_record)."
+            - "Define the record type. V(host_record) is a A or AAAA record,
+               V(alias) is a CNAME, V(ptr_record) is a PTR record, V(srv_record)
+               is a SRV record and V(txt_record) is a TXT record."
+            - "The available choices are: V(host_record), V(alias), V(ptr_record), V(srv_record), V(txt_record)."
     data:
         type: dict
         default: {}
         description:
-            - "Additional data for this record, e.g. ['a': '192.0.2.1'].
-               Required if I(state=present)."
+            - "Additional data for this record, for example V({'a': '192.0.2.1'})."
+            - Required if O(state=present).
 '''
 
 
@@ -91,19 +97,9 @@ EXAMPLES = '''
 
 RETURN = '''#'''
 
-HAVE_UNIVENTION = False
-HAVE_IPADDRESS = False
-try:
-    from univention.admin.handlers.dns import (
-        forward_zone,
-        reverse_zone,
-    )
-    HAVE_UNIVENTION = True
-except ImportError:
-    pass
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import missing_required_lib
+from ansible_collections.community.general.plugins.module_utils import deps
 from ansible_collections.community.general.plugins.module_utils.univention_umc import (
     umc_module_for_add,
     umc_module_for_edit,
@@ -112,27 +108,26 @@ from ansible_collections.community.general.plugins.module_utils.univention_umc i
     config,
     uldap,
 )
-try:
+
+
+with deps.declare("univention", msg="This module requires univention python bindings"):
+    from univention.admin.handlers.dns import (
+        forward_zone,
+        reverse_zone,
+    )
+
+with deps.declare("ipaddress"):
     import ipaddress
-    HAVE_IPADDRESS = True
-except ImportError:
-    pass
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            type=dict(required=True,
-                      type='str'),
-            zone=dict(required=True,
-                      type='str'),
-            name=dict(required=True,
-                      type='str'),
-            data=dict(default={},
-                      type='dict'),
-            state=dict(default='present',
-                       choices=['present', 'absent'],
-                       type='str')
+            type=dict(required=True, type='str'),
+            zone=dict(required=True, type='str'),
+            name=dict(required=True, type='str'),
+            data=dict(default={}, type='dict'),
+            state=dict(default='present', choices=['present', 'absent'], type='str')
         ),
         supports_check_mode=True,
         required_if=([
@@ -140,8 +135,7 @@ def main():
         ])
     )
 
-    if not HAVE_UNIVENTION:
-        module.fail_json(msg="This module requires univention python bindings")
+    deps.validate(module, "univention")
 
     type = module.params['type']
     zone = module.params['zone']
@@ -153,8 +147,8 @@ def main():
 
     workname = name
     if type == 'ptr_record':
-        if not HAVE_IPADDRESS:
-            module.fail_json(msg=missing_required_lib('ipaddress'))
+        deps.validate(module, "ipaddress")
+
         try:
             if 'arpa' not in zone:
                 raise Exception("Zone must be reversed zone for ptr_record. (e.g. 1.1.192.in-addr.arpa)")
@@ -190,7 +184,7 @@ def main():
                     '(zoneName={0})'.format(zone),
                     scope='domain',
                 )
-                if len(so) == 0:
+                if not so == 0:
                     raise Exception("Did not find zone '{0}' in Univention".format(zone))
                 obj = umc_module_for_add('dns/{0}'.format(type), container, superordinate=so[0])
             else:

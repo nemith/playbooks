@@ -19,6 +19,13 @@ author: Zainab Alsaffar (@zanssa)
 requirements:
     - pdpyras python module = 4.1.1
     - PagerDuty API Access
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     access_token:
         description:
@@ -33,7 +40,7 @@ options:
     pd_email:
         description:
             - The user's email address.
-            - I(pd_email) is the unique identifier used and cannot be updated using this module.
+            - O(pd_email) is the unique identifier used and cannot be updated using this module.
         required: true
         type: str
     pd_role:
@@ -45,19 +52,17 @@ options:
     state:
         description:
             - State of the user.
-            - On C(present), it creates a user if the user doesn't exist.
-            - On C(absent), it removes a user if the account exists.
+            - On V(present), it creates a user if the user doesn't exist.
+            - On V(absent), it removes a user if the account exists.
         choices: ['present', 'absent']
         default: 'present'
         type: str
     pd_teams:
         description:
             - The teams to which the user belongs.
-            - Required if I(state=present).
+            - Required if O(state=present).
         type: list
         elements: str
-notes:
-    - Supports C(check_mode).
 '''
 
 EXAMPLES = r'''

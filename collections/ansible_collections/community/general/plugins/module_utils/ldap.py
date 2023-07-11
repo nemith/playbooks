@@ -10,6 +10,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import re
 import traceback
 from ansible.module_utils.common.text.converters import to_native
 
@@ -33,15 +34,23 @@ def gen_specs(**specs):
     specs.update({
         'bind_dn': dict(),
         'bind_pw': dict(default='', no_log=True),
+        'ca_path': dict(type='path'),
         'dn': dict(required=True),
         'referrals_chasing': dict(type='str', default='anonymous', choices=['disabled', 'anonymous']),
         'server_uri': dict(default='ldapi:///'),
         'start_tls': dict(default=False, type='bool'),
         'validate_certs': dict(default=True, type='bool'),
         'sasl_class': dict(choices=['external', 'gssapi'], default='external', type='str'),
+        'xorder_discovery': dict(choices=['enable', 'auto', 'disable'], default='auto', type='str'),
+        'client_cert': dict(default=None, type='path'),
+        'client_key': dict(default=None, type='path'),
     })
 
     return specs
+
+
+def ldap_required_together():
+    return [['client_cert', 'client_key']]
 
 
 class LdapGeneric(object):
@@ -50,17 +59,24 @@ class LdapGeneric(object):
         self.module = module
         self.bind_dn = self.module.params['bind_dn']
         self.bind_pw = self.module.params['bind_pw']
+        self.ca_path = self.module.params['ca_path']
         self.referrals_chasing = self.module.params['referrals_chasing']
         self.server_uri = self.module.params['server_uri']
         self.start_tls = self.module.params['start_tls']
         self.verify_cert = self.module.params['validate_certs']
         self.sasl_class = self.module.params['sasl_class']
+        self.xorder_discovery = self.module.params['xorder_discovery']
+        self.client_cert = self.module.params['client_cert']
+        self.client_key = self.module.params['client_key']
 
         # Establish connection
         self.connection = self._connect_to_ldap()
 
-        # Try to find the X_ORDERed version of the DN
-        self.dn = self._find_dn()
+        if self.xorder_discovery == "enable" or (self.xorder_discovery == "auto" and not self._xorder_dn()):
+            # Try to find the X_ORDERed version of the DN
+            self.dn = self._find_dn()
+        else:
+            self.dn = self.module.params['dn']
 
     def fail(self, msg, exn):
         self.module.fail_json(
@@ -91,6 +107,13 @@ class LdapGeneric(object):
         if not self.verify_cert:
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
+        if self.ca_path:
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.ca_path)
+
+        if self.client_cert and self.client_key:
+            ldap.set_option(ldap.OPT_X_TLS_CERTFILE, self.client_cert)
+            ldap.set_option(ldap.OPT_X_TLS_KEYFILE, self.client_key)
+
         connection = ldap.initialize(self.server_uri)
 
         if self.referrals_chasing == 'disabled':
@@ -113,3 +136,8 @@ class LdapGeneric(object):
             self.fail("Cannot bind to the server.", e)
 
         return connection
+
+    def _xorder_dn(self):
+        # match X_ORDERed DNs
+        regex = r"\w+=\{\d+\}.+"
+        return re.match(regex, self.module.params['dn']) is not None

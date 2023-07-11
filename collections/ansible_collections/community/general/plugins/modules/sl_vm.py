@@ -15,6 +15,13 @@ short_description: Create or cancel a virtual instance in SoftLayer
 description:
   - Creates or cancels SoftLayer instances.
   - When created, optionally waits for it to be 'running'.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   instance_id:
     description:
@@ -151,7 +158,7 @@ options:
   state:
     description:
       - Create, or cancel a virtual instance.
-      - Specify C(present) for create, C(absent) to cancel.
+      - Specify V(present) for create, V(absent) to cancel.
     choices: [ absent, present ]
     default: present
     type: str

@@ -17,11 +17,18 @@ notes:
   - Zones can be thought of as a logical group of domains, all of which share the
     same DNS records (i.e. they point to the same IP). An API key generated via the
     Memset customer control panel is needed with the following minimum scope -
-    I(dns.zone_create), I(dns.zone_delete), I(dns.zone_list).
+    C(dns.zone_create), C(dns.zone_delete), C(dns.zone_list).
   - Currently this module can only create one DNS record at a time. Multiple records
-    should be created using C(with_items).
+    should be created using C(loop).
 description:
-    - Manage DNS records in a Memset account.
+  - Manage DNS records in a Memset account.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         default: present
@@ -166,7 +173,6 @@ memset_api:
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.memset import get_zone_id
 from ansible_collections.community.general.plugins.module_utils.memset import memset_api_call
-from ansible_collections.community.general.plugins.module_utils.memset import get_zone_id
 
 
 def api_validation(args=None):
@@ -307,7 +313,10 @@ def create_or_delete(args=None):
         # informed of the reason.
         retvals['failed'] = _has_failed
         retvals['msg'] = msg
-        retvals['stderr'] = "API returned an error: {0}" . format(response.status_code)
+        if response.status_code is not None:
+            retvals['stderr'] = "API returned an error: {0}" . format(response.status_code)
+        else:
+            retvals['stderr'] = response.stderr
         return retvals
 
     zone_exists, _msg, counter, zone_id = get_zone_id(zone_name=args['zone'], current_zones=response.json())

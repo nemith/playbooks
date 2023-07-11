@@ -22,6 +22,13 @@ author:
 short_description: Tap a Homebrew repository
 description:
     - Tap external Homebrew repositories.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -35,7 +42,7 @@ options:
             - The optional git URL of the repository to tap. The URL is not
               assumed to be on GitHub, and the protocol doesn't have to be HTTP.
               Any location and protocol that git can handle is fine.
-            - I(name) option may not be a list of multiple taps (but a single
+            - O(name) option may not be a list of multiple taps (but a single
               tap instead) when this option is provided.
         required: false
         type: str
@@ -48,7 +55,7 @@ options:
         type: str
     path:
         description:
-            - "A C(:) separated list of paths to search for C(brew) executable."
+            - "A V(:) separated list of paths to search for C(brew) executable."
         default: '/usr/local/bin:/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin'
         type: path
         version_added: '2.1.0'

@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
+DOCUMENTATION = r'''
 ---
 module: vertica_user
 short_description: Adds or removes Vertica database users and assigns roles
@@ -17,6 +17,13 @@ description:
   - A user will not be removed until all the dependencies have been dropped.
   - In such a situation, if the module tries to remove the user it
     will fail and only remove roles granted to the user.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   user:
     description:
@@ -37,7 +44,7 @@ options:
       - The user's password encrypted by the MD5 algorithm.
       - The password must be generated with the format C("md5" + md5[password + username]),
         resulting in a total of 35 characters. An easy way to do this is by querying
-        the Vertica database with select 'md5'||md5('<user_password><user_name>').
+        the Vertica database with select V('md5'||md5('<user_password><user_name>'\)).
     type: str
   expired:
     description:
@@ -46,7 +53,7 @@ options:
   ldap:
     description:
       - Set to true if users are authenticated via LDAP.
-      - The user will be created with password expired and set to I($ldap$).
+      - The user will be created with password expired and set to V($ldap$).
     type: bool
   roles:
     description:
@@ -55,7 +62,7 @@ options:
     type: str
   state:
     description:
-      - Whether to create C(present), drop C(absent) or lock C(locked) a user.
+      - Whether to create (V(present)), drop (V(absent)), or lock (V(locked)) a user.
     choices: ['present', 'absent', 'locked']
     default: present
     type: str

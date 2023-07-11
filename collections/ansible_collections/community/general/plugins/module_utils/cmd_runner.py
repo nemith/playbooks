@@ -147,6 +147,11 @@ class _Format(object):
 
     @staticmethod
     def as_default_type(_type, arg="", ignore_none=None):
+        #
+        # DEPRECATION: This method is deprecated and will be removed in community.general 10.0.0
+        #
+        # Instead of using the implicit formats provided here, use the explicit necessary format method.
+        #
         fmt = _Format
         if _type == "dict":
             return fmt.as_func(lambda d: ["--{0}={1}".format(*a) for a in iteritems(d)], ignore_none=ignore_none)
@@ -309,11 +314,3 @@ class _CmdRunnerContext(object):
 
 
 cmd_runner_fmt = _Format()
-
-#
-# The fmt form is deprecated and will be removed in community.general 7.0.0
-# Please use:
-#   cmd_runner_fmt
-# Or, to retain the same effect, use:
-#   from ansible_collections.community.general.plugins.module_utils.cmd_runner import cmd_runner_fmt as fmt
-fmt = cmd_runner_fmt

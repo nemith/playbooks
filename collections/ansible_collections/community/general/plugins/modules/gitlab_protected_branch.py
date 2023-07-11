@@ -21,6 +21,13 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -37,7 +44,7 @@ options:
   name:
     description:
       - The name of the branch that needs to be protected.
-      - Can make use a wildcard character for like C(production/*) or just have C(main) or C(develop) as value.
+      - Can make use a wildcard character for like V(production/*) or just have V(main) or V(develop) as value.
     required: true
     type: str
   merge_access_levels:

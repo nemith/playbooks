@@ -15,48 +15,54 @@ DOCUMENTATION = r'''
 ---
 module: ini_file
 short_description: Tweak settings in INI files
-extends_documentation_fragment: files
+extends_documentation_fragment:
+  - files
+  - community.general.attributes
 description:
-     - Manage (add, remove, change) individual settings in an INI-style file without having
-       to manage the file as a whole with, say, M(ansible.builtin.template) or M(ansible.builtin.assemble).
-     - Adds missing sections if they don't exist.
-     - Before Ansible 2.0, comments are discarded when the source file is read, and therefore will not show up in the destination file.
-     - Since Ansible 2.3, this module adds missing ending newlines to files to keep in line with the POSIX standard, even when
-       no other modifications need to be applied.
+  - Manage (add, remove, change) individual settings in an INI-style file without having
+    to manage the file as a whole with, say, M(ansible.builtin.template) or M(ansible.builtin.assemble).
+  - Adds missing sections if they don't exist.
+  - Before Ansible 2.0, comments are discarded when the source file is read, and therefore will not show up in the destination file.
+  - Since Ansible 2.3, this module adds missing ending newlines to files to keep in line with the POSIX standard, even when
+    no other modifications need to be applied.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 options:
   path:
     description:
       - Path to the INI-style file; this file is created if required.
-      - Before Ansible 2.3 this option was only usable as I(dest).
+      - Before Ansible 2.3 this option was only usable as O(dest).
     type: path
     required: true
     aliases: [ dest ]
   section:
     description:
-      - Section name in INI file. This is added if I(state=present) automatically when
+      - Section name in INI file. This is added if O(state=present) automatically when
         a single value is being set.
-      - If left empty or set to C(null), the I(option) will be placed before the first I(section).
-      - Using C(null) is also required if the config format does not support sections.
+      - If left empty, being omitted, or being set to V(null), the O(option) will be placed before the first O(section).
+      - Using V(null) is also required if the config format does not support sections.
     type: str
-    required: true
   option:
     description:
-      - If set (required for changing a I(value)), this is the name of the option.
-      - May be omitted if adding/removing a whole I(section).
+      - If set (required for changing a O(value)), this is the name of the option.
+      - May be omitted if adding/removing a whole O(section).
     type: str
   value:
     description:
-      - The string value to be associated with an I(option).
-      - May be omitted when removing an I(option).
-      - Mutually exclusive with I(values).
-      - I(value=v) is equivalent to I(values=[v]).
+      - The string value to be associated with an O(option).
+      - May be omitted when removing an O(option).
+      - Mutually exclusive with O(values).
+      - O(value=v) is equivalent to O(values=[v]).
     type: str
   values:
     description:
-      - The string value to be associated with an I(option).
-      - May be omitted when removing an I(option).
-      - Mutually exclusive with I(value).
-      - I(value=v) is equivalent to I(values=[v]).
+      - The string value to be associated with an O(option).
+      - May be omitted when removing an O(option).
+      - Mutually exclusive with O(value).
+      - O(value=v) is equivalent to O(values=[v]).
     type: list
     elements: str
     version_added: 3.6.0
@@ -68,22 +74,22 @@ options:
     default: false
   state:
     description:
-      - If set to C(absent) and I(exclusive) set to C(true) all matching I(option) lines are removed.
-      - If set to C(absent) and I(exclusive) set to C(false) the specified I(option=value) lines are removed,
-        but the other I(option)s with the same name are not touched.
-      - If set to C(present) and I(exclusive) set to C(false) the specified I(option=values) lines are added,
-        but the other I(option)s with the same name are not touched.
-      - If set to C(present) and I(exclusive) set to C(true) all given I(option=values) lines will be
-        added and the other I(option)s with the same name are removed.
+      - If set to V(absent) and O(exclusive) set to V(true) all matching O(option) lines are removed.
+      - If set to V(absent) and O(exclusive) set to V(false) the specified O(option=value) lines are removed,
+        but the other O(option)s with the same name are not touched.
+      - If set to V(present) and O(exclusive) set to V(false) the specified O(option=values) lines are added,
+        but the other O(option)s with the same name are not touched.
+      - If set to V(present) and O(exclusive) set to V(true) all given O(option=values) lines will be
+        added and the other O(option)s with the same name are removed.
     type: str
     choices: [ absent, present ]
     default: present
   exclusive:
     description:
-      - If set to C(true) (default), all matching I(option) lines are removed when I(state=absent),
-        or replaced when I(state=present).
-      - If set to C(false), only the specified I(value(s)) are added when I(state=present),
-        or removed when I(state=absent), and existing ones are not modified.
+      - If set to V(true) (default), all matching O(option) lines are removed when O(state=absent),
+        or replaced when O(state=present).
+      - If set to V(false), only the specified O(value)/O(values) are added when O(state=present),
+        or removed when O(state=absent), and existing ones are not modified.
     type: bool
     default: true
     version_added: 3.6.0
@@ -94,7 +100,7 @@ options:
     default: false
   create:
     description:
-      - If set to C(false), the module will fail if the file does not already exist.
+      - If set to V(false), the module will fail if the file does not already exist.
       - By default it will create the file if it is missing.
     type: bool
     default: true
@@ -103,9 +109,16 @@ options:
       - Allow option without value and without '=' symbol.
     type: bool
     default: false
+  follow:
+    description:
+    - This flag indicates that filesystem links, if they exist, should be followed.
+    - O(follow=true) can modify O(path) when combined with parameters such as O(mode).
+    type: bool
+    default: false
+    version_added: 7.1.0
 notes:
-   - While it is possible to add an I(option) without specifying a I(value), this makes no sense.
-   - As of Ansible 2.3, the I(dest) option has been changed to I(path) as default, but I(dest) still works as well.
+   - While it is possible to add an O(option) without specifying a O(value), this makes no sense.
+   - As of Ansible 2.3, the O(dest) option has been changed to O(path) as default, but O(dest) still works as well.
    - As of community.general 3.2.0, UTF-8 BOM markers are discarded when reading files.
 author:
     - Jan-Piet Mens (@jpmens)
@@ -185,7 +198,7 @@ def update_section_line(changed, section_lines, index, changed_lines, newline, m
 
 def do_ini(module, filename, section=None, option=None, values=None,
            state='present', exclusive=True, backup=False, no_extra_spaces=False,
-           create=True, allow_no_value=False):
+           create=True, allow_no_value=False, follow=False):
 
     if section is not None:
         section = to_text(section)
@@ -204,15 +217,20 @@ def do_ini(module, filename, section=None, option=None, values=None,
         after_header='%s (content)' % filename,
     )
 
-    if not os.path.exists(filename):
+    if follow and os.path.islink(filename):
+        target_filename = os.path.realpath(filename)
+    else:
+        target_filename = filename
+
+    if not os.path.exists(target_filename):
         if not create:
-            module.fail_json(rc=257, msg='Destination %s does not exist!' % filename)
-        destpath = os.path.dirname(filename)
+            module.fail_json(rc=257, msg='Destination %s does not exist!' % target_filename)
+        destpath = os.path.dirname(target_filename)
         if not os.path.exists(destpath) and not module.check_mode:
             os.makedirs(destpath)
         ini_lines = []
     else:
-        with io.open(filename, 'r', encoding="utf-8-sig") as ini_file:
+        with io.open(target_filename, 'r', encoding="utf-8-sig") as ini_file:
             ini_lines = [to_text(line) for line in ini_file.readlines()]
 
     if module._diff:
@@ -310,14 +328,14 @@ def do_ini(module, filename, section=None, option=None, values=None,
         # override option with no value to option with value if not allow_no_value
         if len(values) > 0:
             for index, line in enumerate(section_lines):
-                if not changed_lines[index] and match_active_opt(option, line):
+                if not changed_lines[index] and match_opt(option, line):
                     newline = assignment_format % (option, values.pop(0))
                     (changed, msg) = update_section_line(changed, section_lines, index, changed_lines, newline, msg)
                     if len(values) == 0:
                         break
         # remove all remaining option occurrences from the rest of the section
         for index in range(len(section_lines) - 1, 0, -1):
-            if not changed_lines[index] and match_active_opt(option, section_lines[index]):
+            if not changed_lines[index] and match_opt(option, section_lines[index]):
                 del section_lines[index]
                 del changed_lines[index]
                 changed = True
@@ -398,7 +416,7 @@ def do_ini(module, filename, section=None, option=None, values=None,
     backup_file = None
     if changed and not module.check_mode:
         if backup:
-            backup_file = module.backup_local(filename)
+            backup_file = module.backup_local(target_filename)
 
         encoded_ini_lines = [to_bytes(line) for line in ini_lines]
         try:
@@ -410,10 +428,10 @@ def do_ini(module, filename, section=None, option=None, values=None,
             module.fail_json(msg="Unable to create temporary file %s", traceback=traceback.format_exc())
 
         try:
-            module.atomic_move(tmpfile, filename)
+            module.atomic_move(tmpfile, target_filename)
         except IOError:
             module.ansible.fail_json(msg='Unable to move temporary \
-                                   file %s to %s, IOError' % (tmpfile, filename), traceback=traceback.format_exc())
+                                   file %s to %s, IOError' % (tmpfile, target_filename), traceback=traceback.format_exc())
 
     return (changed, backup_file, diff, msg)
 
@@ -423,7 +441,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             path=dict(type='path', required=True, aliases=['dest']),
-            section=dict(type='str', required=True),
+            section=dict(type='str'),
             option=dict(type='str'),
             value=dict(type='str'),
             values=dict(type='list', elements='str'),
@@ -432,7 +450,8 @@ def main():
             exclusive=dict(type='bool', default=True),
             no_extra_spaces=dict(type='bool', default=False),
             allow_no_value=dict(type='bool', default=False),
-            create=dict(type='bool', default=True)
+            create=dict(type='bool', default=True),
+            follow=dict(type='bool', default=False)
         ),
         mutually_exclusive=[
             ['value', 'values']
@@ -452,6 +471,7 @@ def main():
     no_extra_spaces = module.params['no_extra_spaces']
     allow_no_value = module.params['allow_no_value']
     create = module.params['create']
+    follow = module.params['follow']
 
     if state == 'present' and not allow_no_value and value is None and not values:
         module.fail_json(msg="Parameter 'value(s)' must be defined if state=present and allow_no_value=False.")
@@ -461,7 +481,7 @@ def main():
     elif values is None:
         values = []
 
-    (changed, backup_file, diff, msg) = do_ini(module, path, section, option, values, state, exclusive, backup, no_extra_spaces, create, allow_no_value)
+    (changed, backup_file, diff, msg) = do_ini(module, path, section, option, values, state, exclusive, backup, no_extra_spaces, create, allow_no_value, follow)
 
     if not module.check_mode and os.path.exists(path):
         file_args = module.load_file_common_arguments(module.params)

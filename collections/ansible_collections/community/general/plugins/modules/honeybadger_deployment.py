@@ -14,7 +14,14 @@ module: honeybadger_deployment
 author: "Benjamin Curtis (@stympy)"
 short_description: Notify Honeybadger.io about app deployments
 description:
-   - Notify Honeybadger.io about app deployments (see http://docs.honeybadger.io/article/188-deployment-tracking)
+  - Notify Honeybadger.io about app deployments (see U(http://docs.honeybadger.io/article/188-deployment-tracking)).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     type: str
@@ -45,7 +52,7 @@ options:
     default: "https://api.honeybadger.io/v1/deploys"
   validate_certs:
     description:
-      - If C(false), SSL certificates for the target url will not be validated. This should only be used
+      - If V(false), SSL certificates for the target url will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true

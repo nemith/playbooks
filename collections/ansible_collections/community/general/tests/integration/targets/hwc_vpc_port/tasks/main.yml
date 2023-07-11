@@ -19,7 +19,7 @@
   hwc_vpc_subnet:
     gateway_ip: "192.168.100.32"
     name: "ansible_network_subnet_test"
-    dhcp_enable: True
+    dhcp_enable: true
     vpc_id: "{{ vpc.id }}"
     cidr: "192.168.100.0/26"
     state: present
@@ -35,7 +35,7 @@
     subnet_id: "{{ subnet.id }}"
     ip_address: "192.168.100.33"
     state: present
-  check_mode: yes
+  check_mode: true
   register: result
 - name: assert changed is true
   assert:
@@ -81,7 +81,7 @@
     subnet_id: "{{ subnet.id }}"
     ip_address: "192.168.100.33"
     state: absent
-  check_mode: yes
+  check_mode: true
   register: result
 - name: assert changed is true
   assert:
@@ -104,7 +104,7 @@
     subnet_id: "{{ subnet.id }}"
     ip_address: "192.168.100.33"
     state: absent
-  check_mode: yes
+  check_mode: true
   register: result
 - name: idemponent
   assert:
@@ -128,7 +128,7 @@
   hwc_vpc_subnet:
     gateway_ip: "192.168.100.32"
     name: "ansible_network_subnet_test"
-    dhcp_enable: True
+    dhcp_enable: true
     vpc_id: "{{ vpc.id }}"
     cidr: "192.168.100.0/26"
     state: absent

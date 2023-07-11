@@ -13,8 +13,20 @@ module: ipa_hostgroup
 author: Thomas Krahn (@Nosmoht)
 short_description: Manage FreeIPA host-group
 description:
-- Add, modify and delete an IPA host-group using IPA API.
+  - Add, modify and delete an IPA host-group using IPA API.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
+  append:
+    description:
+    - If V(true), add the listed O(host) to the O(hostgroup).
+    - If V(false), only the listed O(host) will be in O(hostgroup), removing any other hosts.
+    default: false
+    type: bool
+    version_added: 6.6.0
   cn:
     description:
     - Name of host-group.
@@ -49,7 +61,8 @@ options:
     choices: ["absent", "disabled", "enabled", "present"]
     type: str
 extends_documentation_fragment:
-- community.general.ipa.documentation
+  - community.general.ipa.documentation
+  - community.general.attributes
 
 '''
 
@@ -141,6 +154,7 @@ def ensure(module, client):
     state = module.params['state']
     host = module.params['host']
     hostgroup = module.params['hostgroup']
+    append = module.params['append']
 
     ipa_hostgroup = client.hostgroup_find(name=name)
     module_hostgroup = get_hostgroup_dict(description=module.params['description'])
@@ -162,14 +176,18 @@ def ensure(module, client):
                     client.hostgroup_mod(name=name, item=data)
 
         if host is not None:
-            changed = client.modify_if_diff(name, ipa_hostgroup.get('member_host', []), [item.lower() for item in host],
-                                            client.hostgroup_add_host, client.hostgroup_remove_host) or changed
+            changed = client.modify_if_diff(name, ipa_hostgroup.get('member_host', []),
+                                            [item.lower() for item in host],
+                                            client.hostgroup_add_host,
+                                            client.hostgroup_remove_host,
+                                            append=append) or changed
 
         if hostgroup is not None:
             changed = client.modify_if_diff(name, ipa_hostgroup.get('member_hostgroup', []),
                                             [item.lower() for item in hostgroup],
                                             client.hostgroup_add_hostgroup,
-                                            client.hostgroup_remove_hostgroup) or changed
+                                            client.hostgroup_remove_hostgroup,
+                                            append=append) or changed
 
     else:
         if ipa_hostgroup:
@@ -186,7 +204,8 @@ def main():
                          description=dict(type='str'),
                          host=dict(type='list', elements='str'),
                          hostgroup=dict(type='list', elements='str'),
-                         state=dict(type='str', default='present', choices=['present', 'absent', 'enabled', 'disabled']))
+                         state=dict(type='str', default='present', choices=['present', 'absent', 'enabled', 'disabled']),
+                         append=dict(type='bool', default=False))
 
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=True)

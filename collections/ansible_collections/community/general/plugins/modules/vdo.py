@@ -24,6 +24,15 @@ description:
       provides inline block-level deduplication, compression, and
       thin provisioning capabilities to primary storage.
 
+extends_documentation_fragment:
+    - community.general.attributes
+
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
+
 options:
     name:
         description:
@@ -48,7 +57,7 @@ options:
     activated:
         description:
             - The "activate" status for a VDO volume.  If this is set
-              to C(false), the VDO volume cannot be started, and it will
+              to V(false), the VDO volume cannot be started, and it will
               not start on system startup.  However, on initial
               creation, a VDO volume with "activated" set to "off"
               will be running, until stopped.  This is the default

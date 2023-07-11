@@ -13,9 +13,12 @@ DOCUMENTATION = '''
 module: rax_keypair
 short_description: Create a keypair for use with Rackspace Cloud Servers
 description:
-  - Create a keypair for use with Rackspace Cloud Servers.
-  - This module relies on the C(pyrax) package which is deprecated in favour of using Openstack API.
-  - Unless maintainers step up to work on the module, it will be marked as deprecated in community.general 7.0.0 and removed in version 9.0.0.
+     - Create a keypair for use with Rackspace Cloud Servers
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   name:
     type: str
@@ -40,7 +43,8 @@ notes:
     keypair you must first delete and then recreate.
   - The ability to specify a file path for the public key was added in 1.7
 extends_documentation_fragment:
-- community.general.rackspace.openstack
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

@@ -13,7 +13,14 @@ DOCUMENTATION = '''
 module: profitbricks_volume_attachments
 short_description: Attach or detach a volume
 description:
-     - Allows you to attach or detach a volume from a ProfitBricks server. This module has a dependency on profitbricks >= 1.0.0
+  - Allows you to attach or detach a volume from a ProfitBricks server. This module has a dependency on profitbricks >= 1.0.0
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   datacenter:
     description:
@@ -51,7 +58,7 @@ options:
   state:
     description:
       - Indicate desired state of the resource
-      - "The available choices are: C(present), C(absent)."
+      - "The available choices are: V(present), V(absent)."
     type: str
     required: false
     default: 'present'

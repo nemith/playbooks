@@ -20,6 +20,13 @@ seealso:
   - name: API documentation
     description: Documentation for Alerta API
     link: https://docs.alerta.io/api/reference.html#customers
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   customer:
     description:
@@ -51,7 +58,7 @@ options:
   state:
     description:
       - Whether the customer should exist or not.
-      - Both I(customer) and I(match) identify a customer that should be added or removed.
+      - Both O(customer) and O(match) identify a customer that should be added or removed.
     type: str
     choices: [ absent, present ]
     default: present

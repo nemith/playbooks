@@ -18,6 +18,13 @@ author:
 short_description: Notify airbrake about app deployments
 description:
    - Notify airbrake about app deployments (see U(https://airbrake.io/docs/api/#deploys-v4)).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   project_id:
     description:
@@ -65,7 +72,7 @@ options:
     type: str
   validate_certs:
     description:
-      - If C(false), SSL certificates for the target url will not be validated. This should only be used
+      - If V(false), SSL certificates for the target url will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     required: false
     default: true

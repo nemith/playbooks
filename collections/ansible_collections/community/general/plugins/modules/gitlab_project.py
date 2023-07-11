@@ -15,7 +15,7 @@ module: gitlab_project
 short_description: Creates/updates/deletes GitLab Projects
 description:
   - When the project does not exist in GitLab, it will be created.
-  - When the project does exists and I(state=absent), the project will be deleted.
+  - When the project does exists and O(state=absent), the project will be deleted.
   - When changes are made to the project, the project will be updated.
 author:
   - Werner Dijkerman (@dj-wasabi)
@@ -26,6 +26,13 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   group:
@@ -77,9 +84,9 @@ options:
     default: true
   visibility:
     description:
-      - C(private) Project access must be granted explicitly for each user.
-      - C(internal) The project can be cloned by any logged in user.
-      - C(public) The project can be cloned without any authentication.
+      - V(private) Project access must be granted explicitly for each user.
+      - V(internal) The project can be cloned by any logged in user.
+      - V(public) The project can be cloned without any authentication.
     default: private
     type: str
     choices: ["private", "internal", "public"]
@@ -101,7 +108,7 @@ options:
   merge_method:
     description:
       - What requirements are placed upon merges.
-      - Possible values are C(merge), C(rebase_merge) merge commit with semi-linear history, C(ff) fast-forward merges only.
+      - Possible values are V(merge), V(rebase_merge) merge commit with semi-linear history, V(ff) fast-forward merges only.
     type: str
     choices: ["ff", "merge", "rebase_merge"]
     default: merge
@@ -169,33 +176,88 @@ options:
   default_branch:
     description:
       - Default branch name for a new project.
-      - This option is only used on creation, not for updates. This is also only used if I(initialize_with_readme=true).
+      - This option is only used on creation, not for updates. This is also only used if O(initialize_with_readme=true).
     type: str
     version_added: "4.2.0"
   builds_access_level:
     description:
-      - C(private) means that repository CI/CD is allowed only to project members.
-      - C(disabled) means that repository CI/CD is disabled.
-      - C(enabled) means that repository CI/CD is enabled.
+      - V(private) means that repository CI/CD is allowed only to project members.
+      - V(disabled) means that repository CI/CD is disabled.
+      - V(enabled) means that repository CI/CD is enabled.
     type: str
     choices: ["private", "disabled", "enabled"]
     version_added: "6.2.0"
   forking_access_level:
     description:
-      - C(private) means that repository forks is allowed only to project members.
-      - C(disabled) means that repository forks are disabled.
-      - C(enabled) means that repository forks are enabled.
+      - V(private) means that repository forks is allowed only to project members.
+      - V(disabled) means that repository forks are disabled.
+      - V(enabled) means that repository forks are enabled.
     type: str
     choices: ["private", "disabled", "enabled"]
     version_added: "6.2.0"
   container_registry_access_level:
     description:
-      - C(private) means that container registry is allowed only to project members.
-      - C(disabled) means that container registry is disabled.
-      - C(enabled) means that container registry is enabled.
+      - V(private) means that container registry is allowed only to project members.
+      - V(disabled) means that container registry is disabled.
+      - V(enabled) means that container registry is enabled.
     type: str
     choices: ["private", "disabled", "enabled"]
     version_added: "6.2.0"
+  releases_access_level:
+    description:
+      - V(private) means that accessing release is allowed only to project members.
+      - V(disabled) means that accessing release is disabled.
+      - V(enabled) means that accessing release is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  environments_access_level:
+    description:
+      - V(private) means that deployment to environment is allowed only to project members.
+      - V(disabled) means that deployment to environment is disabled.
+      - V(enabled) means that deployment to environment is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  feature_flags_access_level:
+    description:
+      - V(private) means that feature rollout is allowed only to project members.
+      - V(disabled) means that feature rollout is disabled.
+      - V(enabled) means that feature rollout is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  infrastructure_access_level:
+    description:
+      - V(private) means that configuring infrastructure is allowed only to project members.
+      - V(disabled) means that configuring infrastructure is disabled.
+      - V(enabled) means that configuring infrastructure is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  monitor_access_level:
+    description:
+      - V(private) means that monitoring health is allowed only to project members.
+      - V(disabled) means that monitoring health is disabled.
+      - V(enabled) means that monitoring health is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  security_and_compliance_access_level:
+    description:
+      - V(private) means that accessing security and complicance tab is allowed only to project members.
+      - V(disabled) means that accessing security and complicance tab is disabled.
+      - V(enabled) means that accessing security and complicance tab is enabled.
+    type: str
+    choices: ["private", "disabled", "enabled"]
+    version_added: "6.4.0"
+  topics:
+    description:
+      - A topic or list of topics to be assigned to a project.
+      - It is compatible with old GitLab server releases (versions before 14, correspond to C(tag_list)).
+    type: list
+    elements: str
+    version_added: "6.6.0"
 '''
 
 EXAMPLES = r'''
@@ -279,6 +341,8 @@ from ansible_collections.community.general.plugins.module_utils.gitlab import (
     auth_argument_spec, find_group, find_project, gitlab_authentication, gitlab, ensure_gitlab_package
 )
 
+from ansible_collections.community.general.plugins.module_utils.version import LooseVersion
+
 
 class GitLabProject(object):
     def __init__(self, module, gitlab_instance):
@@ -314,7 +378,21 @@ class GitLabProject(object):
             'builds_access_level': options['builds_access_level'],
             'forking_access_level': options['forking_access_level'],
             'container_registry_access_level': options['container_registry_access_level'],
+            'releases_access_level': options['releases_access_level'],
+            'environments_access_level': options['environments_access_level'],
+            'feature_flags_access_level': options['feature_flags_access_level'],
+            'infrastructure_access_level': options['infrastructure_access_level'],
+            'monitor_access_level': options['monitor_access_level'],
+            'security_and_compliance_access_level': options['security_and_compliance_access_level'],
         }
+
+        # topics was introduced on gitlab >=14 and replace tag_list. We get current gitlab version
+        # and check if less than 14. If yes we use tag_list instead topics
+        if LooseVersion(self._gitlab.version()[0]) < LooseVersion("14"):
+            project_options['tag_list'] = options['topics']
+        else:
+            project_options['topics'] = options['topics']
+
         # Because we have already call userExists in main()
         if self.project_object is None:
             project_options.update({
@@ -447,6 +525,13 @@ def main():
         builds_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
         forking_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
         container_registry_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        releases_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        environments_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        feature_flags_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        infrastructure_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        monitor_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        security_and_compliance_access_level=dict(type='str', choices=['private', 'disabled', 'enabled']),
+        topics=dict(type='list', elements='str'),
     ))
 
     module = AnsibleModule(
@@ -497,6 +582,13 @@ def main():
     builds_access_level = module.params['builds_access_level']
     forking_access_level = module.params['forking_access_level']
     container_registry_access_level = module.params['container_registry_access_level']
+    releases_access_level = module.params['releases_access_level']
+    environments_access_level = module.params['environments_access_level']
+    feature_flags_access_level = module.params['feature_flags_access_level']
+    infrastructure_access_level = module.params['infrastructure_access_level']
+    monitor_access_level = module.params['monitor_access_level']
+    security_and_compliance_access_level = module.params['security_and_compliance_access_level']
+    topics = module.params['topics']
 
     if default_branch and not initialize_with_readme:
         module.fail_json(msg="Param default_branch need param initialize_with_readme set to true")
@@ -569,6 +661,13 @@ def main():
             "builds_access_level": builds_access_level,
             "forking_access_level": forking_access_level,
             "container_registry_access_level": container_registry_access_level,
+            "releases_access_level": releases_access_level,
+            "environments_access_level": environments_access_level,
+            "feature_flags_access_level": feature_flags_access_level,
+            "infrastructure_access_level": infrastructure_access_level,
+            "monitor_access_level": monitor_access_level,
+            "security_and_compliance_access_level": security_and_compliance_access_level,
+            "topics": topics,
         }):
 
             module.exit_json(changed=True, msg="Successfully created or updated the project %s" % project_name, project=gitlab_project.project_object._attrs)

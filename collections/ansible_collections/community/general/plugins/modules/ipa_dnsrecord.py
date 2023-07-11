@@ -14,7 +14,12 @@ module: ipa_dnsrecord
 author: Abhijeet Kasurde (@Akasurde)
 short_description: Manage FreeIPA DNS records
 description:
-- Add, modify and delete an IPA DNS Record using IPA API.
+  - Add, modify and delete an IPA DNS Record using IPA API.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   zone_name:
     description:
@@ -40,8 +45,8 @@ options:
   record_value:
     description:
     - Manage DNS record name with this value.
-    - Mutually exclusive with I(record_values), and exactly one of I(record_value) and I(record_values) has to be specified.
-    - Use I(record_values) if you need to specify multiple values.
+    - Mutually exclusive with O(record_values), and exactly one of O(record_value) and O(record_values) has to be specified.
+    - Use O(record_values) if you need to specify multiple values.
     - In the case of 'A' or 'AAAA' record types, this will be the IP address.
     - In the case of 'A6' record type, this will be the A6 Record data.
     - In the case of 'CNAME' record type, this will be the hostname.
@@ -54,7 +59,7 @@ options:
   record_values:
     description:
     - Manage DNS record name with this value.
-    - Mutually exclusive with I(record_values), and exactly one of I(record_value) and I(record_values) has to be specified.
+    - Mutually exclusive with O(record_value), and exactly one of O(record_value) and O(record_values) has to be specified.
     - In the case of 'A' or 'AAAA' record types, this will be the IP address.
     - In the case of 'A6' record type, this will be the A6 Record data.
     - In the case of 'CNAME' record type, this will be the hostname.
@@ -68,7 +73,7 @@ options:
   record_ttl:
     description:
     - Set the TTL for the record.
-    - Applies only when adding a new or changing the value of I(record_value) or I(record_values).
+    - Applies only when adding a new or changing the value of O(record_value) or O(record_values).
     required: false
     type: int
   state:
@@ -78,7 +83,8 @@ options:
     choices: ["absent", "present"]
     type: str
 extends_documentation_fragment:
-- community.general.ipa.documentation
+  - community.general.ipa.documentation
+  - community.general.attributes
 
 '''
 

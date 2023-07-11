@@ -18,12 +18,19 @@ short_description: Send notifications to Rocket Chat
 description:
     - The C(rocketchat) module sends notifications to Rocket Chat via the Incoming WebHook integration
 author: "Ramon de la Fuente (@ramondelafuente)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   domain:
     type: str
     description:
-      - The domain for your environment without protocol. (i.e.
-        C(example.com) or C(chat.example.com))
+      - The domain for your environment without protocol. (For example
+        V(example.com) or V(chat.example.com).)
     required: true
   token:
     type: str
@@ -35,7 +42,7 @@ options:
   protocol:
     type: str
     description:
-      - Specify the protocol used to send notification messages before the webhook url. (i.e. http or https)
+      - Specify the protocol used to send notification messages before the webhook URL (that is, V(http) or V(https)).
     default: https
     choices:
       - 'http'
@@ -47,7 +54,7 @@ options:
   channel:
     type: str
     description:
-      - Channel to send the message to. If absent, the message goes to the channel selected for the I(token)
+      - Channel to send the message to. If absent, the message goes to the channel selected for the O(token)
         specified during the creation of webhook.
   username:
     type: str
@@ -58,23 +65,25 @@ options:
     type: str
     description:
       - URL for the message sender's icon.
-    default: "https://www.ansible.com/favicon.ico"
+    default: "https://docs.ansible.com/favicon.ico"
   icon_emoji:
     type: str
     description:
       - Emoji for the message sender. The representation for the available emojis can be
-        got from Rocket Chat. (for example :thumbsup:) (if I(icon_emoji) is set, I(icon_url) will not be used)
+        got from Rocket Chat.
+      - For example V(:thumbsup:).
+      - If O(icon_emoji) is set, O(icon_url) will not be used.
   link_names:
     type: int
     description:
-      - Automatically create links for channels and usernames in I(msg).
+      - Automatically create links for channels and usernames in O(msg).
     default: 1
     choices:
       - 1
       - 0
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true
@@ -212,7 +221,7 @@ def main():
             msg=dict(type='str', required=False),
             channel=dict(type='str'),
             username=dict(type='str', default='Ansible'),
-            icon_url=dict(type='str', default='https://www.ansible.com/favicon.ico'),
+            icon_url=dict(type='str', default='https://docs.ansible.com/favicon.ico'),
             icon_emoji=dict(type='str'),
             link_names=dict(type='int', default=1, choices=[0, 1]),
             validate_certs=dict(default=True, type='bool'),

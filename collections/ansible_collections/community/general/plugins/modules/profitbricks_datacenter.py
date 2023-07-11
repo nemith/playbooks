@@ -15,6 +15,13 @@ short_description: Create or destroy a ProfitBricks Virtual Datacenter
 description:
      - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers. This module has a dependency
        on profitbricks >= 1.0.0
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   name:
     description:
@@ -56,7 +63,7 @@ options:
   state:
     description:
       - Create or terminate datacenters.
-      - "The available choices are: C(present), C(absent)."
+      - "The available choices are: V(present), V(absent)."
     type: str
     required: false
     default: 'present'

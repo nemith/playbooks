@@ -10,7 +10,6 @@
 - name: install pycdlib
   pip:
     name: pycdlib
-    # state: latest
     extra_args: "-c {{ remote_constraints }}"
   register: install_pycdlib
 - debug: var=install_pycdlib
@@ -35,7 +34,7 @@
     dest_iso: "{{ output_test_dir }}/test.iso"
     interchange_level: 3
   register: iso_result
-  check_mode: yes
+  check_mode: true
 - debug: var=iso_result
 
 - name: Check if iso file created
@@ -149,7 +148,7 @@
     src_files:
       - "{{ remote_tmp_dir }}/test1.cfg"
     dest_iso: "{{ output_test_dir }}/test5.iso"
-    udf: True
+    udf: true
   register: iso_result
 - debug: var=iso_result
 

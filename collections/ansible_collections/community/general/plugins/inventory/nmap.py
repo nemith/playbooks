@@ -23,19 +23,34 @@ DOCUMENTATION = '''
             required: true
             choices: ['nmap', 'community.general.nmap']
         sudo:
-            description: Set to C(true) to execute a C(sudo nmap) plugin scan.
+            description: Set to V(true) to execute a C(sudo nmap) plugin scan.
             version_added: 4.8.0
             default: false
             type: boolean
         address:
             description: Network IP or range of IPs to scan, you can use a simple range (10.2.2.15-25) or CIDR notation.
             required: true
+            env:
+                - name: ANSIBLE_NMAP_ADDRESS
+                  version_added: 6.6.0
         exclude:
-            description: list of addresses to exclude
+            description:
+              - List of addresses to exclude.
+              - For example V(10.2.2.15-25) or V(10.2.2.15,10.2.2.16).
             type: list
             elements: string
+            env:
+                - name: ANSIBLE_NMAP_EXCLUDE
+                  version_added: 6.6.0
+        port:
+            description:
+                - Only scan specific port or port range (C(-p)).
+                - For example, you could pass V(22) for a single port, V(1-65535) for a range of ports,
+                  or V(U:53,137,T:21-25,139,8080,S:9) to check port 53 with UDP, ports 21-25 with TCP, port 9 with SCTP, and ports 137, 139, and 8080 with all.
+            type: string
+            version_added: 6.5.0
         ports:
-            description: Enable/disable scanning for open ports
+            description: Enable/disable scanning ports.
             type: boolean
             default: true
         ipv4:
@@ -49,19 +64,24 @@ DOCUMENTATION = '''
         udp_scan:
             description:
                 - Scan via UDP.
-                - Depending on your system you might need I(sudo=true) for this to work.
+                - Depending on your system you might need O(sudo=true) for this to work.
             type: boolean
             default: false
             version_added: 6.1.0
         icmp_timestamp:
             description:
                 - Scan via ICMP Timestamp (C(-PP)).
-                - Depending on your system you might need I(sudo=true) for this to work.
+                - Depending on your system you might need O(sudo=true) for this to work.
             type: boolean
             default: false
             version_added: 6.1.0
+        open:
+            description: Only scan for open (or possibly open) ports.
+            type: boolean
+            default: false
+            version_added: 6.5.0
         dns_resolve:
-            description: Whether to always (C(true)) or never (C(false)) do DNS resolution.
+            description: Whether to always (V(true)) or never (V(false)) do DNS resolution.
             type: boolean
             default: false
             version_added: 6.1.0
@@ -81,6 +101,14 @@ plugin: community.general.nmap
 sudo: true
 strict: false
 address: 192.168.0.0/24
+
+# an nmap scan specifying ports and classifying results to an inventory group
+plugin: community.general.nmap
+address: 192.168.0.0/24
+exclude: 192.168.0.1, web.example.com
+port: 22, 443
+groups:
+  web_servers: "ports | selectattr('port', 'equalto', '443')"
 '''
 
 import os
@@ -171,6 +199,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             if self._options['sudo']:
                 cmd.insert(0, 'sudo')
 
+            if self._options['port']:
+                cmd.append('-p')
+                cmd.append(self._options['port'])
+
             if not self._options['ports']:
                 cmd.append('-sP')
 
@@ -193,6 +225,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             if self._options['icmp_timestamp']:
                 cmd.append('-PP')
+
+            if self._options['open']:
+                cmd.append('--open')
 
             cmd.append(self._options['address'])
             try:

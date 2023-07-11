@@ -13,7 +13,14 @@ DOCUMENTATION = '''
 module: github_key
 short_description: Manage GitHub access keys
 description:
-    - Creates, removes, or updates GitHub access keys.
+  - Creates, removes, or updates GitHub access keys.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     description:
@@ -27,7 +34,7 @@ options:
     type: str
   pubkey:
     description:
-      - SSH public key value. Required when I(state=present).
+      - SSH public key value. Required when O(state=present).
     type: str
   state:
     description:
@@ -37,9 +44,9 @@ options:
     type: str
   force:
     description:
-      - The default is C(true), which will replace the existing remote key
-        if it's different than C(pubkey). If C(false), the key will only be
-        set if no key with the given I(name) exists.
+      - The default is V(true), which will replace the existing remote key
+        if it is different than O(pubkey). If V(false), the key will only be
+        set if no key with the given O(name) exists.
     type: bool
     default: true
 

@@ -24,13 +24,20 @@ notes:
       yet supported.
 requirements:
     - bash
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
             - Name of the spell
             - multiple names can be given, separated by commas
-            - special value '*' in conjunction with states C(latest) or
-              C(rebuild) will update or rebuild the whole system respectively
+            - special value '*' in conjunction with states V(latest) or
+              V(rebuild) will update or rebuild the whole system respectively
         aliases: ["spell"]
         type: list
         elements: str
@@ -38,9 +45,9 @@ options:
     state:
         description:
             - Whether to cast, dispel or rebuild a package
-            - state C(cast) is an equivalent of C(present), not C(latest)
-            - state C(latest) always triggers I(update_cache=true)
-            - state C(rebuild) implies cast of all specified spells, not only
+            - state V(cast) is an equivalent of V(present), not V(latest)
+            - state V(latest) always triggers O(update_cache=true)
+            - state V(rebuild) implies cast of all specified spells, not only
               those existed before
         choices: ["present", "latest", "absent", "cast", "dispelled", "rebuild"]
         default: "present"
@@ -50,31 +57,31 @@ options:
         description:
             - Comma-separated list of _optional_ dependencies to build a spell
               (or make sure it is built) with; use +/- in front of dependency
-              to turn it on/off ('+' is optional though)
-            - this option is ignored if C(name) parameter is equal to '*' or
-              contains more than one spell
-            - providers must be supplied in the form recognized by Sorcery, e.g.
-              'openssl(SSL)'
+              to turn it on/off ('+' is optional though).
+            - this option is ignored if O(name) parameter is equal to V(*) or
+              contains more than one spell.
+            - providers must be supplied in the form recognized by Sorcery, for example
+              'openssl(SSL)'.
         type: str
 
     update:
         description:
-            - Whether or not to update sorcery scripts at the very first stage
+            - Whether or not to update sorcery scripts at the very first stage.
         type: bool
         default: false
 
     update_cache:
         description:
-            - Whether or not to update grimoire collection before casting spells
+            - Whether or not to update grimoire collection before casting spells.
         type: bool
         default: false
         aliases: ["update_codex"]
 
     cache_valid_time:
         description:
-            - Time in seconds to invalidate grimoire collection on update
-            - especially useful for SCM and rsync grimoires
-            - makes sense only in pair with C(update_cache)
+            - Time in seconds to invalidate grimoire collection on update.
+            - Especially useful for SCM and rsync grimoires.
+            - Makes sense only in pair with O(update_cache).
         type: int
         default: 0
 '''
@@ -157,6 +164,8 @@ import os
 import re
 import shutil
 import sys
+
+from ansible.module_utils.basic import AnsibleModule
 
 
 # auto-filled at module init
@@ -638,9 +647,6 @@ def main():
     if params['name']:
         manage_spells(module)
 
-
-# import module snippets
-from ansible.module_utils.basic import AnsibleModule
 
 if __name__ == '__main__':
     main()

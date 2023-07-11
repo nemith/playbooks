@@ -15,9 +15,16 @@ module: awall
 short_description: Manage awall policies
 author: Ted Trask (@tdtrask) <ttrask01@yahoo.com>
 description:
-  - This modules allows for enable/disable/activate of I(awall) policies.
-  - Alpine Wall (I(awall)) generates a firewall configuration from the enabled policy files
+  - This modules allows for enable/disable/activate of C(awall) policies.
+  - Alpine Wall (C(awall)) generates a firewall configuration from the enabled policy files
     and activates the configuration on the system.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description:
@@ -34,8 +41,11 @@ options:
     description:
       - Activate the new firewall rules.
       - Can be run with other steps or on its own.
+      - Idempotency is affected if O(activate=true), as the module will always report a changed state.
     type: bool
     default: false
+notes:
+    - At least one of O(name) and O(activate) is required.
 '''
 
 EXAMPLES = r'''

@@ -20,6 +20,13 @@ description:
   - In such a situation, if the module tries to remove the schema it
     will fail and only remove roles created for the schema if they have
     no dependencies.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   schema:
     description:
@@ -43,7 +50,7 @@ options:
     type: str
   state:
     description:
-      - Whether to create C(present), or drop C(absent) a schema.
+      - Whether to create V(present), or drop V(absent) a schema.
     default: present
     choices: ['present', 'absent']
     type: str

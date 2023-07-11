@@ -18,6 +18,13 @@ author: "Matthias Vogelgesang (@matze)"
 short_description: Add and remove Zypper repositories
 description:
     - Add or remove Zypper repositories on SUSE and openSUSE
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -40,8 +47,7 @@ options:
     disable_gpg_check:
         description:
             - Whether to disable GPG signature checking of
-              all packages. Has an effect only if state is
-              I(present).
+              all packages. Has an effect only if O(state=present).
             - Needs zypper version >= 1.6.2.
         type: bool
         default: false
@@ -66,7 +72,7 @@ options:
     auto_import_keys:
         description:
             - Automatically import the gpg signing key of the new or changed repository.
-            - Has an effect only if state is I(present). Has no effect on existing (unchanged) repositories or in combination with I(absent).
+            - Has an effect only if O(state=present). Has no effect on existing (unchanged) repositories or in combination with O(state=absent).
             - Implies runrefresh.
             - Only works with C(.repo) files if `name` is given explicitly.
         type: bool

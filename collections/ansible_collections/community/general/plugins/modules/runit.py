@@ -12,10 +12,17 @@ DOCUMENTATION = r'''
 ---
 module: runit
 author:
-- James Sumners (@jsumners)
+    - James Sumners (@jsumners)
 short_description: Manage runit services
 description:
     - Controls runit services on remote hosts using the sv utility.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -24,11 +31,11 @@ options:
         required: true
     state:
         description:
-            - C(started)/C(stopped) are idempotent actions that will not run
-              commands unless necessary.  C(restarted) will always bounce the
-              service (sv restart) and C(killed) will always bounce the service (sv force-stop).
-              C(reloaded) will send a HUP (sv reload).
-              C(once) will run a normally downed sv once (sv once), not really
+            - V(started)/V(stopped) are idempotent actions that will not run
+              commands unless necessary.  V(restarted) will always bounce the
+              service (sv restart) and V(killed) will always bounce the service (sv force-stop).
+              V(reloaded) will send a HUP (sv reload).
+              V(once) will run a normally downed sv once (sv once), not really
               an idempotent operation.
         type: str
         choices: [ killed, once, reloaded, restarted, started, stopped ]

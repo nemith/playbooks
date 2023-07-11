@@ -25,6 +25,13 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   project:
@@ -35,21 +42,21 @@ options:
   gitlab_user:
     description:
       - A username or a list of usernames to add to/remove from the GitLab project.
-      - Mutually exclusive with I(gitlab_users_access).
+      - Mutually exclusive with O(gitlab_users_access).
     type: list
     elements: str
   access_level:
     description:
       - The access level for the user.
-      - Required if I(state=present), user state is set to present.
+      - Required if O(state=present), user state is set to present.
     type: str
     choices: ['guest', 'reporter', 'developer', 'maintainer']
   gitlab_users_access:
     description:
       - Provide a list of user to access level mappings.
       - Every dictionary in this list specifies a user (by username) and the access level the user should have.
-      - Mutually exclusive with I(gitlab_user) and I(access_level).
-      - Use together with I(purge_users) to remove all users not specified here from the project.
+      - Mutually exclusive with O(gitlab_user) and O(access_level).
+      - Use together with O(purge_users) to remove all users not specified here from the project.
     type: list
     elements: dict
     suboptions:
@@ -60,7 +67,7 @@ options:
       access_level:
         description:
           - The access level for the user.
-          - Required if I(state=present), user state is set to present.
+          - Required if O(state=present), user state is set to present.
         type: str
         choices: ['guest', 'reporter', 'developer', 'maintainer']
         required: true
@@ -68,22 +75,20 @@ options:
   state:
     description:
       - State of the member in the project.
-      - On C(present), it adds a user to a GitLab project.
-      - On C(absent), it removes a user from a GitLab project.
+      - On V(present), it adds a user to a GitLab project.
+      - On V(absent), it removes a user from a GitLab project.
     choices: ['present', 'absent']
     default: 'present'
     type: str
   purge_users:
     description:
-      - Adds/remove users of the given access_level to match the given I(gitlab_user)/I(gitlab_users_access) list.
+      - Adds/remove users of the given access_level to match the given O(gitlab_user)/O(gitlab_users_access) list.
         If omitted do not purge orphaned members.
-      - Is only used when I(state=present).
+      - Is only used when O(state=present).
     type: list
     elements: str
     choices: ['guest', 'reporter', 'developer', 'maintainer']
     version_added: 3.7.0
-notes:
-  - Supports C(check_mode).
 '''
 
 EXAMPLES = r'''
@@ -136,7 +141,7 @@ EXAMPLES = r'''
     project: projectname
     gitlab_user: username
     access_level: developer
-    pruge_users: developer
+    purge_users: developer
     state: present
 
 - name: Remove a list of Users with Dedicated Access Levels to A GitLab project

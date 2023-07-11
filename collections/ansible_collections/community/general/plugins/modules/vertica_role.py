@@ -15,6 +15,13 @@ module: vertica_role
 short_description: Adds or removes Vertica database roles and assigns roles to them
 description:
   - Adds or removes Vertica database role and, optionally, assign other roles.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   role:
     description:
@@ -29,7 +36,7 @@ options:
     type: str
   state:
     description:
-      - Whether to create C(present), drop C(absent) or lock C(locked) a role.
+      - Whether to create V(present), drop V(absent) or lock V(locked) a role.
     choices: ['present', 'absent']
     default: present
     type: str

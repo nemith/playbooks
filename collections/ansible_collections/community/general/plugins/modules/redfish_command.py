@@ -18,6 +18,13 @@ description:
   - Manages OOB controller ex. reboot, log management.
   - Manages OOB controller users ex. add, remove, update.
   - Manages system power ex. on, off, graceful and forced reboot.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   category:
     required: true
@@ -130,6 +137,12 @@ options:
       - URI of the image for the update.
     type: str
     version_added: '0.2.0'
+  update_image_file:
+    required: false
+    description:
+      - Filename, with optional path, of the image for the update.
+    type: path
+    version_added: '7.1.0'
   update_protocol:
     required: false
     description:
@@ -239,8 +252,16 @@ options:
     type: bool
     default: false
     version_added: 3.7.0
+  bios_attributes:
+    required: false
+    description:
+      - BIOS attributes that needs to be verified in the given server.
+    type: dict
+    version_added: 6.4.0
 
-author: "Jose Delarosa (@jose-delarosa)"
+author:
+  - "Jose Delarosa (@jose-delarosa)"
+  - "T S Kushal (@TSKushal)"
 '''
 
 EXAMPLES = '''
@@ -526,6 +547,30 @@ EXAMPLES = '''
         username: operator
         password: supersecretpwd
 
+  - name: Multipart HTTP push update; timeout is 600 seconds to allow for a
+      large image transfer
+    community.general.redfish_command:
+      category: Update
+      command: MultipartHTTPPushUpdate
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      timeout: 600
+      update_image_file: ~/images/myupdate.img
+
+  - name: Multipart HTTP push with additional options; timeout is 600 seconds
+      to allow for a large image transfer
+    community.general.redfish_command:
+      category: Update
+      command: MultipartHTTPPushUpdate
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      timeout: 600
+      update_image_file: ~/images/myupdate.img
+      update_targets:
+        - /redfish/v1/UpdateService/FirmwareInventory/BMC
+
   - name: Perform requested operations to continue the update
     community.general.redfish_command:
       category: Update
@@ -629,6 +674,17 @@ EXAMPLES = '''
       category: Manager
       command: PowerReboot
       resource_id: BMC
+
+  - name: Verify BIOS attributes
+    community.general.redfish_command:
+      category: Systems
+      command: VerifyBiosAttributes
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      bios_attributes:
+        SubNumaClustering: "Disabled"
+        WorkloadProfile: "Virtualization-MaxPerformance"
 '''
 
 RETURN = '''
@@ -662,7 +718,7 @@ from ansible.module_utils.common.text.converters import to_native
 CATEGORY_COMMANDS_ALL = {
     "Systems": ["PowerOn", "PowerForceOff", "PowerForceRestart", "PowerGracefulRestart",
                 "PowerGracefulShutdown", "PowerReboot", "SetOneTimeBoot", "EnableContinuousBootOverride", "DisableBootOverride",
-                "IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink", "VirtualMediaInsert", "VirtualMediaEject"],
+                "IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink", "VirtualMediaInsert", "VirtualMediaEject", "VerifyBiosAttributes"],
     "Chassis": ["IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink"],
     "Accounts": ["AddUser", "EnableUser", "DeleteUser", "DisableUser",
                  "UpdateUserRole", "UpdateUserPassword", "UpdateUserName",
@@ -671,7 +727,7 @@ CATEGORY_COMMANDS_ALL = {
     "Manager": ["GracefulRestart", "ClearLogs", "VirtualMediaInsert",
                 "VirtualMediaEject", "PowerOn", "PowerForceOff", "PowerForceRestart",
                 "PowerGracefulRestart", "PowerGracefulShutdown", "PowerReboot"],
-    "Update": ["SimpleUpdate", "PerformRequestedOperations"],
+    "Update": ["SimpleUpdate", "MultipartHTTPPushUpdate", "PerformRequestedOperations"],
 }
 
 
@@ -700,6 +756,7 @@ def main():
             boot_override_mode=dict(choices=['Legacy', 'UEFI']),
             resource_id=dict(),
             update_image_uri=dict(),
+            update_image_file=dict(type='path'),
             update_protocol=dict(),
             update_targets=dict(type='list', elements='str', default=[]),
             update_creds=dict(
@@ -726,6 +783,7 @@ def main():
                 )
             ),
             strip_etag_quotes=dict(type='bool', default=False),
+            bios_attributes=dict(type="dict")
         ),
         required_together=[
             ('username', 'password'),
@@ -764,6 +822,7 @@ def main():
     # update options
     update_opts = {
         'update_image_uri': module.params['update_image_uri'],
+        'update_image_file': module.params['update_image_file'],
         'update_protocol': module.params['update_protocol'],
         'update_targets': module.params['update_targets'],
         'update_creds': module.params['update_creds'],
@@ -784,6 +843,9 @@ def main():
 
     # Etag options
     strip_etag_quotes = module.params['strip_etag_quotes']
+
+    # BIOS Attributes options
+    bios_attributes = module.params['bios_attributes']
 
     # Build root URI
     root_uri = "https://" + module.params['baseuri']
@@ -845,6 +907,8 @@ def main():
                 result = rf_utils.virtual_media_insert(virtual_media, category)
             elif command == 'VirtualMediaEject':
                 result = rf_utils.virtual_media_eject(virtual_media, category)
+            elif command == 'VerifyBiosAttributes':
+                result = rf_utils.verify_bios_attributes(bios_attributes)
 
     elif category == "Chassis":
         result = rf_utils._find_chassis_resource()
@@ -906,6 +970,10 @@ def main():
         for command in command_list:
             if command == "SimpleUpdate":
                 result = rf_utils.simple_update(update_opts)
+                if 'update_status' in result:
+                    return_values['update_status'] = result['update_status']
+            elif command == "MultipartHTTPPushUpdate":
+                result = rf_utils.multipath_http_push_update(update_opts)
                 if 'update_status' in result:
                     return_values['update_status'] = result['update_status']
             elif command == "PerformRequestedOperations":

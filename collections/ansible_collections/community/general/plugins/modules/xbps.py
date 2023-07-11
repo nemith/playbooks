@@ -19,6 +19,13 @@ description:
 author:
     - "Dino Occhialini (@dinoocch)"
     - "Michael Aldridge (@the-maldridge)"
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -55,7 +62,7 @@ options:
             - Whether or not to upgrade the xbps package when necessary.
               Before installing new packages,
               xbps requires the user to update the xbps package itself.
-              Thus when this option is set to C(false),
+              Thus when this option is set to V(false),
               upgrades and installations will fail when xbps is not up to date.
         type: bool
         default: true

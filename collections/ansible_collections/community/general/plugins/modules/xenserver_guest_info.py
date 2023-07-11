@@ -36,7 +36,7 @@ options:
     description:
     - Name of the VM to gather facts from.
     - VMs running on XenServer do not necessarily have unique names. The module will fail if multiple VMs with same name are found.
-    - In case of multiple VMs with same name, use C(uuid) to uniquely specify VM to manage.
+    - In case of multiple VMs with same name, use O(uuid) to uniquely specify VM to manage.
     - This parameter is case sensitive.
     type: str
     aliases: [ name_label ]
@@ -153,13 +153,13 @@ instance:
 
 HAS_XENAPI = False
 try:
-    import XenAPI
+    import XenAPI  # noqa: F401, pylint: disable=unused-import
     HAS_XENAPI = True
 except ImportError:
     pass
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.general.plugins.module_utils.xenserver import (xenserver_common_argument_spec, XAPI, XenServerObject, get_object_ref,
+from ansible_collections.community.general.plugins.module_utils.xenserver import (xenserver_common_argument_spec, XenServerObject, get_object_ref,
                                                                                   gather_vm_params, gather_vm_facts)
 
 

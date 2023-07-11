@@ -16,6 +16,13 @@ author: "Matt Coddington (@mcodd)"
 short_description: Notify New Relic about app deployments
 description:
   - Notify New Relic about app deployments (see https://docs.newrelic.com/docs/apm/new-relic-apm/maintenance/record-monitor-deployments/)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     type: str
@@ -25,14 +32,14 @@ options:
   app_name:
     type: str
     description:
-      - The value of app_name in the newrelic.yml file used by the application.
-      - One of I(app_name) or I(application_id) is required.
+      - The value of C(app_name) in the C(newrelic.yml) file used by the application.
+      - One of O(app_name) or O(application_id) is required.
     required: false
   application_id:
     type: str
     description:
       - The application ID found in the metadata of the application in APM.
-      - One of I(app_name) or I(application_id) is required.
+      - One of O(app_name) or O(application_id) is required.
     required: false
   changelog:
     type: str
@@ -54,21 +61,9 @@ options:
     description:
       - The name of the user/process that triggered this deployment
     required: false
-  appname:
-    type: str
-    description:
-      - Name of the application.
-      - This option has been deprecated and will be removed in community.general 7.0.0. Please do not use.
-    required: false
-  environment:
-    type: str
-    description:
-      - The environment for this deployment.
-      - This option has been deprecated and will be removed community.general 7.0.0. Please do not use.
-    required: false
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     required: false
     default: true
@@ -106,8 +101,6 @@ def main():
             description=dict(required=False),
             revision=dict(required=True),
             user=dict(required=False),
-            appname=dict(required=False, removed_in_version='7.0.0', removed_from_collection='community.general'),
-            environment=dict(required=False, removed_in_version='7.0.0', removed_from_collection='community.general'),
             validate_certs=dict(default=True, type='bool'),
         ),
         required_one_of=[['app_name', 'application_id']],

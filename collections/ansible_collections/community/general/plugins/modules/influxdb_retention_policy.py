@@ -20,6 +20,11 @@ requirements:
     - "python >= 2.6"
     - "influxdb >= 0.9"
     - requests
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     database_name:
         description:
@@ -41,14 +46,14 @@ options:
     duration:
         description:
             - Determines how long InfluxDB should keep the data. If specified, it
-              should be C(INF) or at least one hour. If not specified, C(INF) is
+              should be V(INF) or at least one hour. If not specified, V(INF) is
               assumed. Supports complex duration expressions with multiple units.
-            - Required only if I(state) is set to C(present).
+            - Required only if O(state) is set to V(present).
         type: str
     replication:
         description:
             - Determines how many independent copies of each point are stored in the cluster.
-            - Required only if I(state) is set to C(present).
+            - Required only if O(state) is set to V(present).
         type: int
     default:
         description:
@@ -64,7 +69,8 @@ options:
         type: str
         version_added: '2.0.0'
 extends_documentation_fragment:
-- community.general.influxdb
+  - community.general.influxdb
+  - community.general.attributes
 
 '''
 

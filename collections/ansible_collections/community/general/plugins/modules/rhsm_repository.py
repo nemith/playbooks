@@ -18,15 +18,28 @@ description:
 author: Giovanni Sciortino (@giovannisciortino)
 notes:
   - In order to manage RHSM repositories the system must be already registered
-    to RHSM manually or using the Ansible C(redhat_subscription) module.
+    to RHSM manually or using the Ansible M(community.general.redhat_subscription) module.
+  - It is possible to interact with C(subscription-manager) only as root,
+    so root permissions are required to successfully run this module.
 
 requirements:
   - subscription-manager
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 options:
   state:
     description:
       - If state is equal to present or disabled, indicates the desired
         repository state.
+      - |
+        Please note that V(present) and V(absent) are deprecated, and will be
+        removed in community.general 10.0.0; please use V(enabled) and
+        V(disabled) instead.
     choices: [present, enabled, absent, disabled]
     default: "enabled"
     type: str
@@ -40,8 +53,8 @@ options:
     elements: str
   purge:
     description:
-      - Disable all currently enabled repositories that are not not specified in C(name).
-        Only set this to C(True) if passing in a list of repositories to the C(name) field.
+      - Disable all currently enabled repositories that are not not specified in O(name).
+        Only set this to V(true) if passing in a list of repositories to the O(name) field.
         Using this with C(loop) will most likely not have the desired result.
     type: bool
     default: false
@@ -93,9 +106,7 @@ def run_subscription_manager(module, arguments):
     lang_env = dict(LANG='C', LC_ALL='C', LC_MESSAGES='C')
     rc, out, err = module.run_command("%s %s" % (rhsm_bin, " ".join(arguments)), environ_update=lang_env)
 
-    if rc == 1 and (err == 'The password you typed is invalid.\nPlease try again.\n' or os.getuid() != 0):
-        module.fail_json(msg='The executable file subscription-manager must be run using root privileges')
-    elif rc == 0 and out == 'This system has no repositories available through subscriptions.\n':
+    if rc == 0 and out == 'This system has no repositories available through subscriptions.\n':
         module.fail_json(msg='This system has no repositories available through subscriptions')
     elif rc == 1:
         module.fail_json(msg='subscription-manager failed with the following error: %s' % err)
@@ -215,6 +226,9 @@ def repository_modify(module, state, name, purge=False):
                 diff_after.join("Repository '{repoid}' is disabled for this system\n".format(repoid=repoid))
                 results.append("Repository '{repoid}' is disabled for this system".format(repoid=repoid))
                 rhsm_arguments.extend(['--disable', repoid])
+            for updated_repo in updated_repo_list:
+                if updated_repo['id'] in difference:
+                    updated_repo['enabled'] = False
 
     diff = {'before': diff_before,
             'after': diff_after,
@@ -236,9 +250,23 @@ def main():
         ),
         supports_check_mode=True,
     )
+
+    if os.getuid() != 0:
+        module.fail_json(
+            msg="Interacting with subscription-manager requires root permissions ('become: true')"
+        )
+
     name = module.params['name']
     state = module.params['state']
     purge = module.params['purge']
+
+    if state in ['present', 'absent']:
+        replacement = 'enabled' if state == 'present' else 'disabled'
+        module.deprecate(
+            'state=%s is deprecated; please use state=%s instead' % (state, replacement),
+            version='10.0.0',
+            collection_name='community.general',
+        )
 
     repository_modify(module, state, name, purge)
 

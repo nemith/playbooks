@@ -18,6 +18,11 @@ short_description: Add or remove Pulp repos from a remote host
 description:
   - Add or remove Pulp repos from a remote host.
   - Note, this is for Pulp 2 only.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   add_export_distributor:
     description:
@@ -62,7 +67,7 @@ options:
     aliases: [ importer_ssl_client_cert ]
   feed_client_key:
     description:
-      - Private key to the certificate specified in I(importer_ssl_client_cert),
+      - Private key to the certificate specified in O(feed_client_cert),
         assuming it is not included in the certificate file itself. This can be
         the file content or the path to the file.
     type: str
@@ -100,7 +105,7 @@ options:
     type: str
   publish_distributor:
     description:
-      - Distributor to use when state is C(publish). The default is to
+      - Distributor to use when O(state=publish). The default is to
         publish all distributors.
     type: str
   pulp_host:
@@ -114,13 +119,13 @@ options:
     type: str
   repo_type:
     description:
-      - Repo plugin type to use (i.e. C(rpm), C(docker)).
+      - Repo plugin type to use (that is, V(rpm), V(docker)).
     default: rpm
     type: str
   repoview:
     description:
       - Whether to generate repoview files for a published repository. Setting
-        this to C(true) automatically activates C(generate_sqlite).
+        this to V(true) automatically activates O(generate_sqlite).
     required: false
     type: bool
     default: false
@@ -136,23 +141,23 @@ options:
     default: true
   state:
     description:
-      - The repo state. A state of C(sync) will queue a sync of the repo.
+      - The repo state. A state of V(sync) will queue a sync of the repo.
         This is asynchronous but not delayed like a scheduled sync. A state of
-        C(publish) will use the repository's distributor to publish the content.
+        V(publish) will use the repository's distributor to publish the content.
     default: present
     choices: [ "present", "absent", "sync", "publish" ]
     type: str
   url_password:
     description:
       - The password for use in HTTP basic authentication to the pulp API.
-        If the I(url_username) parameter is not specified, the I(url_password)
+        If the O(url_username) parameter is not specified, the O(url_password)
         parameter will not be used.
   url_username:
     description:
       - The username for use in HTTP basic authentication to the pulp API.
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be
+      - If V(false), SSL certificates will not be validated. This should only be
         used on personally controlled sites using self-signed certificates.
     type: bool
     default: true
@@ -165,7 +170,8 @@ notes:
   - This module can currently only create distributors and importers on rpm
     repositories. Contributions to support other repo types are welcome.
 extends_documentation_fragment:
-  - url
+  - ansible.builtin.url
+  - community.general.attributes
 '''
 
 EXAMPLES = '''

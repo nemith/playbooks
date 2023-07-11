@@ -14,13 +14,20 @@ description:
     - The M(community.general.bearychat) module sends notifications to U(https://bearychat.com)
       via the Incoming Robot integration.
 author: "Jiangge Zhang (@tonyseek)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   url:
     type: str
     description:
       - BearyChat WebHook URL. This authenticates you to the bearychat
         service. It looks like
-        C(https://hook.bearychat.com/=ae2CF/incoming/e61bd5c57b164e04b11ac02e66f47f60).
+        V(https://hook.bearychat.com/=ae2CF/incoming/e61bd5c57b164e04b11ac02e66f47f60).
     required: true
   text:
     type: str
@@ -28,14 +35,14 @@ options:
       - Message to send.
   markdown:
     description:
-      - If C(true), text will be parsed as markdown.
+      - If V(true), text will be parsed as markdown.
     default: true
     type: bool
   channel:
     type: str
     description:
       - Channel to send the message to. If absent, the message goes to the
-        default channel selected by the I(url).
+        default channel selected by the O(url).
   attachments:
     type: list
     elements: dict

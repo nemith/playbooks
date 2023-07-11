@@ -19,18 +19,25 @@ description:
   - This module allows for the manipulation of sudoers files.
 author:
   - "Jon Ellis (@JonEllis) <ellis.jp@gmail.com>"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   commands:
     description:
       - The commands allowed by the sudoers rule.
       - Multiple can be added by passing a list of commands.
-      - Use C(ALL) for all commands.
+      - Use V(ALL) for all commands.
     type: list
     elements: str
   group:
     description:
       - The name of the group for the sudoers rule.
-      - This option cannot be used in conjunction with I(user).
+      - This option cannot be used in conjunction with O(user).
     type: str
   name:
     required: true
@@ -76,13 +83,13 @@ options:
   user:
     description:
       - The name of the user for the sudoers rule.
-      - This option cannot be used in conjunction with I(group).
+      - This option cannot be used in conjunction with O(group).
     type: str
   validation:
     description:
-      - If C(absent), the sudoers rule will be added without validation.
-      - If C(detect) and visudo is available, then the sudoers rule will be validated by visudo.
-      - If C(required), visudo must be available to validate the sudoers rule.
+      - If V(absent), the sudoers rule will be added without validation.
+      - If V(detect) and visudo is available, then the sudoers rule will be validated by visudo.
+      - If V(required), visudo must be available to validate the sudoers rule.
     type: str
     default: detect
     choices: [ absent, detect, required ]

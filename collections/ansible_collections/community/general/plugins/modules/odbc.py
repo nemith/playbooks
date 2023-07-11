@@ -16,6 +16,13 @@ version_added: "1.0.0"
 short_description: Execute SQL via ODBC
 description:
     - Read/Write info via ODBC drivers.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     dsn:
       description:
@@ -36,7 +43,7 @@ options:
       description:
         - Perform a commit after the execution of the SQL query.
         - Some databases allow a commit after a select whereas others raise an exception.
-        - Default is C(true) to support legacy module behavior.
+        - Default is V(true) to support legacy module behavior.
       type: bool
       default: true
       version_added: 1.3.0

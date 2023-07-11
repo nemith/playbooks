@@ -16,22 +16,29 @@ description:
   - Create, start, stop and delete Solaris zones.
   - This module does not currently allow changing of options for a zone that is already been created.
 author:
-- Paul Markham (@pmarkham)
+  - Paul Markham (@pmarkham)
 requirements:
   - Solaris 10 or 11
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   state:
     description:
-      - C(present), configure and install the zone.
-      - C(installed), synonym for C(present).
-      - C(running), if the zone already exists, boot it, otherwise, configure and install
+      - V(present), configure and install the zone.
+      - V(installed), synonym for V(present).
+      - V(running), if the zone already exists, boot it, otherwise, configure and install
           the zone first, then boot it.
-      - C(started), synonym for C(running).
-      - C(stopped), shutdown a zone.
-      - C(absent), destroy the zone.
-      - C(configured), configure the ready so that it's to be attached.
-      - C(attached), attach a zone, but do not boot it.
-      - C(detached), shutdown and detach a zone
+      - V(started), synonym for V(running).
+      - V(stopped), shutdown a zone.
+      - V(absent), destroy the zone.
+      - V(configured), configure the ready so that it's to be attached.
+      - V(attached), attach a zone, but do not boot it.
+      - V(detached), shutdown and detach a zone
     type: str
     choices: [ absent, attached, configured, detached, installed, present, running, started, stopped ]
     default: present
@@ -40,7 +47,7 @@ options:
       - Zone name.
       - A zone name must be unique name.
       - A zone name must begin with an alpha-numeric character.
-      - The name can contain alpha-numeric characters, underbars I(_), hyphens I(-), and periods I(.).
+      - The name can contain alpha-numeric characters, underscores V(_), hyphens V(-), and periods V(.).
       - The name cannot be longer than 64 characters.
     type: str
     required: true
@@ -51,7 +58,7 @@ options:
     type: str
   sparse:
     description:
-      - Whether to create a sparse (C(true)) or whole root (C(false)) zone.
+      - Whether to create a sparse (V(true)) or whole root (V(false)) zone.
     type: bool
     default: false
   root_password:

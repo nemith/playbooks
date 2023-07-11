@@ -13,11 +13,18 @@ DOCUMENTATION = r'''
 module: puppet
 short_description: Runs puppet
 description:
-  - Runs I(puppet) agent or apply in a reliable manner.
+  - Runs C(puppet) agent or apply in a reliable manner.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   timeout:
     description:
-      - How long to wait for I(puppet) to finish.
+      - How long to wait for C(puppet) to finish.
     type: str
     default: 30m
   puppetmaster:
@@ -35,8 +42,8 @@ options:
   noop:
     description:
       - Override puppet.conf noop mode.
-      - When C(true), run Puppet agent with C(--noop) switch set.
-      - When C(false), run Puppet agent with C(--no-noop) switch set.
+      - When V(true), run Puppet agent with C(--noop) switch set.
+      - When V(false), run Puppet agent with C(--no-noop) switch set.
       - When unset (default), use default or puppet.conf value if defined.
     type: bool
   facts:
@@ -60,8 +67,8 @@ options:
   logdest:
     description:
     - Where the puppet logs should go, if puppet apply is being used.
-    - C(all) will go to both C(console) and C(syslog).
-    - C(stdout) will be deprecated and replaced by C(console).
+    - V(all) will go to both C(console) and C(syslog).
+    - V(stdout) will be deprecated and replaced by C(console).
     type: str
     choices: [ all, stdout, syslog ]
     default: stdout
@@ -74,6 +81,12 @@ options:
       - A list of puppet tags to be used.
     type: list
     elements: str
+  skip_tags:
+    description:
+      - A list of puppet tags to be excluded.
+    type: list
+    elements: str
+    version_added: 6.6.0
   execute:
     description:
       - Execute a specific piece of Puppet code.
@@ -101,8 +114,6 @@ options:
   show_diff:
     description:
       - Whether to print file changes details
-      - Alias C(show-diff) has been deprecated and will be removed in community.general 7.0.0.
-    aliases: ['show-diff']
     type: bool
     default: false
 requirements:
@@ -136,6 +147,8 @@ EXAMPLES = r'''
     tags:
     - update
     - nginx
+    skip_tags:
+    - service
 
 - name: Run puppet agent in noop mode
   community.general.puppet:
@@ -183,14 +196,13 @@ def main():
             noop=dict(type='bool'),
             logdest=dict(type='str', default='stdout', choices=['all', 'stdout', 'syslog']),
             # The following is not related to Ansible's diff; see https://github.com/ansible-collections/community.general/pull/3980#issuecomment-1005666154
-            show_diff=dict(
-                type='bool', default=False, aliases=['show-diff'],
-                deprecated_aliases=[dict(name='show-diff', version='7.0.0', collection_name='community.general')]),
+            show_diff=dict(type='bool', default=False),
             facts=dict(type='dict'),
             facter_basename=dict(type='str', default='ansible'),
             environment=dict(type='str'),
             certname=dict(type='str'),
             tags=dict(type='list', elements='str'),
+            skip_tags=dict(type='list', elements='str'),
             execute=dict(type='str'),
             summarize=dict(type='bool', default=False),
             debug=dict(type='bool', default=False),
@@ -225,11 +237,11 @@ def main():
     runner = puppet_utils.puppet_runner(module)
 
     if not p['manifest'] and not p['execute']:
-        args_order = "_agent_fixed puppetmaster show_diff confdir environment tags certname noop use_srv_records"
+        args_order = "_agent_fixed puppetmaster show_diff confdir environment tags skip_tags certname noop use_srv_records"
         with runner(args_order) as ctx:
             rc, stdout, stderr = ctx.run()
     else:
-        args_order = "_apply_fixed logdest modulepath environment certname tags noop _execute summarize debug verbose"
+        args_order = "_apply_fixed logdest modulepath environment certname tags skip_tags noop _execute summarize debug verbose"
         with runner(args_order) as ctx:
             rc, stdout, stderr = ctx.run(_execute=[p['execute'], p['manifest']])
 

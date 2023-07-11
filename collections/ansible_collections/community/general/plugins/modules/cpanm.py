@@ -16,12 +16,19 @@ module: cpanm
 short_description: Manages Perl library dependencies
 description:
   - Manage Perl library dependencies using cpanminus.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   name:
     type: str
     description:
-      - The Perl library to install. Valid values change according to the I(mode), see notes for more details.
-      - Note that for installing from a local path the parameter I(from_path) should be used.
+      - The Perl library to install. Valid values change according to the O(mode), see notes for more details.
+      - Note that for installing from a local path the parameter O(from_path) should be used.
     aliases: [pkg]
   from_path:
     type: path
@@ -52,7 +59,7 @@ options:
     default: false
   version:
     description:
-      - Version specification for the perl module. When I(mode) is C(new), C(cpanm) version operators are accepted.
+      - Version specification for the perl module. When O(mode) is V(new), C(cpanm) version operators are accepted.
     type: str
   executable:
     description:
@@ -61,32 +68,24 @@ options:
   mode:
     description:
       - Controls the module behavior. See notes below for more details.
+      - Default is V(compatibility) but that behavior is deprecated and will be changed to V(new) in community.general 9.0.0.
     type: str
     choices: [compatibility, new]
-    default: compatibility
     version_added: 3.0.0
   name_check:
     description:
-      - When in C(new) mode, this parameter can be used to check if there is a module I(name) installed (at I(version), when specified).
+      - When O(mode=new), this parameter can be used to check if there is a module O(name) installed (at O(version), when specified).
     type: str
     version_added: 3.0.0
 notes:
   - Please note that U(http://search.cpan.org/dist/App-cpanminus/bin/cpanm, cpanm) must be installed on the remote host.
-  - "This module now comes with a choice of execution I(mode): C(compatibility) or C(new)."
-  - "C(compatibility) mode:"
-  - When using C(compatibility) mode, the module will keep backward compatibility. This is the default mode.
-  - I(name) must be either a module name or a distribution file.
-  - >
-    If the perl module given by I(name) is installed (at the exact I(version) when specified), then nothing happens.
-    Otherwise, it will be installed using the C(cpanm) executable.
-  - I(name) cannot be an URL, or a git URL.
-  - C(cpanm) version specifiers do not work in this mode.
-  - "C(new) mode:"
-  - "When using C(new) mode, the module will behave differently"
-  - >
-    The I(name) parameter may refer to a module name, a distribution file,
-    a HTTP URL or a git repository URL as described in C(cpanminus) documentation.
-  - C(cpanm) version specifiers are recognized.
+  - "This module now comes with a choice of execution O(mode): V(compatibility) or V(new)."
+  - "O(mode=compatibility): When using V(compatibility) mode, the module will keep backward compatibility. This is the default mode.
+    O(name) must be either a module name or a distribution file. If the perl module given by O(name) is installed (at the exact O(version)
+    when specified), then nothing happens. Otherwise, it will be installed using the C(cpanm) executable. O(name) cannot be an URL, or a git URL.
+    C(cpanm) version specifiers do not work in this mode."
+  - "O(mode=new): When using V(new) mode, the module will behave differently. The O(name) parameter may refer to a module name, a distribution file,
+    a HTTP URL or a git repository URL as described in C(cpanminus) documentation. C(cpanm) version specifiers are recognized."
 author:
   - "Franck Cuny (@fcuny)"
   - "Alexei Znamensky (@russoz)"
@@ -151,7 +150,7 @@ class CPANMinus(ModuleHelper):
             mirror_only=dict(type='bool', default=False),
             installdeps=dict(type='bool', default=False),
             executable=dict(type='path'),
-            mode=dict(type='str', choices=['compatibility', 'new'], default='compatibility'),
+            mode=dict(type='str', choices=['compatibility', 'new']),
             name_check=dict(type='str')
         ),
         required_one_of=[('name', 'from_path')],
@@ -169,6 +168,14 @@ class CPANMinus(ModuleHelper):
 
     def __init_module__(self):
         v = self.vars
+        if v.mode is None:
+            self.deprecate(
+                "The default value 'compatibility' for parameter 'mode' is being deprecated "
+                "and it will be replaced by 'new'",
+                version="9.0.0",
+                collection_name="community.general"
+            )
+            v.mode = "compatibility"
         if v.mode == "compatibility":
             if v.name_check:
                 self.do_raise("Parameter name_check can only be used with mode=new")
@@ -176,7 +183,7 @@ class CPANMinus(ModuleHelper):
             if v.name and v.from_path:
                 self.do_raise("Parameters 'name' and 'from_path' are mutually exclusive when 'mode=new'")
 
-        self.command = self.module.get_bin_path(v.executable if v.executable else self.command)
+        self.command = self.get_bin_path(v.executable if v.executable else self.command)
         self.vars.set("binary", self.command)
 
     def _is_package_installed(self, name, locallib, version):

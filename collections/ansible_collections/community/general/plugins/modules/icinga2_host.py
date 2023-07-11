@@ -19,6 +19,11 @@ description:
    - "Add or remove a host to Icinga2 through the API."
    - "See U(https://www.icinga.com/docs/icinga2/latest/doc/12-icinga2-api/)"
 author: "Jurgen Brand (@t794104)"
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   url:
     type: str
@@ -26,13 +31,13 @@ options:
       - HTTP, HTTPS, or FTP URL in the form (http|https|ftp)://[user[:pass]]@host.domain[:port]/path
   use_proxy:
     description:
-      - If C(false), it will not use a proxy, even if one is defined in
+      - If V(false), it will not use a proxy, even if one is defined in
         an environment variable on the target hosts.
     type: bool
     default: true
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true
@@ -40,12 +45,12 @@ options:
     type: str
     description:
       - The username for use in HTTP basic authentication.
-      - This parameter can be used without C(url_password) for sites that allow empty passwords.
+      - This parameter can be used without O(url_password) for sites that allow empty passwords.
   url_password:
     type: str
     description:
         - The password for use in HTTP basic authentication.
-        - If the C(url_username) parameter is not specified, the C(url_password) parameter will not be used.
+        - If the O(url_username) parameter is not specified, the O(url_password) parameter will not be used.
   force_basic_auth:
     description:
       - httplib2, the library used by the uri module only sends authentication information when a webservice
@@ -59,12 +64,12 @@ options:
     description:
       - PEM formatted certificate chain file to be used for SSL client
         authentication. This file can also include the key as well, and if
-        the key is included, C(client_key) is not required.
+        the key is included, O(client_key) is not required.
   client_key:
     type: path
     description:
       - PEM formatted file that contains your private key to be used for SSL
-        client authentication. If C(client_cert) contains both the certificate
+        client authentication. If O(client_cert) contains both the certificate
         and key, this option is not required.
   state:
     type: str
@@ -96,7 +101,7 @@ options:
     type: str
     description:
       - The name used to display the host.
-      - If not specified, it defaults to the value of the I(name) parameter.
+      - If not specified, it defaults to the value of the O(name) parameter.
   ip:
     type: str
     description:
@@ -107,7 +112,8 @@ options:
     description:
       - Dictionary of variables.
 extends_documentation_fragment:
-  - url
+  - ansible.builtin.url
+  - community.general.attributes
 '''
 
 EXAMPLES = '''
@@ -250,9 +256,9 @@ def main():
     state = module.params["state"]
     name = module.params["name"]
     zone = module.params["zone"]
-    template = [name]
+    template = []
     if module.params["template"]:
-        template.append(module.params["template"])
+        template = [module.params["template"]]
     check_command = module.params["check_command"]
     ip = module.params["ip"]
     display_name = module.params["display_name"]
@@ -267,20 +273,18 @@ def main():
         module.fail_json(msg="unable to connect to Icinga. Exception message: %s" % (e))
 
     data = {
+        'templates': template,
         'attrs': {
             'address': ip,
             'display_name': display_name,
             'check_command': check_command,
             'zone': zone,
-            'vars': {
-                'made_by': "ansible",
-            },
-            'templates': template,
+            'vars.made_by': "ansible"
         }
     }
 
-    if variables:
-        data['attrs']['vars'].update(variables)
+    for key, value in variables.items():
+        data['attrs']['vars.' + key] = value
 
     changed = False
     if icinga.exists(name):
@@ -302,7 +306,7 @@ def main():
                 module.exit_json(changed=False, name=name, data=data)
 
             # Template attribute is not allowed in modification
-            del data['attrs']['templates']
+            del data['templates']
 
             ret = icinga.modify(name, data)
 

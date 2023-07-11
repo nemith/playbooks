@@ -23,6 +23,13 @@ notes:
     - Model creation and deletion are not possible with this module. For that use M(community.general.spectrum_device) instead.
 requirements:
     - 'python >= 2.7'
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
 options:
    url:
      description:
@@ -43,7 +50,7 @@ options:
      aliases: [password]
    use_proxy:
      description:
-     - if C(false), it will not use a proxy, even if one is defined in
+     - if V(false), it will not use a proxy, even if one is defined in
        an environment variable on the target hosts.
      default: true
      required: false
@@ -60,7 +67,7 @@ options:
      required: true
    validate_certs:
      description:
-     - Validate SSL certificates. Only change this to C(false) if you can guarantee that you are talking to the correct endpoint and there is no
+     - Validate SSL certificates. Only change this to V(false) if you can guarantee that you are talking to the correct endpoint and there is no
        man-in-the-middle attack happening.
      type: bool
      default: true
@@ -102,7 +109,7 @@ options:
          required: true
        value:
          description:
-         - Attribute value. Empty strings should be C("") or C(null).
+         - Attribute value. Empty strings should be V("") or V(null).
          type: str
          required: true
 '''

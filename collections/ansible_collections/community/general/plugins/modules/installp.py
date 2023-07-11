@@ -12,10 +12,17 @@ DOCUMENTATION = r'''
 ---
 module: installp
 author:
-- Kairo Araujo (@kairoaraujo)
+  - Kairo Araujo (@kairoaraujo)
 short_description: Manage packages on AIX
 description:
   - Manage packages using 'installp' on AIX
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   accept_license:
     description:
@@ -25,7 +32,7 @@ options:
   name:
     description:
     - One or more packages to install or remove.
-    - Use C(all) to install all packages available on informed C(repository_path).
+    - Use V(all) to install all packages available on informed O(repository_path).
     type: list
     elements: str
     required: true

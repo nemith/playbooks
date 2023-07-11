@@ -2,7 +2,7 @@
  "collection_info": {
   "namespace": "ansible",
   "name": "posix",
-  "version": "1.5.1",
+  "version": "1.5.4",
   "authors": [
    "Ansible (github.com/ansible)"
   ],
@@ -26,7 +26,7 @@
   "name": "FILES.json",
   "ftype": "file",
   "chksum_type": "sha256",
-  "chksum_sha256": "833eb4f3b729a18a459bb45845ef1b87bd3fc069e05b4e4cce97f07fd4cbe453",
+  "chksum_sha256": "d91575cdd061b0344422c9bdf65a822c0fbf86cb1341ccf796647b7a85d6c98b",
   "format": 1
  },
  "format": 1

@@ -20,12 +20,17 @@ author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
     - Adriane Cardozo (@adriane-cardozo)
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     state:
         description:
             - Indicates the desired state for the Logical Interconnect Group resource.
-              C(absent) will remove the resource from OneView, if it exists.
-              C(present) will ensure data properties are compliant with OneView.
+              V(absent) will remove the resource from OneView, if it exists.
+              V(present) will ensure data properties are compliant with OneView.
         type: str
         choices: [absent, present]
         default: present
@@ -35,8 +40,9 @@ options:
         type: dict
         required: true
 extends_documentation_fragment:
-- community.general.oneview
-- community.general.oneview.validateetag
+    - community.general.oneview
+    - community.general.oneview.validateetag
+    - community.general.attributes
 
 '''
 

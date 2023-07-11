@@ -11,11 +11,18 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 author:
-- Kairo Araujo (@kairoaraujo)
+  - Kairo Araujo (@kairoaraujo)
 module: aix_lvg
 short_description: Manage LVM volume groups on AIX
 description:
-- This module creates, removes or resize volume groups on AIX LVM.
+  - This module creates, removes or resize volume groups on AIX LVM.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   force:
     description:
@@ -29,13 +36,13 @@ options:
   pvs:
     description:
     - List of comma-separated devices to use as physical devices in this volume group.
-    - Required when creating or extending (C(present) state) the volume group.
-    - If not informed reducing (C(absent) state) the volume group will be removed.
+    - Required when creating or extending (V(present) state) the volume group.
+    - If not informed reducing (V(absent) state) the volume group will be removed.
     type: list
     elements: str
   state:
     description:
-    - Control if the volume group exists and volume group AIX state varyonvg C(varyon) or varyoffvg C(varyoff).
+    - Control if the volume group exists and volume group AIX state varyonvg V(varyon) or varyoffvg V(varyoff).
     type: str
     choices: [ absent, present, varyoff, varyon ]
     default: present

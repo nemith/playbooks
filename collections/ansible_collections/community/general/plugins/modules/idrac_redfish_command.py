@@ -16,6 +16,13 @@ description:
   - Builds Redfish URIs locally and sends them to remote OOB controllers to
     perform an action.
   - For use with Dell iDRAC operations that require Redfish OEM extensions.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   category:
     required: true
@@ -78,6 +85,14 @@ msg:
     returned: always
     type: str
     sample: "Action was successful"
+return_values:
+    description: Dictionary containing command-specific response data from the action.
+    returned: on success
+    type: dict
+    version_added: 6.6.0
+    sample: {
+        "job_id": "/redfish/v1/Managers/iDRAC.Embedded.1/Jobs/JID_471269252011"
+    }
 '''
 
 import re
@@ -121,10 +136,9 @@ class IdracRedfishUtils(RedfishUtils):
             return response
 
         response_output = response['resp'].__dict__
-        job_id = response_output["headers"]["Location"]
-        job_id = re.search("JID_.+", job_id).group()
-        # Currently not passing job_id back to user but patch is coming
-        return {'ret': True, 'msg': "Config job %s created" % job_id}
+        job_id_full = response_output["headers"]["Location"]
+        job_id = re.search("JID_.+", job_id_full).group()
+        return {'ret': True, 'msg': "Config job %s created" % job_id, 'job_id': job_id_full}
 
 
 CATEGORY_COMMANDS_ALL = {
@@ -136,6 +150,7 @@ CATEGORY_COMMANDS_ALL = {
 
 def main():
     result = {}
+    return_values = {}
     module = AnsibleModule(
         argument_spec=dict(
             category=dict(required=True),
@@ -192,7 +207,20 @@ def main():
 
     if category == "Systems":
         # execute only if we find a System resource
+        # NOTE: Currently overriding the usage of 'data_modification' due to
+        # how 'resource_id' is processed.  In the case of CreateBiosConfigJob,
+        # we interact with BOTH systems and managers, so you currently cannot
+        # specify a single 'resource_id' to make both '_find_systems_resource'
+        # and '_find_managers_resource' return success.  Since
+        # CreateBiosConfigJob doesn't use the matched 'resource_id' for a
+        # system regardless of what's specified, disabling the 'resource_id'
+        # inspection for the next call allows a specific manager to be
+        # specified with 'resource_id'.  If we ever need to expand the input
+        # to inspect a specific system and manager in parallel, this will need
+        # updates.
+        rf_utils.data_modification = False
         result = rf_utils._find_systems_resource()
+        rf_utils.data_modification = True
         if result['ret'] is False:
             module.fail_json(msg=to_native(result['msg']))
 
@@ -203,11 +231,13 @@ def main():
                 if result['ret'] is False:
                     module.fail_json(msg=to_native(result['msg']))
                 result = rf_utils.create_bios_config_job()
+                if 'job_id' in result:
+                    return_values['job_id'] = result['job_id']
 
     # Return data back or fail with proper message
     if result['ret'] is True:
         del result['ret']
-        module.exit_json(changed=True, msg='Action was successful')
+        module.exit_json(changed=True, msg='Action was successful', return_values=return_values)
     else:
         module.fail_json(msg=to_native(result['msg']))
 

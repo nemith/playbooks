@@ -18,6 +18,12 @@ description:
     - A module to manage Pritunl users using the Pritunl API.
 extends_documentation_fragment:
     - community.general.pritunl
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     organization:
         type: str
@@ -34,9 +40,9 @@ options:
             - present
             - absent
         description:
-            - If C(present), the module adds user I(user_name) to
-              the Pritunl I(organization). If C(absent), removes the user
-              I(user_name) from the Pritunl I(organization).
+            - If V(present), the module adds user O(user_name) to
+              the Pritunl O(organization). If V(absent), removes the user
+              O(user_name) from the Pritunl O(organization).
 
     user_name:
         type: str
@@ -50,7 +56,7 @@ options:
         required: false
         default: null
         description:
-            - Email address associated with the user I(user_name).
+            - Email address associated with the user O(user_name).
 
     user_type:
         type: str
@@ -60,7 +66,7 @@ options:
             - client
             - server
         description:
-            - Type of the user I(user_name).
+            - Type of the user O(user_name).
 
     user_groups:
         type: list
@@ -68,27 +74,27 @@ options:
         required: false
         default: null
         description:
-            - List of groups associated with the user I(user_name).
+            - List of groups associated with the user O(user_name).
 
     user_disabled:
         type: bool
         required: false
         default: null
         description:
-            - Enable/Disable the user I(user_name).
+            - Enable/Disable the user O(user_name).
 
     user_gravatar:
         type: bool
         required: false
         default: null
         description:
-            - Enable/Disable Gravatar usage for the user I(user_name).
+            - Enable/Disable Gravatar usage for the user O(user_name).
 
     user_mac_addresses:
         type: list
         elements: str
         description:
-            - Allowed MAC addresses for the user I(user_name).
+            - Allowed MAC addresses for the user O(user_name).
         version_added: 5.0.0
 """
 
@@ -336,7 +342,7 @@ def main():
             user_gravatar=dict(required=False, type="bool", default=None),
             user_mac_addresses=dict(required=False, type="list", elements="str", default=None),
         )
-    ),
+    )
 
     module = AnsibleModule(argument_spec=argument_spec)
 

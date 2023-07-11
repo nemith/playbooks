@@ -16,6 +16,13 @@ short_description: Manages applications installed with pipx
 version_added: 3.8.0
 description:
     - Manage Python applications installed in isolated virtualenvs using pipx.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: full
 options:
     state:
         type: str
@@ -23,8 +30,8 @@ options:
         default: install
         description:
             - Desired state for the application.
-            - The states C(present) and C(absent) are aliases to C(install) and C(uninstall), respectively.
-            - The state C(latest) is equivalent to executing the task twice, with state C(install) and then C(upgrade).
+            - The states V(present) and V(absent) are aliases to V(install) and V(uninstall), respectively.
+            - The state V(latest) is equivalent to executing the task twice, with state V(install) and then V(upgrade).
               It was added in community.general 5.5.0.
     name:
         type: str
@@ -32,48 +39,63 @@ options:
             - >
               The name of the application to be installed. It must to be a simple package name.
               For passing package specifications or installing from URLs or directories,
-              please use the I(source) option.
+              please use the O(source) option.
     source:
         type: str
         description:
             - >
               If the application source, such as a package with version specifier, or an URL,
               directory or any other accepted specification. See C(pipx) documentation for more details.
-            - When specified, the C(pipx) command will use I(source) instead of I(name).
+            - When specified, the C(pipx) command will use O(source) instead of O(name).
+    install_apps:
+        description:
+            - Add apps from the injected packages.
+            - Only used when O(state=inject).
+        type: bool
+        default: false
+        version_added: 6.5.0
     install_deps:
         description:
             - Include applications of dependent packages.
-            - Only used when I(state=install) or I(state=upgrade).
+            - Only used when O(state=install), O(state=latest), or O(state=inject).
         type: bool
         default: false
     inject_packages:
         description:
             - Packages to be injected into an existing virtual environment.
-            - Only used when I(state=inject).
+            - Only used when O(state=inject).
         type: list
         elements: str
     force:
         description:
             - Force modification of the application's virtual environment. See C(pipx) for details.
-            - Only used when I(state=install), I(state=upgrade), I(state=upgrade_all), or I(state=inject).
+            - Only used when O(state=install), O(state=upgrade), O(state=upgrade_all), O(state=latest), or O(state=inject).
         type: bool
         default: false
     include_injected:
         description:
             - Upgrade the injected packages along with the application.
-            - Only used when I(state=upgrade) or I(state=upgrade_all).
+            - Only used when O(state=upgrade), O(state=upgrade_all), or O(state=latest).
+            - This is used with O(state=upgrade) and O(state=latest) since community.general 6.6.0.
         type: bool
         default: false
     index_url:
         description:
             - Base URL of Python Package Index.
-            - Only used when I(state=install), I(state=upgrade), or I(state=inject).
+            - Only used when O(state=install), O(state=upgrade), O(state=latest), or O(state=inject).
         type: str
     python:
         description:
             - Python version to be used when creating the application virtual environment. Must be 3.6+.
-            - Only used when I(state=install), I(state=reinstall), or I(state=reinstall_all).
+            - Only used when O(state=install), O(state=latest), O(state=reinstall), or O(state=reinstall_all).
         type: str
+    system_site_packages:
+        description:
+            - Give application virtual environment access to the system site-packages directory.
+            - Only used when O(state=install) or O(state=latest).
+        type: bool
+        default: false
+        version_added: 6.6.0
     executable:
         description:
             - Path to the C(pipx) installed in the system.
@@ -98,6 +120,7 @@ notes:
     - >
       This module will honor C(pipx) environment variables such as but not limited to C(PIPX_HOME) and C(PIPX_BIN_DIR)
       passed using the R(environment Ansible keyword, playbooks_environment).
+    - This module requires C(pipx) version 0.16.2.1 or above.
     - Please note that C(pipx) requires Python 3.6 or above.
     - >
       This first implementation does not verify whether a specified version constraint has been installed or not.
@@ -154,12 +177,14 @@ class PipX(StateModuleHelper):
                                 'inject', 'upgrade', 'upgrade_all', 'reinstall', 'reinstall_all', 'latest']),
             name=dict(type='str'),
             source=dict(type='str'),
+            install_apps=dict(type='bool', default=False),
             install_deps=dict(type='bool', default=False),
             inject_packages=dict(type='list', elements='str'),
             force=dict(type='bool', default=False),
             include_injected=dict(type='bool', default=False),
             index_url=dict(type='str'),
             python=dict(type='str'),
+            system_site_packages=dict(type='bool', default=False),
             executable=dict(type='path'),
             editable=dict(type='bool', default=False),
             pip_args=dict(type='str'),
@@ -227,7 +252,7 @@ class PipX(StateModuleHelper):
     def state_install(self):
         if not self.vars.application or self.vars.force:
             self.changed = True
-            with self.runner('state index_url install_deps force python editable pip_args name_source', check_mode_skip=True) as ctx:
+            with self.runner('state index_url install_deps force python system_site_packages editable pip_args name_source', check_mode_skip=True) as ctx:
                 ctx.run(name_source=[self.vars.name, self.vars.source])
                 self._capture_results(ctx)
 
@@ -239,7 +264,7 @@ class PipX(StateModuleHelper):
         if self.vars.force:
             self.changed = True
 
-        with self.runner('state index_url install_deps force editable pip_args name', check_mode_skip=True) as ctx:
+        with self.runner('state include_injected index_url force editable pip_args name', check_mode_skip=True) as ctx:
             ctx.run()
             self._capture_results(ctx)
 
@@ -264,7 +289,7 @@ class PipX(StateModuleHelper):
             self.do_raise("Trying to inject packages into a non-existent application: {0}".format(self.vars.name))
         if self.vars.force:
             self.changed = True
-        with self.runner('state index_url force editable pip_args name inject_packages', check_mode_skip=True) as ctx:
+        with self.runner('state index_url install_apps install_deps force editable pip_args name inject_packages', check_mode_skip=True) as ctx:
             ctx.run()
             self._capture_results(ctx)
 
@@ -288,11 +313,11 @@ class PipX(StateModuleHelper):
     def state_latest(self):
         if not self.vars.application or self.vars.force:
             self.changed = True
-            with self.runner('state index_url install_deps force python editable pip_args name_source', check_mode_skip=True) as ctx:
+            with self.runner('state index_url install_deps force python system_site_packages editable pip_args name_source', check_mode_skip=True) as ctx:
                 ctx.run(state='install', name_source=[self.vars.name, self.vars.source])
                 self._capture_results(ctx)
 
-        with self.runner('state index_url install_deps force editable pip_args name', check_mode_skip=True) as ctx:
+        with self.runner('state include_injected index_url force editable pip_args name', check_mode_skip=True) as ctx:
             ctx.run(state='upgrade')
             self._capture_results(ctx)
 

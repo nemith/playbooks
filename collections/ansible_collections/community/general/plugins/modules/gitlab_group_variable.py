@@ -17,7 +17,7 @@ description:
   - Creates a group variable if it does not exist.
   - When a group variable does exist, its value will be updated when the values are different.
   - Variables which are untouched in the playbook, but are not untouched in the GitLab group,
-    they stay untouched (I(purge) is C(false)) or will be deleted (I(purge) is C(true)).
+    they stay untouched (O(purge=false)) or will be deleted (O(purge=true)).
 author:
   - Florent Madiot (@scodeman)
 requirements:
@@ -26,6 +26,13 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -41,20 +48,20 @@ options:
     type: str
   purge:
     description:
-      - When set to C(true), delete all variables which are not untouched in the task.
+      - When set to V(true), delete all variables which are not untouched in the task.
     default: false
     type: bool
   vars:
     description:
       - When the list element is a simple key-value pair, set masked and protected to false.
-      - When the list element is a dict with the keys I(value), I(masked) and I(protected), the user can
+      - When the list element is a dict with the keys C(value), C(masked) and C(protected), the user can
         have full control about whether a value should be masked, protected or both.
       - Support for group variables requires GitLab >= 9.5.
       - Support for environment_scope requires GitLab Premium >= 13.11.
       - Support for protected values requires GitLab >= 9.3.
       - Support for masked values requires GitLab >= 11.10.
-      - A I(value) must be a string or a number.
-      - Field I(variable_type) must be a string with either C(env_var), which is the default, or C(file).
+      - A C(value) must be a string or a number.
+      - Field C(variable_type) must be a string with either V(env_var), which is the default, or V(file).
       - When a value is masked, it must be in Base64 and have a length of at least 8 characters.
         See GitLab documentation on acceptable values for a masked variable (U(https://docs.gitlab.com/ce/ci/variables/#masked-variables)).
     default: {}
@@ -63,7 +70,7 @@ options:
     version_added: 4.5.0
     description:
       - A list of dictionaries that represents CI/CD variables.
-      - This modules works internal with this sructure, even if the older I(vars) parameter is used.
+      - This modules works internal with this sructure, even if the older O(vars) parameter is used.
     default: []
     type: list
     elements: dict
@@ -76,7 +83,7 @@ options:
       value:
         description:
           - The variable value.
-          - Required when I(state=present).
+          - Required when O(state=present).
         type: str
       masked:
         description:
@@ -90,7 +97,7 @@ options:
         default: false
       variable_type:
         description:
-          - Wether a variable is an environment variable (C(env_var)) or a file (C(file)).
+          - Wether a variable is an environment variable (V(env_var)) or a file (V(file)).
         type: str
         choices: [ "env_var", "file" ]
         default: env_var
@@ -99,8 +106,6 @@ options:
           - The scope for the variable.
         type: str
         default: '*'
-notes:
-- Supports I(check_mode).
 '''
 
 
@@ -161,50 +166,9 @@ group_variable:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.api import basic_auth_argument_spec
-from ansible.module_utils.six import string_types
-from ansible.module_utils.six import integer_types
-
 from ansible_collections.community.general.plugins.module_utils.gitlab import (
-    auth_argument_spec, gitlab_authentication, ensure_gitlab_package, filter_returned_variables
+    auth_argument_spec, gitlab_authentication, ensure_gitlab_package, filter_returned_variables, vars_to_variables
 )
-
-
-def vars_to_variables(vars, module):
-    # transform old vars to new variables structure
-    variables = list()
-    for item, value in vars.items():
-        if (isinstance(value, string_types) or
-           isinstance(value, (integer_types, float))):
-            variables.append(
-                {
-                    "name": item,
-                    "value": str(value),
-                    "masked": False,
-                    "protected": False,
-                    "variable_type": "env_var",
-                }
-            )
-
-        elif isinstance(value, dict):
-            new_item = {"name": item, "value": value.get('value')}
-
-            new_item = {
-                "name": item,
-                "value": value.get('value'),
-                "masked": value.get('masked'),
-                "protected": value.get('protected'),
-                "variable_type": value.get('variable_type'),
-            }
-
-            if value.get('environment_scope'):
-                new_item['environment_scope'] = value.get('environment_scope')
-
-            variables.append(new_item)
-
-        else:
-            module.fail_json(msg="value must be of type string, integer, float or dict")
-
-    return variables
 
 
 class GitlabGroupVariables(object):

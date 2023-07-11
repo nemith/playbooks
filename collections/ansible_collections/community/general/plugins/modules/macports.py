@@ -19,6 +19,13 @@ author: "Jimmy Tang (@jcftang)"
 short_description: Package manager for MacPorts
 description:
     - Manages MacPorts packages (ports)
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -48,7 +55,7 @@ options:
     variant:
         description:
             - A port variant specification.
-            - 'C(variant) is only supported with state: I(installed)/I(present).'
+            - 'O(variant) is only supported with O(state=installed) and O(state=present).'
         aliases: ['variants']
         type: str
 '''
@@ -99,7 +106,6 @@ EXAMPLES = '''
 import re
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six.moves import shlex_quote
 
 
 def selfupdate(module, port_path):

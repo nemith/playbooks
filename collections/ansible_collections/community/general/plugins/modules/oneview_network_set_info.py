@@ -21,6 +21,10 @@ author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
     - Adriane Cardozo (@adriane-cardozo)
+attributes:
+    check_mode:
+        version_added: 3.3.0
+        # This was backported to 2.5.4 and 1.3.11 as well, since this was a bugfix
 options:
     name:
       description:
@@ -30,8 +34,8 @@ options:
     options:
       description:
         - "List with options to gather information about Network Set.
-          Option allowed: C(withoutEthernet).
-          The option C(withoutEthernet) retrieves the list of network_sets excluding Ethernet networks."
+          Option allowed: V(withoutEthernet).
+          The option V(withoutEthernet) retrieves the list of network_sets excluding Ethernet networks."
       type: list
       elements: str
 

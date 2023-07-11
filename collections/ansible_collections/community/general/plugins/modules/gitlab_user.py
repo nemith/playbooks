@@ -33,12 +33,19 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   name:
     description:
       - Name of the user you want to create.
-      - Required only if C(state) is set to C(present).
+      - Required only if O(state=present).
     type: str
   username:
     description:
@@ -59,7 +66,7 @@ options:
   email:
     description:
       - The email that belongs to the user.
-      - Required only if C(state) is set to C(present).
+      - Required only if O(state=present).
     type: str
   sshkey_name:
     description:
@@ -116,7 +123,7 @@ options:
   identities:
     description:
       - List of identities to be added/updated for this user.
-      - To remove all other identities from this user, set I(overwrite_identities=true).
+      - To remove all other identities from this user, set O(overwrite_identities=true).
     type: list
     elements: dict
     suboptions:
@@ -132,8 +139,8 @@ options:
   overwrite_identities:
     description:
       - Overwrite identities with identities added in this module.
-      - This means that all identities that the user has and that are not listed in I(identities) are removed from the user.
-      - This is only done if a list is provided for I(identities). To remove all identities, provide an empty list.
+      - This means that all identities that the user has and that are not listed in O(identities) are removed from the user.
+      - This is only done if a list is provided for O(identities). To remove all identities, provide an empty list.
     type: bool
     default: false
     version_added: 3.3.0

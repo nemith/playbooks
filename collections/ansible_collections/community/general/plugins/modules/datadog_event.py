@@ -19,11 +19,18 @@ DOCUMENTATION = '''
 module: datadog_event
 short_description: Posts events to Datadog  service
 description:
-- "Allows to post events to Datadog (www.datadoghq.com) service."
-- "Uses http://docs.datadoghq.com/api/#events API."
+  - "Allows to post events to Datadog (www.datadoghq.com) service."
+  - "Uses http://docs.datadoghq.com/api/#events API."
 author:
-- "Artūras 'arturaz' Šlajus (@arturaz)"
-- "Naoya Nakazawa (@n0ts)"
+  - "Artūras 'arturaz' Šlajus (@arturaz)"
+  - "Naoya Nakazawa (@n0ts)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     api_key:
         type: str
@@ -75,7 +82,7 @@ options:
         description: ["An arbitrary string to use for aggregation."]
     validate_certs:
         description:
-            - If C(false), SSL certificates will not be validated. This should only be used
+            - If V(false), SSL certificates will not be validated. This should only be used
               on personally controlled sites using self-signed certificates.
         type: bool
         default: true

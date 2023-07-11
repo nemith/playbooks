@@ -11,11 +11,18 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 module: facter
-short_description: Runs the discovery program I(facter) on the remote system
+short_description: Runs the discovery program C(facter) on the remote system
 description:
     - Runs the C(facter) discovery program
       (U(https://github.com/puppetlabs/facter)) on the remote system, returning
       JSON data that can be useful for inventory purposes.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     arguments:
         description:

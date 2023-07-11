@@ -15,6 +15,13 @@ version_added: 4.8.0
 description:
   - Management of LXD projects.
 author: "Raymond Chang (@we10710aa)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -27,7 +34,7 @@ options:
         type: str
     config:
         description:
-          - 'The config for the project (for example C({"features.profiles": "true"})).
+          - 'The config for the project (for example V({"features.profiles": "true"})).
             See U(https://linuxcontainers.org/lxd/docs/master/projects/).'
           - If the project already exists and its "config" value in metadata
             obtained from
@@ -91,7 +98,7 @@ options:
             running this module using the following command:
             C(lxc config set core.trust_password <some random password>)
             See U(https://www.stgraber.org/2016/04/18/lxd-api-direct-interaction/).'
-          - If I(trust_password) is set, this module send a request for
+          - If O(trust_password) is set, this module send a request for
             authentication before sending any requests.
         required: false
         type: str
@@ -139,7 +146,7 @@ logs:
   elements: dict
   contains:
     type:
-      description: Type of actions performed, currently only C(sent request).
+      description: Type of actions performed, currently only V(sent request).
       type: str
       sample: "sent request"
     request:
@@ -159,7 +166,7 @@ logs:
           type: str
           sample: "(too long to be placed here)"
         timeout:
-          description: Timeout of HTTP request, C(null) if unset.
+          description: Timeout of HTTP request, V(null) if unset.
           type: int
           sample: null
     response:

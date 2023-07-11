@@ -15,6 +15,13 @@ author:
   - Saranya Sridharan (@saranyasridharan)
 requirements:
   - psutil(python module)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description: The name of the process(es) you want to get PID(s) for.
@@ -24,7 +31,7 @@ options:
     type: str
     version_added: 3.0.0
   ignore_case:
-    description: Ignore case in pattern if using the I(pattern) option.
+    description: Ignore case in pattern if using the O(pattern) option.
     type: bool
     default: false
     version_added: 3.0.0

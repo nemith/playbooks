@@ -13,15 +13,22 @@ DOCUMENTATION = r'''
 module: imc_rest
 short_description: Manage Cisco IMC hardware through its REST API
 description:
-- Provides direct access to the Cisco IMC REST API.
-- Perform any configuration changes and actions that the Cisco IMC supports.
-- More information about the IMC REST API is available from
-  U(http://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/sw/api/3_0/b_Cisco_IMC_api_301.html)
+  - Provides direct access to the Cisco IMC REST API.
+  - Perform any configuration changes and actions that the Cisco IMC supports.
+  - More information about the IMC REST API is available from
+    U(http://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/sw/api/3_0/b_Cisco_IMC_api_301.html).
 author:
-- Dag Wieers (@dagwieers)
+  - Dag Wieers (@dagwieers)
 requirements:
-- lxml
-- xmljson >= 0.1.8
+  - lxml
+  - xmljson >= 0.1.8
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   hostname:
     description:
@@ -44,16 +51,16 @@ options:
     description:
     - Name of the absolute path of the filename that includes the body
       of the http request being sent to the Cisco IMC REST API.
-    - Parameter C(path) is mutual exclusive with parameter C(content).
+    - Parameter O(path) is mutual exclusive with parameter O(content).
     aliases: [ 'src', 'config_file' ]
     type: path
   content:
     description:
-    - When used instead of C(path), sets the content of the API requests directly.
+    - When used instead of O(path), sets the content of the API requests directly.
     - This may be convenient to template simple requests, for anything complex use the M(ansible.builtin.template) module.
     - You can collate multiple IMC XML fragments and they will be processed sequentially in a single stream,
       the Cisco IMC output is subsequently merged.
-    - Parameter C(content) is mutual exclusive with parameter C(path).
+    - Parameter O(content) is mutual exclusive with parameter O(path).
     type: str
   protocol:
     description:
@@ -65,14 +72,14 @@ options:
     description:
     - The socket level timeout in seconds.
     - This is the time that every single connection (every fragment) can spend.
-      If this C(timeout) is reached, the module will fail with a
+      If this O(timeout) is reached, the module will fail with a
       C(Connection failure) indicating that C(The read operation timed out).
     default: 60
     type: int
   validate_certs:
     description:
-    - If C(false), SSL certificates will not be validated.
-    - This should only set to C(false) used on personally controlled sites using self-signed certificates.
+    - If V(false), SSL certificates will not be validated.
+    - This should only set to V(false) used on personally controlled sites using self-signed certificates.
     type: bool
     default: true
 notes:
@@ -81,7 +88,7 @@ notes:
 - Any configConfMo change requested has a return status of 'modified', even if there was no actual change
   from the previous configuration. As a result, this module will always report a change on subsequent runs.
   In case this behaviour is fixed in a future update to Cisco IMC, this module will automatically adapt.
-- If you get a C(Connection failure) related to C(The read operation timed out) increase the C(timeout)
+- If you get a C(Connection failure) related to C(The read operation timed out) increase the O(timeout)
   parameter. Some XML fragments can take longer than the default timeout.
 - More information about the IMC REST API is available from
   U(http://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/c/sw/api/3_0/b_Cisco_IMC_api_301.html)

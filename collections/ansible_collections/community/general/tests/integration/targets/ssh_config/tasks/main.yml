@@ -6,7 +6,6 @@
 - name: Install required libs
   pip:
     name:
-      - stormssh
       - 'paramiko<3.0.0'
     state: present
     extra_args: "-c {{ remote_constraints }}"
@@ -36,7 +35,7 @@
 - name: Fail for required argument
   community.general.ssh_config:
     ssh_config_file: "{{ ssh_config_test }}"
-  ignore_errors: yes
+  ignore_errors: true
   register: host_required
 
 - name: Check if ssh_config fails for required parameter host
@@ -53,7 +52,7 @@
     port: '2223'
     state: present
   register: host_add
-  check_mode: yes
+  check_mode: true
 
 - name: Check if changes are made in check mode
   assert:
@@ -179,13 +178,32 @@
     port: '2223'
     state: present
   register: mut_ex
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Check mutual exclusive test - user and ssh_config_file
   assert:
     that:
       - not mut_ex.changed
       - "'parameters are mutually exclusive' in mut_ex.msg"
+
+- name: Check if proxycommand and proxyjump are mutually exclusive
+  community.general.ssh_config:
+    ssh_config_file: "{{ ssh_config_test }}"
+    host: "example.com"
+    hostname: github.com
+    proxycommand: "ssh jumphost.example.com -W %h:%p"
+    proxyjump: "jumphost.example.com"
+    identity_file: '{{ ssh_private_key }}'
+    port: '2224'
+    state: present
+  register: proxy_mut_ex
+  ignore_errors: true
+
+- name: Check mutual exclusive test - proxycommand and proxyjump
+  assert:
+    that:
+      - not proxy_mut_ex.changed
+      - "'parameters are mutually exclusive' in proxy_mut_ex.msg"
 
 - name: Add a full name host
   community.general.ssh_config:
@@ -223,5 +241,5 @@
       - short_name.hosts_changed == []
       - short_name.hosts_removed == []
 
-- name: Include integration tests for additional options (e.g. proxycommand)
-  include: 'options.yml'
+- name: Include integration tests for additional options (e.g. proxycommand, proxyjump)
+  include_tasks: 'options.yml'

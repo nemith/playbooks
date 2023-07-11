@@ -15,6 +15,11 @@ module: proxmox_template
 short_description: Management of OS templates in Proxmox VE cluster
 description:
   - allows you to upload/delete templates in Proxmox VE cluster
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   node:
     description:
@@ -23,18 +28,18 @@ options:
   src:
     description:
       - Path to uploaded file.
-      - Required only for I(state=present).
+      - Required only for O(state=present).
     type: path
   template:
     description:
       - The template name.
-      - Required for I(state=absent) to delete a template.
-      - Required for I(state=present) to download an appliance container template (pveam).
+      - Required for O(state=absent) to delete a template.
+      - Required for O(state=present) to download an appliance container template (pveam).
     type: str
   content_type:
     description:
       - Content type.
-      - Required only for I(state=present).
+      - Required only for O(state=present).
     type: str
     default: 'vztmpl'
     choices: ['vztmpl', 'iso']
@@ -50,7 +55,7 @@ options:
     default: 30
   force:
     description:
-      - It can only be used with I(state=present), existing template will be overwritten.
+      - It can only be used with O(state=present), existing template will be overwritten.
     type: bool
     default: false
   state:
@@ -62,7 +67,9 @@ options:
 notes:
   - Requires C(proxmoxer) and C(requests) modules on host. This modules can be installed with M(ansible.builtin.pip).
 author: Sergei Antipov (@UnderGreen)
-extends_documentation_fragment: community.general.proxmox.documentation
+extends_documentation_fragment:
+  - community.general.proxmox.documentation
+  - community.general.attributes
 '''
 
 EXAMPLES = '''
