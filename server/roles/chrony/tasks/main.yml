@@ -2,7 +2,7 @@
 - name: Install chrony
   become: true
   notify: Restart chronyd
-  ansible.builtin.dnf:
+  ansible.builtin.apt:
     name: chrony
     state: present
 

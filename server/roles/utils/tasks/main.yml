@@ -1,8 +1,10 @@
 ---
 - name: Install utils
-  ansible.builtin.dnf:
+  ansible.builtin.apt:
     name:
-      - bind-utils # dig
+      - apt-file
+      - curl
+      - dnsutils # dig
       - htop
       - lsof
       - nmap

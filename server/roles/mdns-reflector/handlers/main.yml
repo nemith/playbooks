@@ -1,6 +1,6 @@
 ---
-- name: Restart mdnsrepeater
+- name: Restart mdns-reflector
   ansible.builtin.service:
-    name: mdns-repeater
+    name: mdns-reflector
     state: restarted
   become: true

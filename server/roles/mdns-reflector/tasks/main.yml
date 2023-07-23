@@ -1,0 +1,24 @@
+---
+- name: Install mdns-reflector
+  ansible.builtin.apt:
+    name: mdns-reflector
+    default_release: experimental
+    state: present
+  become: true
+
+- name: Configure mdns-reflector
+  ansible.builtin.copy:
+    src: mdns-reflector.conf
+    dest: /etc/mdns-reflector/mdns-reflector.conf
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart mdns-reflector
+
+- name: Enable mdns-reflector.service
+  ansible.builtin.systemd:
+    name: mdns-reflector
+    enabled: true
+    state: started
+  become: true

@@ -1,17 +1,20 @@
 ---
+- name: Add GPG key
+  become: true
+  ansible.builtin.get_url:
+    url: https://repo.nextdns.io/nextdns.gpg
+    dest: /etc/apt/keyrings/nextdns.gpg
+    mode: '0644'
+
 - name: Add nextdns repos
   become: true
-  ansible.builtin.yum_repository:
-    name: nextdns
-    description: nextdns
-    baseurl: https://repo.nextdns.io/rpm
-    gpgkey: https://repo.nextdns.io/nextdns-armored.gpg
-    gpgcheck: false
-    repo_gpgcheck: false
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/nextdns.gpg] https://repo.nextdns.io/deb stable main
+    filename: nextdns
 
 - name: Install nextdns proxy
   become: true
-  ansible.builtin.dnf:
+  ansible.builtin.apt:
     name: nextdns
 
 - name: Configure nextdns proxy

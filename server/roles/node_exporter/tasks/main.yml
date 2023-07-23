@@ -1,8 +1,8 @@
 ---
 - name: Install Node Exporter
   become: true
-  ansible.builtin.dnf:
-    name: golang-github-prometheus-node-exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
 
 - name: Enable prometheus-node-exporter service
   become: true

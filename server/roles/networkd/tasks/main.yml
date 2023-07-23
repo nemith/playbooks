@@ -1,14 +1,8 @@
 ---
-- name: Install networkd
-  ansible.builtin.dnf:
-    name: systemd-networkd
-    state: present
-  become: true
-
-- name: Disable network manager
-  ansible.builtin.service:
-    name: NetworkManager
-    enabled: false
+- name: Remove old config
+  ansible.builtin.file:
+    path: /etc/network/interfaces
+    state: absent
   become: true
 
 - name: Enable networkd

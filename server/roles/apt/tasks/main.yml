@@ -1,0 +1,15 @@
+---
+- name: Install packages
+  become: true
+  ansible.builtin.apt:
+    name: apt-transport-https
+
+- name: Configure sources
+  become: true
+  ansible.builtin.copy:
+    src: sources.{{ ansible_lsb.codename }}.list
+    dest: /etc/apt/sources.list
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Update apt cache

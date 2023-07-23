@@ -1,4 +1,8 @@
 ---
+- name: Install sudo
+  ansible.builtin.apt:
+    name: sudo
+
 - name: Configure suoders
   ansible.builtin.copy:
     src: suoders

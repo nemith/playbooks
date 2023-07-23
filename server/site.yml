@@ -3,13 +3,11 @@
   hosts: all
   roles:
     - sudo # sudo needs to be first
+    - apt
     - hostname
     - users
-    - epel
-    - ipmi
     - ixgbe
     - networkd
-    - dnf
     - chrony
     - utils
     - node_exporter
@@ -19,13 +17,13 @@
   roles:
     - nextdns
     - dnsmasq
-    - mdnsrepeater
+    - mdns-reflector
     - ip_forward
     - nftables
-    - ddns
     - bird
-
-- name: kube setup
-  hosts: kube
-  roles:
-    - k3s
+#
+#- name: kube setup
+#  hosts: kube
+#  roles:
+#    - k3s
+#

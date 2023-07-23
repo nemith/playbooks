@@ -1,5 +1,0 @@
----
-- name: kube setup
-  hosts: kube
-  roles:
-    - k3s

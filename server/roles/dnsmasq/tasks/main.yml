@@ -1,7 +1,9 @@
 ---
 - name: Install dnsmasq
-  ansible.builtin.dnf:
-    name: dnsmasq
+  ansible.builtin.apt:
+    name:
+      - dnsmasq
+      - dnsmasq-utils
     state: present
   become: true
 
@@ -10,7 +12,7 @@
     src: dnsmasq.conf
     dest: /etc/dnsmasq.conf
     owner: root
-    group: dnsmasq
+    group: root
     mode: "0644"
     validate: dnsmasq --conf-file=%s --test
   become: true
@@ -21,7 +23,7 @@
     src: dnsmasq.d/{{ item | basename }}
     dest: /etc/dnsmasq.d/{{ item | basename }}
     owner: root
-    group: dnsmasq
+    group: root
     mode: "0644"
     validate: dnsmasq --conf-file=%s --test
   with_fileglob: dnsmasq.d/*.conf
@@ -33,17 +35,17 @@
     path: /srv/tftp
     state: directory
     owner: dnsmasq
-    group: dnsmasq
+    group: netdev
     mode: "0775"
   become: true
 
-- name: Update selinux context for tftproot
-  community.general.sefcontext:
-    target: /srv/tftp(/.*)?
-    setype: dnsmasq_var_run_t
-    state: present
-  become: true
-  notify: Apply new SELinux file context for tftproot
+#- name: Update selinux context for tftproot
+#  community.general.sefcontext:
+#    target: /srv/tftp(/.*)?
+#    setype: dnsmasq_var_run_t
+#    state: present
+#  become: true
+#  notify: Apply new SELinux file context for tftproot
 
 - name: Enable dnsmasq service
   ansible.builtin.systemd:

@@ -1,6 +1,6 @@
 ---
 - name: Install zsh
-  ansible.builtin.dnf:
+  ansible.builtin.apt:
     name: zsh
     state: present
   become: true
@@ -17,7 +17,11 @@
   ansible.builtin.user:
     name: "{{ item.unixname }}"
     shell: /bin/zsh
-    groups: wheel
+    groups:
+      - sudo
+      - adm
+      - staff
+
     append: true
     password: "!"
   become: true
