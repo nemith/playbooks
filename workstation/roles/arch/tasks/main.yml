@@ -21,20 +21,26 @@
       - fwupd
       - git
       - htop
+      - ncdu
       - man
       - most
       - pkgfile
       - plocate
       - rsync
+      - socat
       - strace
       - base-devel
       - wget
       - ranger
+      - neofetch
 
       # applications
-      - firefox
       - discord
+      - firefox
+      - libreoffice 
+      - spotify-launcher
       - steam
+      - wezterm
 
       # graphics
       - libva-utils
@@ -60,9 +66,10 @@
 - name: Install aur packages
   kewlfft.aur.aur:
     name:
-      - tidal-hifi-bin
       - mangohud
       - lib32-mangohud
+      - sapling-scm
+      - slack-desktop
     state: present
 
 - name: Enable fstrim.service

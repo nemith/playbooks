@@ -1,6 +1,8 @@
 ---
 _goos_map:
   darwin: darwin
+  archlinux: linux
+  fedora: linux
 
 _goarch_map:
   arm64: arm64

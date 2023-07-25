@@ -6,6 +6,7 @@
       - asusctl
       - supergfxctl
       - acpi_call
+      - rog-control-center
 
 - name: Enable power-profiles-daemon.service
   become: true
@@ -18,12 +19,5 @@
   become: true
   ansible.builtin.systemd:
     name: supergfxd.service
-    state: started
-    enabled: true
-
-- name: Enable asus-notify.server
-  ansible.builtin.systemd:
-    name: asus-notify.service
-    scope: user
     state: started
     enabled: true

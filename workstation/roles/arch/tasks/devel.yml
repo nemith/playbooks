@@ -9,7 +9,8 @@
     state: present
 
 - name: Set rustup default toolchain
-  become: "{{ main_user_unixname }}"
+  become: true
+  become_user: "{{ main_user_unixname }}"
   ansible.builtin.command:
     cmd: rustup default stable
     creates: "{{ main_user_home }}/.rustup/settings.toml"

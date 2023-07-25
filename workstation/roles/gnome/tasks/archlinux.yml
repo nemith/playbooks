@@ -10,7 +10,7 @@
       - gnome-todo
       - gnome-tweaks
       - python-psutil # needed for dconf module below
-      - gnome-software-packagekit-plugin
+      - touchegg # for guestures on X11
       - ttf-fira-code
     state: present
 
@@ -18,4 +18,10 @@
   become: true
   ansible.builtin.systemd:
     name: gdm.service
+    enabled: true
+
+- name: Enable touchegg
+  become: true
+  ansible.builtin.systemd:
+    name: touchegg.service
     enabled: true

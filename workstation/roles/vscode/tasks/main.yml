@@ -7,7 +7,7 @@
     name: "{{ item }}"
     state: present
   loop:
-    - AugusteRame.zls-vscode
+    - ziglang.vscode-zig
     - aaron-bond.better-comments
     - atlassian.atlascode
     - bbenoist.vagrant
@@ -23,6 +23,5 @@
     - redhat.vscode-yaml
     - rust-lang.rust-analyzer
     - stkb.rewrap
-    - tiehuis.zig
     - timonwong.shellcheck
     - vscodevim.vim
