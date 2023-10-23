@@ -1,0 +1,61 @@
+"$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"
+final_space = true
+version = 2
+
+[transient_prompt]
+background = "transparent"
+foreground = "#87d7ff"
+template = "<b>$</b> "
+
+[[blocks]]
+type = "prompt"
+alignment = "left"
+
+  # python pyenv
+  [[blocks.segments]]
+  type = "python"
+  style = "powerline"
+  powerline_symbol = "\ue0b0"
+  background = "#00af5f"
+  foreground = "#000000"
+  template = " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }}{{ end }}{{ end }} "
+
+  # username@host
+  [[blocks.segments]]
+  type = "session"
+  style = "powerline"
+  powerline_symbol = "\ue0b0"
+  foreground = "#bcbcbc"
+  background = "#585858"
+  template = "{{ if .SSHSession }} {{ .UserName }}@{{ .HostName }} {{end}}"
+
+  # path
+  [[blocks.segments]]
+  type = "path"
+  style = "powerline"
+  powerline_symbol = "\ue0b0"
+  foreground = "#bcbcbc"
+  background = "#3a3a3a"
+
+    [blocks.segments.properties]
+    style = "full"
+
+  [[blocks.segments]]
+  type = "git"
+  style = "powerline"
+  powerline_symbol = "\ue0b0"
+  foreground =  "#193549"
+  background = "#ffebff"
+  background_templates = [
+    "{{ if or (.Working.Changed) (.Staging.Changed) }}#FFEBFF{{ end }}",
+  ]
+
+
+  # exit status
+  [[blocks.segments]]
+  type = "exit"
+  style = "powerline"
+  powerline_symbol = "\ue0b0"
+  foreground = "#ffffff"
+  background = "#e91e63"
+
