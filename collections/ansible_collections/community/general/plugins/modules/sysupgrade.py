@@ -15,6 +15,13 @@ short_description: Manage OpenBSD system upgrades
 version_added: 1.1.0
 description:
     - Manage OpenBSD system upgrades using sysupgrade.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     snapshot:
         description:
@@ -36,7 +43,7 @@ options:
     fetch_only:
         description:
         - Fetch and verify files and create /bsd.upgrade but do not reboot.
-        - Set to C(false) if you want sysupgrade to reboot. This will cause Ansible to error, as it expects the module to exit gracefully. See the examples.
+        - Set to V(false) if you want sysupgrade to reboot. This will cause Ansible to error, as it expects the module to exit gracefully. See the examples.
         default: true
         type: bool
     installurl:

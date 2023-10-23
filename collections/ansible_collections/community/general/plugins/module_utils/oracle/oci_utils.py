@@ -10,13 +10,14 @@ import logging
 import logging.config
 import os
 import tempfile
-from datetime import datetime
+# (TODO: remove next line!)
+from datetime import datetime  # noqa: F401, pylint: disable=unused-import
 from operator import eq
 
 import time
 
 try:
-    import yaml
+    import yaml  # noqa: F401, pylint: disable=unused-import
 
     import oci
     from oci.constants import HEADER_NEXT_PAGE
@@ -560,7 +561,7 @@ def are_lists_equal(s, t):
     if s is None and t is None:
         return True
 
-    if (s is None and len(t) >= 0) or (t is None and len(s) >= 0) or (len(s) != len(t)):
+    if s is None or t is None or (len(s) != len(t)):
         return False
 
     if len(s) == 0:
@@ -569,7 +570,7 @@ def are_lists_equal(s, t):
     s = to_dict(s)
     t = to_dict(t)
 
-    if type(s[0]) == dict:
+    if isinstance(s[0], dict):
         # Handle list of dicts. Dictionary returned by the API may have additional keys. For example, a get call on
         # service gateway has an attribute `services` which is a list of `ServiceIdResponseDetails`. This has a key
         # `service_name` which is not provided in the list of `services` by a user while making an update call; only
@@ -603,9 +604,9 @@ def get_attr_to_update(get_fn, kwargs_get, module, update_attributes):
         user_provided_attr_value = module.params.get(attr, None)
 
         unequal_list_attr = (
-            type(resources_attr_value) == list or type(user_provided_attr_value) == list
+            isinstance(resources_attr_value, list) or isinstance(user_provided_attr_value, list)
         ) and not are_lists_equal(user_provided_attr_value, resources_attr_value)
-        unequal_attr = type(resources_attr_value) != list and to_dict(
+        unequal_attr = not isinstance(resources_attr_value, list) and to_dict(
             resources_attr_value
         ) != to_dict(user_provided_attr_value)
         if unequal_list_attr or unequal_attr:
@@ -935,9 +936,9 @@ def tuplize(d):
     list_of_tuples = []
     key_list = sorted(list(d.keys()))
     for key in key_list:
-        if type(d[key]) == list:
+        if isinstance(d[key], list):
             # Convert a value which is itself a list of dict to a list of tuples.
-            if d[key] and type(d[key][0]) == dict:
+            if d[key] and isinstance(d[key][0], dict):
                 sub_tuples = []
                 for sub_dict in d[key]:
                     sub_tuples.append(tuplize(sub_dict))
@@ -947,7 +948,7 @@ def tuplize(d):
                 list_of_tuples.append((sub_tuples is None, key, sub_tuples))
             else:
                 list_of_tuples.append((d[key] is None, key, d[key]))
-        elif type(d[key]) == dict:
+        elif isinstance(d[key], dict):
             tupled_value = tuplize(d[key])
             list_of_tuples.append((tupled_value is None, key, tupled_value))
         else:
@@ -968,13 +969,13 @@ def sort_dictionary(d):
     """
     sorted_d = {}
     for key in d:
-        if type(d[key]) == list:
-            if d[key] and type(d[key][0]) == dict:
+        if isinstance(d[key], list):
+            if d[key] and isinstance(d[key][0], dict):
                 sorted_value = sort_list_of_dictionary(d[key])
                 sorted_d[key] = sorted_value
             else:
                 sorted_d[key] = sorted(d[key])
-        elif type(d[key]) == dict:
+        elif isinstance(d[key], dict):
             sorted_d[key] = sort_dictionary(d[key])
         else:
             sorted_d[key] = d[key]
@@ -1025,10 +1026,7 @@ def check_if_user_value_matches_resources_attr(
             return
 
         if (
-            resources_value_for_attr is None
-            and len(user_provided_value_for_attr) >= 0
-            or user_provided_value_for_attr is None
-            and len(resources_value_for_attr) >= 0
+            resources_value_for_attr is None or user_provided_value_for_attr is None
         ):
             res[0] = False
             return
@@ -1043,7 +1041,7 @@ def check_if_user_value_matches_resources_attr(
 
         if (
             user_provided_value_for_attr
-            and type(user_provided_value_for_attr[0]) == dict
+            and isinstance(user_provided_value_for_attr[0], dict)
         ):
             # Process a list of dict
             sorted_user_provided_value_for_attr = sort_list_of_dictionary(
@@ -1546,7 +1544,7 @@ def delete_and_wait(
     except ServiceError as ex:
         # DNS API throws a 400 InvalidParameter when a zone id is provided for zone_name_or_id and if the zone
         # resource is not available, instead of the expected 404. So working around this for now.
-        if type(client) == oci.dns.DnsClient:
+        if isinstance(client, oci.dns.DnsClient):
             if ex.status == 400 and ex.code == "InvalidParameter":
                 _debug(
                     "Resource {0} with {1} already deleted. So returning changed=False".format(

@@ -7,11 +7,12 @@ __metaclass__ = type
 
 from ansible.executor.task_result import TaskResult
 from ansible_collections.community.general.tests.unit.compat import unittest
-from ansible_collections.community.general.tests.unit.compat.mock import patch, call, MagicMock, Mock
+from ansible_collections.community.general.tests.unit.compat.mock import patch, Mock
 from ansible_collections.community.general.plugins.callback.loganalytics import AzureLogAnalyticsSource
 from datetime import datetime
 
 import json
+import sys
 
 
 class TestAzureLogAnalytics(unittest.TestCase):
@@ -26,6 +27,10 @@ class TestAzureLogAnalytics(unittest.TestCase):
         self.task_fields = {'args': {}}
         self.mock_host = Mock('MockHost')
         self.mock_host.name = 'myhost'
+
+        # Add backward compatibility
+        if sys.version_info < (3, 2):
+            self.assertRegex = self.assertRegexpMatches
 
     @patch('ansible_collections.community.general.plugins.callback.loganalytics.datetime')
     @patch('ansible_collections.community.general.plugins.callback.loganalytics.open_url')
@@ -62,5 +67,5 @@ class TestAzureLogAnalytics(unittest.TestCase):
         args, kwargs = open_url_mock.call_args
         headers = kwargs['headers']
 
-        self.assertRegexpMatches(headers['Authorization'], r'^SharedKey 01234567-0123-0123-0123-01234567890a:.*=$')
+        self.assertRegex(headers['Authorization'], r'^SharedKey 01234567-0123-0123-0123-01234567890a:.*=$')
         self.assertEqual(headers['Log-Type'], 'ansible_playbook')

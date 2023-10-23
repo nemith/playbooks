@@ -20,15 +20,22 @@ author:
 requirements: ['git']
 short_description: Read and write git configuration
 description:
-  - The C(git_config) module changes git configuration by invoking 'git config'.
-    This is needed if you don't want to use M(ansible.builtin.template) for the entire git
-    config file (e.g. because you need to change just C(user.email) in
+  - The M(community.general.git_config) module changes git configuration by invoking 'git config'.
+    This is needed if you do not want to use M(ansible.builtin.template) for the entire git
+    config file (for example because you need to change just C(user.email) in
     /etc/.git/config).  Solutions involving M(ansible.builtin.command) are cumbersome or
-    don't work correctly in check mode.
+    do not work correctly in check mode.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   list_all:
     description:
-      - List all settings (optionally limited to a given I(scope)).
+      - List all settings (optionally limited to a given O(scope)).
     type: bool
     default: false
   name:
@@ -43,23 +50,23 @@ options:
     type: path
   file:
     description:
-      - Path to an adhoc git configuration file to be managed using the C(file) scope.
+      - Path to an adhoc git configuration file to be managed using the V(file) scope.
     type: path
     version_added: 2.0.0
   scope:
     description:
       - Specify which scope to read/set values from.
       - This is required when setting config values.
-      - If this is set to C(local), you must also specify the C(repo) parameter.
-      - If this is set to C(file), you must also specify the C(file) parameter.
-      - It defaults to system only when not using I(list_all)=C(true).
+      - If this is set to V(local), you must also specify the O(repo) parameter.
+      - If this is set to V(file), you must also specify the O(file) parameter.
+      - It defaults to system only when not using O(list_all=true).
     choices: [ "file", "local", "global", "system" ]
     type: str
   state:
     description:
       - "Indicates the setting should be set/unset.
-        This parameter has higher precedence than I(value) parameter:
-        when I(state)=absent and I(value) is defined, I(value) is discarded."
+        This parameter has higher precedence than O(value) parameter:
+        when O(state=absent) and O(value) is defined, O(value) is discarded."
     choices: [ 'present', 'absent' ]
     default: 'present'
     type: str
@@ -145,13 +152,13 @@ EXAMPLES = '''
 RETURN = '''
 ---
 config_value:
-  description: When I(list_all=false) and value is not set, a string containing the value of the setting in name
+  description: When O(list_all=false) and value is not set, a string containing the value of the setting in name
   returned: success
   type: str
   sample: "vim"
 
 config_values:
-  description: When I(list_all=true), a dict containing key/value pairs of multiple configuration settings
+  description: When O(list_all=true), a dict containing key/value pairs of multiple configuration settings
   returned: success
   type: dict
   sample:

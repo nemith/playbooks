@@ -21,11 +21,23 @@ description:
   - Since C(dconf) requires a running D-Bus session to change values, the module
     will try to detect an existing session and reuse it, or run the tool via
     C(dbus-run-session).
+requirements:
+  - Optionally the C(gi.repository) Python library (usually included in the OS
+    on hosts which have C(dconf)); this will become a non-optional requirement
+    in a future major release of community.general.
 notes:
   - This module depends on C(psutil) Python library (version 4.0.0 and upwards),
     C(dconf), C(dbus-send), and C(dbus-run-session) binaries. Depending on
     distribution you are using, you may need to install additional packages to
     have these available.
+  - This module uses the C(gi.repository) Python library when available for
+    accurate comparison of values in C(dconf) to values specified in Ansible
+    code. C(gi.repository) is likely to be present on most systems which have
+    C(dconf) but may not be present everywhere. When it is missing, a simple
+    string comparison between values is used, and there may be false positives,
+    that is, Ansible may think that a value is being changed when it is not.
+    This fallback will be removed in a future version of this module, at which
+    point the module will stop working on hosts without C(gi.repository).
   - Detection of existing, running D-Bus session, required to change settings
     via C(dconf), is not 100% reliable due to implementation details of D-Bus
     daemon itself. This might lead to running applications not picking-up
@@ -34,16 +46,23 @@ notes:
   - Keep in mind that the C(dconf) CLI tool, which this module wraps around,
     utilises an unusual syntax for the values (GVariant). For example, if you
     wanted to provide a string value, the correct syntax would be
-    I(value="'myvalue'") - with single quotes as part of the Ansible parameter
+    O(value="'myvalue'") - with single quotes as part of the Ansible parameter
     value.
   - When using loops in combination with a value like
-    :code:`"[('xkb', 'us'), ('xkb', 'se')]"`, you need to be aware of possible
-    type conversions. Applying a filter :code:`"{{ item.value | string }}"`
+    V("[('xkb', 'us'\), ('xkb', 'se'\)]"), you need to be aware of possible
+    type conversions. Applying a filter V({{ item.value | string }})
     to the parameter variable can avoid potential conversion problems.
   - The easiest way to figure out exact syntax/value you need to provide for a
     key is by making the configuration change in application affected by the
     key, and then having a look at value set via commands C(dconf dump
     /path/to/dir/) or C(dconf read /path/to/key).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   key:
     type: str
@@ -51,13 +70,18 @@ options:
     description:
       - A dconf key to modify or read from the dconf database.
   value:
-    type: str
+    type: raw
     required: false
     description:
       - Value to set for the specified dconf key. Value should be specified in
         GVariant format. Due to complexity of this format, it is best to have a
         look at existing values in the dconf database.
-      - Required for I(state=present).
+      - Required for O(state=present).
+      - Although the type is specified as "raw", it should typically be
+        specified as a string. However, boolean values in particular are
+        handled properly even when specified as booleans rather than strings
+        (in fact, handling booleans properly is why the type of this parameter
+        is "raw").
   state:
     type: str
     required: false
@@ -119,17 +143,27 @@ EXAMPLES = r"""
 
 
 import os
-import traceback
+import sys
 
-PSUTIL_IMP_ERR = None
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.respawn import (
+    has_respawned,
+    probe_interpreters_for_module,
+    respawn_module,
+)
+from ansible.module_utils.common.text.converters import to_native
+from ansible_collections.community.general.plugins.module_utils import deps
+
+glib_module_name = 'gi.repository.GLib'
+
 try:
-    import psutil
-    HAS_PSUTIL = True
+    from gi.repository.GLib import Variant, GError
 except ImportError:
-    PSUTIL_IMP_ERR = traceback.format_exc()
-    HAS_PSUTIL = False
+    Variant = None
+    GError = AttributeError
 
-from ansible.module_utils.basic import AnsibleModule, missing_required_lib
+with deps.declare("psutil"):
+    import psutil
 
 
 class DBusWrapper(object):
@@ -251,6 +285,29 @@ class DconfPreference(object):
         # Check if dconf binary exists
         self.dconf_bin = self.module.get_bin_path('dconf', required=True)
 
+    @staticmethod
+    def variants_are_equal(canonical_value, user_value):
+        """Compare two string GVariant representations for equality.
+
+        Assumes `canonical_value` is "canonical" in the sense that the type of
+        the variant is specified explicitly if it cannot be inferred; this is
+        true for textual representations of variants generated by the `dconf`
+        command. The type of `canonical_value` is used to parse `user_value`,
+        so the latter does not need to be explicitly typed.
+
+        Returns True if the two values are equal.
+        """
+        if canonical_value is None:
+            # It's unset in dconf database, so anything the user is trying to
+            # set is a change.
+            return False
+        try:
+            variant1 = Variant.parse(None, canonical_value)
+            variant2 = Variant.parse(variant1.get_type(), user_value)
+            return variant1 == variant2
+        except GError:
+            return canonical_value == user_value
+
     def read(self, key):
         """
         Retrieves current value associated with the dconf key.
@@ -291,7 +348,7 @@ class DconfPreference(object):
         """
         # If no change is needed (or won't be done due to check_mode), notify
         # caller straight away.
-        if value == self.read(key):
+        if self.variants_are_equal(self.read(key), value):
             return False
         elif self.check_mode:
             return True
@@ -305,7 +362,7 @@ class DconfPreference(object):
         rc, out, err = dbus_wrapper.run_command(command)
 
         if rc != 0:
-            self.module.fail_json(msg='dconf failed while write the value with error: %s' % err,
+            self.module.fail_json(msg='dconf failed while writing key %s, value %s with error: %s' % (key, value, err),
                                   out=out,
                                   err=err)
 
@@ -357,17 +414,62 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent', 'read']),
             key=dict(required=True, type='str', no_log=False),
-            value=dict(required=False, default=None, type='str'),
+            # Converted to str below after special handling of bool.
+            value=dict(required=False, default=None, type='raw'),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
+        required_if=[
+            ('state', 'present', ['value']),
+        ],
     )
 
-    if not HAS_PSUTIL:
-        module.fail_json(msg=missing_required_lib("psutil"), exception=PSUTIL_IMP_ERR)
+    if Variant is None:
+        # This interpreter can't see the GLib module. To try to fix that, we'll
+        # look in common locations for system-owned interpreters that can see
+        # it; if we find one, we'll respawn under it. Otherwise we'll proceed
+        # with degraded performance, without the ability to parse GVariants.
+        # Later (in a different PR) we'll actually deprecate this degraded
+        # performance level and fail with an error if the library can't be
+        # found.
 
-    # If present state was specified, value must be provided.
-    if module.params['state'] == 'present' and module.params['value'] is None:
-        module.fail_json(msg='State "present" requires "value" to be set.')
+        if has_respawned():
+            # This shouldn't be possible; short-circuit early if it happens.
+            module.fail_json(
+                msg="%s must be installed and visible from %s." %
+                (glib_module_name, sys.executable))
+
+        interpreters = ['/usr/bin/python3', '/usr/bin/python2',
+                        '/usr/bin/python']
+
+        interpreter = probe_interpreters_for_module(
+            interpreters, glib_module_name)
+
+        if interpreter:
+            # Found the Python bindings; respawn this module under the
+            # interpreter where we found them.
+            respawn_module(interpreter)
+            # This is the end of the line for this process, it will exit here
+            # once the respawned module has completed.
+
+    # Try to be forgiving about the user specifying a boolean as the value, or
+    # more accurately about the fact that YAML and Ansible are quite insistent
+    # about converting strings that look like booleans into booleans. Convert
+    # the boolean into a string of the type dconf will understand. Any type for
+    # the value other than boolean is just converted into a string directly.
+    if module.params['value'] is not None:
+        if isinstance(module.params['value'], bool):
+            module.params['value'] = 'true' if module.params['value'] else 'false'
+        else:
+            module.params['value'] = to_native(
+                module.params['value'], errors='surrogate_or_strict')
+
+    if Variant is None:
+        module.warn(
+            'WARNING: The gi.repository Python library is not available; '
+            'using string comparison to check value equality. This fallback '
+            'will be deprecated in a future version of community.general.')
+
+    deps.validate(module)
 
     # Create wrapper instance.
     dconf = DconfPreference(module, module.check_mode)

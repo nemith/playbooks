@@ -21,8 +21,14 @@ description:
     - This module add or remove a private network to a compute instance
       (U(https://developer.scaleway.com)).
 extends_documentation_fragment:
-- community.general.scaleway
+    - community.general.scaleway
+    - community.general.attributes
 
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -43,7 +49,7 @@ options:
   region:
     type: str
     description:
-     - Scaleway region to use (for example C(par1)).
+     - Scaleway region to use (for example V(par1)).
     required: true
     choices:
       - ams1
@@ -92,7 +98,7 @@ EXAMPLES = '''
 RETURN = '''
 scaleway_compute_private_network:
     description: Information on the VPC.
-    returned: success when I(state=present)
+    returned: success when O(state=present)
     type: dict
     sample:
         {

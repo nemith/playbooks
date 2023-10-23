@@ -72,7 +72,9 @@ def api_request(module, endpoint, data=None, method="GET"):
     if info["status"] == 403:
         module.fail_json(msg="Token authorization failed",
                          execution_info=json.loads(info["body"]))
-    if info["status"] == 409:
+    elif info["status"] == 404:
+        return None, info
+    elif info["status"] == 409:
         module.fail_json(msg="Job executions limit reached",
                          execution_info=json.loads(info["body"]))
     elif info["status"] >= 500:
@@ -81,12 +83,18 @@ def api_request(module, endpoint, data=None, method="GET"):
 
     try:
         content = response.read()
-        json_response = json.loads(content)
-        return json_response, info
+
+        if not content:
+            return None, info
+        else:
+            json_response = json.loads(content)
+            return json_response, info
     except AttributeError as error:
-        module.fail_json(msg="Rundeck API request error",
-                         exception=to_native(error),
-                         execution_info=info)
+        module.fail_json(
+            msg="Rundeck API request error",
+            exception=to_native(error),
+            execution_info=info
+        )
     except ValueError as error:
         module.fail_json(
             msg="No valid JSON response",

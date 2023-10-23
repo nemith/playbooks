@@ -6,6 +6,7 @@
 #
 # Copyright (c) 2020, Per Abildgaard Toft <per@minfejl.dk> Search and update function
 # Copyright (c) 2021, Brandon McNama <brandonmcnama@outlook.com> Issue attachment functionality
+# Copyright (c) 2022, Hugo Prudente <hugo.kenshin+oss@gmail.com> Worklog functionality
 #
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -20,6 +21,15 @@ short_description: Create and modify issues in a JIRA instance
 description:
   - Create and modify issues in a JIRA instance.
 
+extends_documentation_fragment:
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
+
 options:
   uri:
     type: str
@@ -31,27 +41,28 @@ options:
     type: str
     required: true
     aliases: [ command ]
-    choices: [ attach, comment, create, edit, fetch, link, search, transition, update ]
+    choices: [ attach, comment, create, edit, fetch, link, search, transition, update, worklog ]
     description:
       - The operation to perform.
+      - V(worklog) was added in community.genereal 6.5.0.
 
   username:
     type: str
     description:
       - The username to log-in with.
-      - Must be used with I(password). Mutually exclusive with I(token).
+      - Must be used with O(password). Mutually exclusive with O(token).
 
   password:
     type: str
     description:
       - The password to log-in with.
-      - Must be used with I(username).  Mutually exclusive with I(token).
+      - Must be used with O(username).  Mutually exclusive with O(token).
 
   token:
     type: str
     description:
       - The personal access token to log-in with.
-      - Mutually exclusive with I(username) and I(password).
+      - Mutually exclusive with O(username) and O(password).
     version_added: 4.2.0
 
   project:
@@ -117,20 +128,20 @@ options:
     type: str
     required: false
     description:
-     - Only used when I(operation) is C(transition), and a bit of a misnomer, it actually refers to the transition name.
+     - Only used when O(operation) is V(transition), and a bit of a misnomer, it actually refers to the transition name.
 
   assignee:
     type: str
     required: false
     description:
-     - Sets the the assignee when I(operation) is C(create), C(transition) or C(edit).
-     - Recent versions of JIRA no longer accept a user name as a user identifier. In that case, use I(account_id) instead.
+     - Sets the the assignee when O(operation) is V(create), V(transition), or V(edit).
+     - Recent versions of JIRA no longer accept a user name as a user identifier. In that case, use O(account_id) instead.
      - Note that JIRA may not allow changing field values on specific transitions or states.
 
   account_id:
     type: str
     description:
-     - Sets the account identifier for the assignee when I(operation) is C(create), C(transition) or C(edit).
+     - Sets the account identifier for the assignee when O(operation) is V(create), V(transition), or V(edit).
      - Note that JIRA may not allow changing field values on specific transitions or states.
     version_added: 2.5.0
 
@@ -162,7 +173,6 @@ options:
      - When passed to comment, the data structure is merged at the first level since community.general 4.6.0. Useful to add JIRA properties for example.
      - Note that JIRA may not allow changing field values on specific transitions or states.
     default: {}
-
   jql:
     required: false
     description:
@@ -173,8 +183,8 @@ options:
   maxresults:
     required: false
     description:
-     - Limit the result of I(operation=search). If no value is specified, the default jira limit will be used.
-     - Used when I(operation=search) only, ignored otherwise.
+     - Limit the result of O(operation=search). If no value is specified, the default jira limit will be used.
+     - Used when O(operation=search) only, ignored otherwise.
     type: int
     version_added: '0.2.0'
 
@@ -188,7 +198,7 @@ options:
   validate_certs:
     required: false
     description:
-      - Require valid SSL certificates (set to C(false) if you'd like to use self-signed certificates)
+      - Require valid SSL certificates (set to V(false) if you would like to use self-signed certificates)
     default: true
     type: bool
 
@@ -202,12 +212,12 @@ options:
         required: true
         type: path
         description:
-          - The path to the file to upload (from the remote node) or, if I(content) is specified,
+          - The path to the file to upload (from the remote node) or, if O(attachment.content) is specified,
             the filename to use for the attachment.
       content:
         type: str
         description:
-          - The Base64 encoded contents of the file to attach. If not specified, the contents of I(filename) will be
+          - The Base64 encoded contents of the file to attach. If not specified, the contents of O(attachment.filename) will be
             used instead.
       mimetype:
         type: str
@@ -217,7 +227,7 @@ options:
 
 notes:
   - "Currently this only works with basic-auth, or tokens."
-  - "To use with JIRA Cloud, pass the login e-mail as the I(username) and the API token as I(password)."
+  - "To use with JIRA Cloud, pass the login e-mail as the O(username) and the API token as O(password)."
 
 author:
 - "Steve Smith (@tarka)"
@@ -277,6 +287,47 @@ EXAMPLES = r"""
         - key: 'sd.public.comment'
           value:
             internal: true
+
+# Add an workog to an existing issue
+- name: Worklog on issue
+  community.general.jira:
+    uri: '{{ server }}'
+    username: '{{ user }}'
+    password: '{{ pass }}'
+    issue: '{{ issue.meta.key }}'
+    operation: worklog
+    comment: A worklog added by Ansible
+    fields:
+      timeSpentSeconds: 12000
+
+- name: Workflow on issue with comment restricted visibility
+  community.general.jira:
+    uri: '{{ server }}'
+    username: '{{ user }}'
+    password: '{{ pass }}'
+    issue: '{{ issue.meta.key }}'
+    operation: worklog
+    comment: A worklog added by Ansible
+    comment_visibility:
+      type: role
+      value: Developers
+    fields:
+      timeSpentSeconds: 12000
+
+- name: Workflow on issue with comment property to mark it internal
+  community.general.jira:
+    uri: '{{ server }}'
+    username: '{{ user }}'
+    password: '{{ pass }}'
+    issue: '{{ issue.meta.key }}'
+    operation: worklog
+    comment: A worklog added by Ansible
+    fields:
+      properties:
+        - key: 'sd.public.comment'
+          value:
+            internal: true
+      timeSpentSeconds: 12000
 
 # Assign an existing issue using edit
 - name: Assign an issue using free-form fields
@@ -429,7 +480,7 @@ class JIRA(StateModuleHelper):
             uri=dict(type='str', required=True),
             operation=dict(
                 type='str',
-                choices=['attach', 'create', 'comment', 'edit', 'update', 'fetch', 'transition', 'link', 'search'],
+                choices=['attach', 'create', 'comment', 'edit', 'update', 'fetch', 'transition', 'link', 'search', 'worklog'],
                 aliases=['command'], required=True
             ),
             username=dict(type='str'),
@@ -472,6 +523,7 @@ class JIRA(StateModuleHelper):
             ('operation', 'attach', ['issue', 'attachment']),
             ('operation', 'create', ['project', 'issuetype', 'summary']),
             ('operation', 'comment', ['issue', 'comment']),
+            ('operation', 'workflow', ['issue', 'comment']),
             ('operation', 'fetch', ['issue']),
             ('operation', 'transition', ['issue', 'status']),
             ('operation', 'link', ['linktype', 'inwardissue', 'outwardissue']),
@@ -524,6 +576,22 @@ class JIRA(StateModuleHelper):
             data.update(self.vars.fields)
 
         url = self.vars.restbase + '/issue/' + self.vars.issue + '/comment'
+        self.vars.meta = self.post(url, data)
+
+    @cause_changes(on_success=True)
+    def operation_worklog(self):
+        data = {
+            'comment': self.vars.comment
+        }
+        # if comment_visibility is specified restrict visibility
+        if self.vars.comment_visibility is not None:
+            data['visibility'] = self.vars.comment_visibility
+
+        # Use 'fields' to merge in any additional data
+        if self.vars.fields:
+            data.update(self.vars.fields)
+
+        url = self.vars.restbase + '/issue/' + self.vars.issue + '/worklog'
         self.vars.meta = self.post(url, data)
 
     @cause_changes(on_success=True)

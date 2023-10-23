@@ -15,6 +15,11 @@ short_description: Send a SMS via nexmo
 description:
     - Send a SMS message via nexmo
 author: "Matt Martz (@sivel)"
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   api_key:
     type: str
@@ -45,12 +50,13 @@ options:
     required: true
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true
 extends_documentation_fragment:
-  - url
+  - ansible.builtin.url
+  - community.general.attributes
 '''
 
 EXAMPLES = """

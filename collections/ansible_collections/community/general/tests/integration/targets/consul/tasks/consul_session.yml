@@ -6,6 +6,7 @@
 - name: list sessions
   consul_session:
     state: list
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:
@@ -17,6 +18,7 @@
   consul_session:
     state: present
     name: testsession
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:
@@ -31,6 +33,7 @@
 - name: list sessions after creation
   consul_session:
     state: list
+    token: "{{ consul_management_token }}"
   register: result
 
 - set_fact:
@@ -45,19 +48,20 @@
 
 - name: search created session
   set_fact:
-    test_session_found: True
+    test_session_found: true
   loop: "{{ result['sessions'] }}"
   when: "item.get('ID') == session_id and item.get('Name') == 'testsession'"
 
 - name: ensure session was created
   assert:
     that:
-      - test_session_found|default(False)
+      - test_session_found|default(false)
 
 - name: fetch info about a session
   consul_session:
     state: info
     id: '{{ session_id }}'
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:
@@ -68,8 +72,9 @@
   consul_session:
     state: info
     name: test
+    token: "{{ consul_management_token }}"
   register: result
-  ignore_errors: True
+  ignore_errors: true
 
 - assert:
     that:
@@ -80,8 +85,9 @@
     state: info
     id: '{{ session_id }}'
     scheme: non_existent
+    token: "{{ consul_management_token }}"
   register: result
-  ignore_errors: True
+  ignore_errors: true
 
 - assert:
     that:
@@ -93,8 +99,9 @@
     id: '{{ session_id }}'
     port: 8501
     scheme: https
+    token: "{{ consul_management_token }}"
   register: result
-  ignore_errors: True
+  ignore_errors: true
 
 - name: previous task should fail since certificate is not known
   assert:
@@ -108,7 +115,8 @@
     id: '{{ session_id }}'
     port: 8501
     scheme: https
-    validate_certs: False
+    token: "{{ consul_management_token }}"
+    validate_certs: false
   register: result
 
 - name: previous task should succeed since certificate isn't checked
@@ -122,6 +130,7 @@
     id: '{{ session_id }}'
     port: 8501
     scheme: https
+    token: "{{ consul_management_token }}"
   environment:
     REQUESTS_CA_BUNDLE: '{{ remote_dir }}/cert.pem'
   register: result
@@ -134,6 +143,7 @@
   consul_session:
     state: absent
     id: '{{ session_id }}'
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:
@@ -143,6 +153,7 @@
 - name: list sessions after deletion
   consul_session:
     state: list
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:
@@ -169,6 +180,7 @@
     state: present
     name: session-with-ttl
     ttl: 180  # sec
+    token: "{{ consul_management_token }}"
   register: result
 
 - assert:

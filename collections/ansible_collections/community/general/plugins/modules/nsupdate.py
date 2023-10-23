@@ -24,6 +24,13 @@ description:
 requirements:
   - dnspython
 author: "Loic Blot (@nerzhul)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         description:
@@ -38,27 +45,27 @@ options:
         type: str
     port:
         description:
-            - Use this TCP port when connecting to C(server).
+            - Use this TCP port when connecting to O(server).
         default: 53
         type: int
     key_name:
         description:
-            - Use TSIG key name to authenticate against DNS C(server)
+            - Use TSIG key name to authenticate against DNS O(server)
         type: str
     key_secret:
         description:
-            - Use TSIG key secret, associated with C(key_name), to authenticate against C(server)
+            - Use TSIG key secret, associated with O(key_name), to authenticate against O(server)
         type: str
     key_algorithm:
         description:
-            - Specify key algorithm used by C(key_secret).
+            - Specify key algorithm used by O(key_secret).
         choices: ['HMAC-MD5.SIG-ALG.REG.INT', 'hmac-md5', 'hmac-sha1', 'hmac-sha224', 'hmac-sha256', 'hmac-sha384',
                   'hmac-sha512']
         default: 'hmac-md5'
         type: str
     zone:
         description:
-            - DNS record will be modified on this C(zone).
+            - DNS record will be modified on this O(zone).
             - When omitted DNS will be queried to attempt finding the correct zone.
             - Starting with Ansible 2.7 this parameter is optional.
         type: str
@@ -460,10 +467,8 @@ class RecordManager(object):
         if lookup.rcode() != dns.rcode.NOERROR:
             self.module.fail_json(msg='Failed to lookup TTL of existing matching record.')
 
-        if self.module.params['type'] == 'NS':
-            current_ttl = lookup.answer[0].ttl if lookup.answer else lookup.authority[0].ttl
-        else:
-            current_ttl = lookup.answer[0].ttl
+        current_ttl = lookup.answer[0].ttl if lookup.answer else lookup.authority[0].ttl
+
         return current_ttl != self.module.params['ttl']
 
 

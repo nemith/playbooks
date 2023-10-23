@@ -13,7 +13,14 @@ DOCUMENTATION = '''
 module: profitbricks_nic
 short_description: Create or Remove a NIC
 description:
-     - This module allows you to create or restore a volume snapshot. This module has a dependency on profitbricks >= 1.0.0
+  - This module allows you to create or restore a volume snapshot. This module has a dependency on profitbricks >= 1.0.0
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   datacenter:
     description:
@@ -58,7 +65,7 @@ options:
   state:
     description:
       - Indicate desired state of the resource
-      - "The available choices are: C(present), C(absent)."
+      - "The available choices are: V(present), V(absent)."
     type: str
     required: false
     default: 'present'

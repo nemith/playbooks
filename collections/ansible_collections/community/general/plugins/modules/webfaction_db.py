@@ -16,6 +16,12 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
+
+deprecated:
+  removed_in: 9.0.0
+  why: the endpoints this module relies on do not exist any more and do not resolve to IPs in DNS.
+  alternative: no known alternative at this point
+
 module: webfaction_db
 short_description: Add or remove a database on Webfaction
 description:
@@ -24,9 +30,16 @@ author: Quentin Stafford-Fraser (@quentinsf)
 notes:
     - >
       You can run playbooks that use this on a local machine, or on a Webfaction host, or elsewhere, since the scripts use the remote webfaction API.
-      The location is not important. However, running them on multiple hosts I(simultaneously) is best avoided. If you don't specify I(localhost) as
-      your host, you may want to add C(serial: 1) to the plays.
-    - See `the webfaction API <https://docs.webfaction.com/xmlrpc-api/>`_ for more info.
+      The location is not important. However, running them on multiple hosts I(simultaneously) is best avoided. If you do not specify C(localhost) as
+      your host, you may want to add C(serial=1) to the plays.
+    - See L(the webfaction API, https://docs.webfaction.com/xmlrpc-api/) for more info.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
 
     name:

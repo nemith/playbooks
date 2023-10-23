@@ -38,12 +38,12 @@ options:
     type: str
     description:
       - The name of the resource to obtain the profile for.
-      - Must be specified if I(resource_id) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_id) is not set. Both options are mutually exclusive.
   resource_id:
     type: int
     description:
       - The ID of the resource to obtain the profile for.
-      - Must be specified if I(resource_name) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_name) is not set. Both options are mutually exclusive.
 '''
 
 EXAMPLES = '''
@@ -81,7 +81,7 @@ profiles:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.general.plugins.module_utils.manageiq import ManageIQ, ManageIQPolicies, manageiq_argument_spec, manageiq_entities
+from ansible_collections.community.general.plugins.module_utils.manageiq import ManageIQ, manageiq_argument_spec, manageiq_entities
 
 
 def main():

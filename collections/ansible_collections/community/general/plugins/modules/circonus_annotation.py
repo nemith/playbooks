@@ -20,6 +20,13 @@ requirements:
     - requests (either >= 2.0.0 for Python 3, or >= 1.0.0 for Python 2)
 notes:
     - Check mode isn't supported.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     api_key:
         type: str
@@ -45,12 +52,12 @@ options:
         type: int
         description:
             - Unix timestamp of event start
-            - If not specified, it defaults to I(now).
+            - If not specified, it defaults to "now".
     stop:
         type: int
         description:
             - Unix timestamp of event end
-            - If not specified, it defaults to I(now) + I(duration).
+            - If not specified, it defaults to "now" + O(duration).
     duration:
         type: int
         description:

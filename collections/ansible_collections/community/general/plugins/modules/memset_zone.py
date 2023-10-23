@@ -17,9 +17,16 @@ notes:
   - Zones can be thought of as a logical group of domains, all of which share the
     same DNS records (i.e. they point to the same IP). An API key generated via the
     Memset customer control panel is needed with the following minimum scope -
-    I(dns.zone_create), I(dns.zone_delete), I(dns.zone_list).
+    C(dns.zone_create), C(dns.zone_delete), C(dns.zone_list).
 description:
-    - Manage DNS zones in a Memset account.
+  - Manage DNS zones in a Memset account.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         required: true
@@ -256,6 +263,9 @@ def create_or_delete(args=None):
         # informed of the reason.
         retvals['failed'] = _has_failed
         retvals['msg'] = _msg
+
+        if response.stderr is not None:
+            retvals['stderr'] = response.stderr
 
         return retvals
 

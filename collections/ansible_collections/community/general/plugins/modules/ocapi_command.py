@@ -17,6 +17,13 @@ description:
   - Builds OCAPI URIs locally and sends them to remote OOB controllers to
     perform an action.
   - Manages OOB controller such as Indicator LED, Reboot, Power Mode, Firmware Update.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   category:
     required: true
@@ -34,17 +41,17 @@ options:
       - Base URI of OOB controller.
     type: str
   proxy_slot_number:
-    description: For proxied inband requests, the slot number of the IOM.  Only applies if I(baseuri) is a proxy server.
+    description: For proxied inband requests, the slot number of the IOM.  Only applies if O(baseuri) is a proxy server.
     type: int
   update_image_path:
     required: false
     description:
-      - For C(FWUpload), the path on the local filesystem of the firmware update image.
+      - For O(command=FWUpload), the path on the local filesystem of the firmware update image.
     type: str
   job_name:
     required: false
     description:
-      - For C(DeleteJob) command, the name of the job to delete.
+      - For O(command=DeleteJob) command, the name of the job to delete.
     type: str
   username:
     required: true
@@ -165,7 +172,7 @@ operationStatusId:
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.ocapi_utils import OcapiUtils
 from ansible.module_utils.common.text.converters import to_native
-from ansible.module_utils.six.moves.urllib.parse import quote_plus, urljoin
+from ansible.module_utils.six.moves.urllib.parse import urljoin
 
 # More will be added as module features are expanded
 CATEGORY_COMMANDS_ALL = {

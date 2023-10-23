@@ -2,7 +2,7 @@
  "collection_info": {
   "namespace": "community",
   "name": "general",
-  "version": "6.3.0",
+  "version": "7.5.0",
   "authors": [
    "Ansible (https://github.com/ansible)"
   ],
@@ -23,7 +23,7 @@
   "name": "FILES.json",
   "ftype": "file",
   "chksum_type": "sha256",
-  "chksum_sha256": "10398e76566e244eb3151bc74f595ead1ec455297147639dd00b4b751b13fab5",
+  "chksum_sha256": "26bea2d3c00b2efbdbe42bf19c50ca4dca9b24943bd6bcb1af7cf2dc8d43bda7",
   "format": 1
  },
  "format": 1

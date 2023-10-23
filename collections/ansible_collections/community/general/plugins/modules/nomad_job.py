@@ -15,19 +15,25 @@ author: FERREIRA Christophe (@chris93111)
 version_added: "1.3.0"
 short_description: Launch a Nomad Job
 description:
-    - Launch a Nomad job.
-    - Stop a Nomad job.
-    - Force start a Nomad job
+  - Launch a Nomad job.
+  - Stop a Nomad job.
+  - Force start a Nomad job
 requirements:
   - python-nomad
 extends_documentation_fragment:
   - community.general.nomad
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
       description:
         - Name of job for delete, stop and start job without source.
         - Name of job for delete, stop and start job without source.
-        - Either this or I(content) must be specified.
+        - Either this or O(content) must be specified.
       type: str
     state:
       description:
@@ -43,7 +49,7 @@ options:
     content:
       description:
         - Content of Nomad job.
-        - Either this or I(name) must be specified.
+        - Either this or O(name) must be specified.
       type: str
     content_format:
       description:
@@ -51,8 +57,6 @@ options:
       choices: ["hcl", "json"]
       default: hcl
       type: str
-notes:
-  - C(check_mode) is supported.
 seealso:
   - name: Nomad jobs documentation
     description: Complete documentation for Nomad API jobs.

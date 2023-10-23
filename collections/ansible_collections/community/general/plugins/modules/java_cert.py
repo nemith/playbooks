@@ -16,11 +16,18 @@ short_description: Uses keytool to import/remove certificate to/from java keysto
 description:
   - This is a wrapper module around keytool, which can be used to import certificates
     and optionally private keys to a given java keystore, or remove them from it.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 options:
   cert_url:
     description:
       - Basic URL to fetch SSL certificate from.
-      - Exactly one of C(cert_url), C(cert_path) or C(pkcs12_path) is required to load certificate.
+      - Exactly one of O(cert_url), O(cert_path), or O(pkcs12_path) is required to load certificate.
     type: str
   cert_port:
     description:
@@ -31,7 +38,7 @@ options:
   cert_path:
     description:
       - Local path to load certificate from.
-      - Exactly one of C(cert_url), C(cert_path) or C(pkcs12_path) is required to load certificate.
+      - Exactly one of O(cert_url), O(cert_path), or O(pkcs12_path) is required to load certificate.
     type: path
   cert_alias:
     description:
@@ -47,10 +54,10 @@ options:
   pkcs12_path:
     description:
       - Local path to load PKCS12 keystore from.
-      - Unlike C(cert_url) and C(cert_path), the PKCS12 keystore embeds the private key matching
+      - Unlike O(cert_url) and O(cert_path), the PKCS12 keystore embeds the private key matching
         the certificate, and is used to import both the certificate and its private key into the
         java keystore.
-      - Exactly one of C(cert_url), C(cert_path) or C(pkcs12_path) is required to load certificate.
+      - Exactly one of O(cert_url), O(cert_path), or O(pkcs12_path) is required to load certificate.
     type: path
   pkcs12_password:
     description:

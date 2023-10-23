@@ -15,10 +15,16 @@ short_description: Adds or removes Red Hat software channels
 description:
     - Adds or removes Red Hat software channels.
 author:
-- Vincent Van der Kussen (@vincentvdk)
+    - Vincent Van der Kussen (@vincentvdk)
 notes:
     - This module fetches the system id from RHN.
-    - This module doesn't support I(check_mode).
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -54,13 +60,23 @@ options:
         type: str
     validate_certs:
         description:
-            - If C(False), SSL certificates will not be validated.
-            - This should only set to C(False) when used on self controlled sites
+            - If V(false), SSL certificates will not be validated.
+            - This should only set to V(false) when used on self controlled sites
               using self-signed certificates, and you are absolutely sure that nobody
               can modify traffic between the module and the site.
         type: bool
         default: true
         version_added: '0.2.0'
+deprecated:
+    removed_in: 10.0.0
+    why: |
+      RHN hosted at redhat.com was discontinued years ago, and Spacewalk 5
+      (which uses RHN) is EOL since 2020, May 31st; while this module could
+      work on Uyuni / SUSE Manager (fork of Spacewalk 5), we have not heard
+      about anyone using it in those setups.
+    alternative: |
+      Contact the community.general maintainers to report the usage of this
+      module, and potentially step up to maintain it.
 '''
 
 EXAMPLES = '''

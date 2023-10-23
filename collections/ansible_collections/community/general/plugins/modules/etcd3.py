@@ -16,8 +16,15 @@ short_description: Set or delete key value pairs from an etcd3 cluster
 requirements:
   - etcd3
 description:
-   - Sets or deletes values in etcd3 cluster using its v3 api.
-   - Needs python etcd3 lib to work
+  - Sets or deletes values in etcd3 cluster using its v3 api.
+  - Needs python etcd3 lib to work
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     key:
         type: str
@@ -54,22 +61,22 @@ options:
         type: str
         description:
             - The password to use for authentication.
-            - Required if I(user) is defined.
+            - Required if O(user) is defined.
     ca_cert:
         type: path
         description:
             - The Certificate Authority to use to verify the etcd host.
-            - Required if I(client_cert) and I(client_key) are defined.
+            - Required if O(client_cert) and O(client_key) are defined.
     client_cert:
         type: path
         description:
             - PEM formatted certificate chain file to be used for SSL client authentication.
-            - Required if I(client_key) is defined.
+            - Required if O(client_key) is defined.
     client_key:
         type: path
         description:
             - PEM formatted file that contains your private key to be used for SSL client authentication.
-            - Required if I(client_cert) is defined.
+            - Required if O(client_cert) is defined.
     timeout:
         type: int
         description:

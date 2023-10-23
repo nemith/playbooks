@@ -15,27 +15,37 @@ module: manageiq_tags
 
 short_description: Management of resource tags in ManageIQ
 extends_documentation_fragment:
-- community.general.manageiq
+  - community.general.manageiq
+  - community.general.attributes
 
 author: Daniel Korn (@dkorn)
 description:
   - The manageiq_tags module supports adding, updating and deleting tags in ManageIQ.
 
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
+
 options:
   state:
     type: str
     description:
-      - C(absent) - tags should not exist.
-      - C(present) - tags should exist.
-      - C(list) - list current tags.
+      - V(absent) - tags should not exist.
+      - V(present) - tags should exist.
+      - >
+        V(list) - list current tags.
+        This state is deprecated and will be removed 8.0.0.
+        Please use the module M(community.general.manageiq_tags_info) instead.
     choices: ['absent', 'present', 'list']
     default: 'present'
   tags:
     type: list
     elements: dict
     description:
-      - C(tags) - list of dictionaries, each includes C(name) and c(category) keys.
-      - Required if I(state) is C(present) or C(absent).
+      - V(tags) - list of dictionaries, each includes C(name) and C(category) keys.
+      - Required if O(state) is V(present) or V(absent).
   resource_type:
     type: str
     description:
@@ -48,11 +58,11 @@ options:
     type: str
     description:
       - The name of the resource at which tags will be controlled.
-      - Must be specified if I(resource_id) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_id) is not set. Both options are mutually exclusive.
   resource_id:
     description:
       - The ID of the resource at which tags will be controlled.
-      - Must be specified if I(resource_name) is not set. Both options are mutually exclusive.
+      - Must be specified if O(resource_name) is not set. Both options are mutually exclusive.
     type: int
     version_added: 2.2.0
 '''
@@ -103,17 +113,6 @@ EXAMPLES = '''
       username: 'admin'
       password: 'smartvm'
       validate_certs: false
-
-- name: List current tags for a provider in ManageIQ.
-  community.general.manageiq_tags:
-    state: list
-    resource_name: 'EngLab'
-    resource_type: 'provider'
-    manageiq_connection:
-      url: 'http://127.0.0.1:3000'
-      username: 'admin'
-      password: 'smartvm'
-      validate_certs: false
 '''
 
 RETURN = '''
@@ -154,6 +153,13 @@ def main():
     resource_type_key = module.params['resource_type']
     resource_name = module.params['resource_name']
     state = module.params['state']
+
+    if state == "list":
+        module.deprecate(
+            'The value "list" for "state" is deprecated. Please use community.general.manageiq_tags_info instead.',
+            version='8.0.0',
+            collection_name='community.general'
+        )
 
     # get the action and resource type
     action = actions[state]

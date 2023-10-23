@@ -15,6 +15,13 @@ module: hipchat
 short_description: Send a message to Hipchat
 description:
    - Send a message to a Hipchat room, with options to control the formatting.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     type: str
@@ -57,7 +64,7 @@ options:
     default: true
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true

@@ -15,6 +15,13 @@ short_description: Create, destroy, start, stop, and reboot a ProfitBricks virtu
 description:
      - Create, destroy, update, start, stop, and reboot a ProfitBricks virtual machine. When the virtual machine is created it can optionally wait
        for it to be 'running' before returning. This module has a dependency on profitbricks >= 1.0.0
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   auto_increment:
     description:
@@ -123,7 +130,7 @@ options:
   state:
     description:
       - create or terminate instances
-      - 'The choices available are: C(running), C(stopped), C(absent), C(present).'
+      - 'The choices available are: V(running), V(stopped), V(absent), V(present).'
     type: str
     default: 'present'
   disk_type:

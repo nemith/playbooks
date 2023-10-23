@@ -14,25 +14,32 @@ module: github_repo
 short_description: Manage your repositories on Github
 version_added: 2.2.0
 description:
-- Manages Github repositories using PyGithub library.
-- Authentication can be done with I(access_token) or with I(username) and I(password).
+  - Manages Github repositories using PyGithub library.
+  - Authentication can be done with O(access_token) or with O(username) and O(password).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   username:
     description:
     - Username used for authentication.
-    - This is only needed when not using I(access_token).
+    - This is only needed when not using O(access_token).
     type: str
     required: false
   password:
     description:
     - Password used for authentication.
-    - This is only needed when not using I(access_token).
+    - This is only needed when not using O(access_token).
     type: str
     required: false
   access_token:
     description:
     - Token parameter for authentication.
-    - This is only needed when not using I(username) and I(password).
+    - This is only needed when not using O(username) and O(password).
     type: str
     required: false
   name:
@@ -43,17 +50,17 @@ options:
   description:
     description:
     - Description for the repository.
-    - Defaults to empty if I(force_defaults=true), which is the default in this module.
-    - Defaults to empty if I(force_defaults=false) when creating a new repository.
-    - This is only used when I(state) is C(present).
+    - Defaults to empty if O(force_defaults=true), which is the default in this module.
+    - Defaults to empty if O(force_defaults=false) when creating a new repository.
+    - This is only used when O(state) is V(present).
     type: str
     required: false
   private:
     description:
     - Whether the repository should be private or not.
-    - Defaults to C(false) if I(force_defaults=true), which is the default in this module.
-    - Defaults to C(false) if I(force_defaults=false) when creating a new repository.
-    - This is only used when I(state) is C(present).
+    - Defaults to V(false) if O(force_defaults=true), which is the default in this module.
+    - Defaults to V(false) if O(force_defaults=false) when creating a new repository.
+    - This is only used when O(state=present).
     type: bool
     required: false
   state:
@@ -66,7 +73,7 @@ options:
   organization:
     description:
     - Organization for the repository.
-    - When I(state) is C(present), the repository will be created in the current user profile.
+    - When O(state=present), the repository will be created in the current user profile.
     type: str
     required: false
   api_url:
@@ -77,8 +84,8 @@ options:
     version_added: "3.5.0"
   force_defaults:
     description:
-    - Overwrite current I(description) and I(private) attributes with defaults if set to C(true), which currently is the default.
-    - The default for this option will be deprecated in a future version of this collection, and eventually change to C(false).
+    - Overwrite current O(description) and O(private) attributes with defaults if set to V(true), which currently is the default.
+    - The default for this option will be deprecated in a future version of this collection, and eventually change to V(false).
     type: bool
     default: true
     required: false
@@ -89,7 +96,6 @@ notes:
 - For Python 3, PyGithub>=1.54 should be used.
 - "For Python 3.5, PyGithub==1.54 should be used. More information: U(https://pygithub.readthedocs.io/en/latest/changes.html#version-1-54-november-30-2020)."
 - "For Python 2.7, PyGithub==1.45 should be used. More information: U(https://pygithub.readthedocs.io/en/latest/changes.html#version-1-45-december-29-2019)."
-- Supports C(check_mode).
 author:
 - Álvaro Torres Cogollo (@atorrescogollo)
 '''
@@ -119,7 +125,7 @@ EXAMPLES = '''
 RETURN = '''
 repo:
   description: Repository information as JSON. See U(https://docs.github.com/en/rest/reference/repos#get-a-repository).
-  returned: success and I(state) is C(present)
+  returned: success and O(state=present)
   type: dict
 '''
 

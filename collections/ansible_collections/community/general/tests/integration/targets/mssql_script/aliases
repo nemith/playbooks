@@ -7,3 +7,4 @@ skip/macos
 skip/freebsd
 skip/rhel
 disabled
+destructive

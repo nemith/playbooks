@@ -20,6 +20,13 @@ requirements:
     - dnf-plugins-core
 notes:
     - Supports C(check_mode).
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     host:
         description: The Copr host to work with.
@@ -35,14 +42,14 @@ options:
         type: str
     state:
         description:
-            - Whether to set this project as C(enabled), C(disabled) or C(absent).
+            - Whether to set this project as V(enabled), V(disabled), or V(absent).
         default: enabled
         type: str
         choices: [absent, enabled, disabled]
     chroot:
         description:
             - The name of the chroot that you want to enable/disable/remove in the project,
-              for example C(epel-7-x86_64). Default chroot is determined by the operating system,
+              for example V(epel-7-x86_64). Default chroot is determined by the operating system,
               version of the operating system, and architecture on which the module is run.
         type: str
 """
@@ -90,11 +97,26 @@ except ImportError:
     DNF_IMP_ERR = traceback.format_exc()
     HAS_DNF_PACKAGES = False
 
+from ansible.module_utils.common import respawn
 from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.module_utils.basic import missing_required_lib
-from ansible.module_utils import distro  # pylint: disable=import-error
-from ansible.module_utils.basic import AnsibleModule  # pylint: disable=import-error
-from ansible.module_utils.urls import open_url  # pylint: disable=import-error
+from ansible.module_utils import distro
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.urls import open_url
+
+
+def _respawn_dnf():
+    if respawn.has_respawned():
+        return
+    system_interpreters = (
+        "/usr/libexec/platform-python",
+        "/usr/bin/python3",
+        "/usr/bin/python2",
+        "/usr/bin/python",
+    )
+    interpreter = respawn.probe_interpreters_for_module(system_interpreters, "dnf")
+    if interpreter:
+        respawn.respawn_module(interpreter)
 
 
 class CoprModule(object):
@@ -453,6 +475,7 @@ def run_module():
     params = module.params
 
     if not HAS_DNF_PACKAGES:
+        _respawn_dnf()
         module.fail_json(msg=missing_required_lib("dnf"), exception=DNF_IMP_ERR)
 
     CoprModule.ansible_module = module

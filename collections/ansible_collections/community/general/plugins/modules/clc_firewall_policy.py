@@ -14,6 +14,13 @@ module: clc_firewall_policy
 short_description: Create/delete/update firewall policies
 description:
   - Create or delete or update firewall policies on Centurylink Cloud
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   location:
     description:
@@ -42,7 +49,7 @@ options:
     description:
       - The list of ports associated with the policy.
         TCP and UDP can take in single ports or port ranges.
-      - "Example: C(['any', 'icmp', 'TCP/123', 'UDP/123', 'TCP/123-456', 'UDP/123-456'])."
+      - "Example: V(['any', 'icmp', 'TCP/123', 'UDP/123', 'TCP/123-456', 'UDP/123-456'])."
     type: list
     elements: str
   firewall_policy_id:

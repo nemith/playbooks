@@ -20,6 +20,13 @@ description:
     - Will install, upgrade and remove packages with swdepot package manager (HP-UX)
 notes: []
 author: "Raul Melo (@melodous)"
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -29,7 +36,7 @@ options:
         type: str
     state:
         description:
-            - whether to install (C(present), C(latest)), or remove (C(absent)) a package.
+            - whether to install (V(present), V(latest)), or remove (V(absent)) a package.
         required: true
         choices: [ 'present', 'latest', 'absent']
         type: str

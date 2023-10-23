@@ -19,12 +19,17 @@ author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
     - Adriane Cardozo (@adriane-cardozo)
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     state:
       description:
         - Indicates the desired state for the Network Set resource.
-            - C(present) will ensure data properties are compliant with OneView.
-            - C(absent) will remove the resource from OneView, if it exists.
+            - V(present) will ensure data properties are compliant with OneView.
+            - V(absent) will remove the resource from OneView, if it exists.
       type: str
       default: present
       choices: ['present', 'absent']
@@ -35,8 +40,9 @@ options:
       required: true
 
 extends_documentation_fragment:
-- community.general.oneview
-- community.general.oneview.validateetag
+    - community.general.oneview
+    - community.general.oneview.validateetag
+    - community.general.attributes
 
 '''
 

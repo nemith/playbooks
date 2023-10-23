@@ -32,13 +32,18 @@ description:
     - When updating a user_rolemapping, where possible provide the role ID to the module. This removes a lookup
       to the API to translate the name into the role ID.
 
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: full
 
 options:
     state:
         description:
             - State of the user_rolemapping.
-            - On C(present), the user_rolemapping will be created if it does not yet exist, or updated with the parameters you provide.
-            - On C(absent), the user_rolemapping will be removed if it exists.
+            - On V(present), the user_rolemapping will be created if it does not yet exist, or updated with the parameters you provide.
+            - On V(absent), the user_rolemapping will be removed if it exists.
         default: 'present'
         type: str
         choices:
@@ -74,8 +79,8 @@ options:
     client_id:
         type: str
         description:
-            - Name of the client to be mapped (different than I(cid)).
-            - This parameter is required if I(cid) is not provided (can be replaced by I(cid)
+            - Name of the client to be mapped (different than O(cid)).
+            - This parameter is required if O(cid) is not provided (can be replaced by O(cid)
               to reduce the number of API calls that must be made).
 
     cid:
@@ -104,8 +109,8 @@ options:
                       providing it will reduce the number of API calls required.
 
 extends_documentation_fragment:
-- community.general.keycloak
-
+    - community.general.keycloak
+    - community.general.attributes
 
 author:
     - Dušan Marković (@bratwurzt)
@@ -225,8 +230,8 @@ end_state:
     }
 '''
 
-from ansible_collections.community.general.plugins.module_utils.identity.keycloak.keycloak import KeycloakAPI, camel, \
-    keycloak_argument_spec, get_token, KeycloakError, is_struct_included
+from ansible_collections.community.general.plugins.module_utils.identity.keycloak.keycloak import KeycloakAPI, \
+    keycloak_argument_spec, get_token, KeycloakError
 from ansible.module_utils.basic import AnsibleModule
 
 

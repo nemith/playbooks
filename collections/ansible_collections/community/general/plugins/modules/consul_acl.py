@@ -19,6 +19,13 @@ description:
 author:
   - Steve Gargan (@sgargan)
   - Colin Nolan (@colin-nolan)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   mgmt_token:
     description:
@@ -149,7 +156,7 @@ token:
 rules:
     description: the HCL JSON representation of the rules associated to the ACL, in the format described in the
                  Consul documentation (https://www.consul.io/docs/guides/acl.html#rule-specification).
-    returned: I(status) == "present"
+    returned: when O(state=present)
     type: dict
     sample: {
         "key": {

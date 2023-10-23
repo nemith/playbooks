@@ -24,7 +24,7 @@ description:
     To create shared runners, you need to ask your administrator to give you this token.
     It can be found at U(https://$GITLAB_URL/admin/runners/).
 notes:
-  - To create a new runner at least the C(api_token), C(description) and C(api_url) options are required.
+  - To create a new runner at least the O(api_token), O(description) and O(api_url) options are required.
   - Runners need to have unique descriptions.
 author:
   - Samy Coenen (@SamyCoenen)
@@ -35,12 +35,26 @@ requirements:
 extends_documentation_fragment:
   - community.general.auth_basic
   - community.general.gitlab
+  - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
+  group:
+    description:
+      - ID or full path of the group in the form group/subgroup.
+      - Mutually exclusive with O(owned) and O(project).
+    type: str
+    version_added: '6.5.0'
   project:
     description:
       - ID or full path of the project in the form of group/name.
-      - Mutually exclusive with I(owned) since community.general 4.5.0.
+      - Mutually exclusive with O(owned) since community.general 4.5.0.
+      - Mutually exclusive with O(group).
     type: str
     version_added: '3.7.0'
   description:
@@ -60,12 +74,13 @@ options:
   registration_token:
     description:
       - The registration token is used to register new runners.
-      - Required if I(state) is C(present).
+      - Required if O(state=present).
     type: str
   owned:
     description:
       - Searches only runners available to the user when searching for existing, when false admin token required.
-      - Mutually exclusive with I(project) since community.general 4.5.0.
+      - Mutually exclusive with O(project) since community.general 4.5.0.
+      - Mutually exclusive with O(group).
     default: false
     type: bool
     version_added: 2.0.0
@@ -84,21 +99,24 @@ options:
   access_level:
     description:
       - Determines if a runner can pick up jobs only from protected branches.
-      - If I(access_level_on_creation) is not explicitly set to C(true), this option is ignored on registration and
+      - If O(access_level_on_creation) is not explicitly set to V(true), this option is ignored on registration and
         is only applied on updates.
-      - If set to C(ref_protected), runner can pick up jobs only from protected branches.
-      - If set to C(not_protected), runner can pick up jobs from both protected and unprotected branches.
+      - If set to V(not_protected), runner can pick up jobs from both protected and unprotected branches.
+      - If set to V(ref_protected), runner can pick up jobs only from protected branches.
+      - The current default is V(ref_protected). This will change to no default in community.general 8.0.0.
+        From that version on, if this option is not specified explicitly, GitLab will use V(not_protected)
+        on creation, and the value set will not be changed on any updates.
     required: false
-    default: ref_protected
-    choices: ["ref_protected", "not_protected"]
+    choices: ["not_protected", "ref_protected"]
     type: str
   access_level_on_creation:
     description:
       - Whether the runner should be registered with an access level or not.
-      - If set to C(true), the value of I(access_level) is used for runner registration.
-      - If set to C(false), GitLab registers the runner with the default access level.
-      - The current default of this option is C(false). This default is deprecated and will change to C(true) in commuinty.general 7.0.0.
+      - If set to V(true), the value of O(access_level) is used for runner registration.
+      - If set to V(false), GitLab registers the runner with the default access level.
+      - The default of this option changed to V(true) in community.general 7.0.0. Before, it was V(false).
     required: false
+    default: true
     type: bool
     version_added: 6.3.0
   maximum_timeout:
@@ -192,28 +210,23 @@ from ansible_collections.community.general.plugins.module_utils.gitlab import (
 )
 
 
-try:
-    cmp  # pylint: disable=used-before-assignment
-except NameError:
-    def cmp(a, b):
-        return (a > b) - (a < b)
-
-
 class GitLabRunner(object):
-    def __init__(self, module, gitlab_instance, project=None):
+    def __init__(self, module, gitlab_instance, group=None, project=None):
         self._module = module
         self._gitlab = gitlab_instance
+        self.runner_object = None
+
         # Whether to operate on GitLab-instance-wide or project-wide runners
         # See https://gitlab.com/gitlab-org/gitlab-ce/issues/60774
         # for group runner token access
         if project:
             self._runners_endpoint = project.runners.list
+        elif group:
+            self._runners_endpoint = group.runners.list
         elif module.params['owned']:
             self._runners_endpoint = gitlab_instance.runners.list
         else:
             self._runners_endpoint = gitlab_instance.runners.all
-
-        self.runner_object = None
 
     def create_or_update_runner(self, description, options):
         changed = False
@@ -225,26 +238,20 @@ class GitLabRunner(object):
             'maximum_timeout': options['maximum_timeout'],
             'tag_list': options['tag_list'],
         }
+        if options.get('access_level') is not None:
+            arguments['access_level'] = options['access_level']
         # Because we have already call userExists in main()
         if self.runner_object is None:
             arguments['description'] = description
             arguments['token'] = options['registration_token']
 
             access_level_on_creation = self._module.params['access_level_on_creation']
-            if access_level_on_creation is None:
-                message = "The option 'access_level_on_creation' is unspecified, so 'false' is assumed. "\
-                          "That means any value of 'access_level' is ignored and GitLab registers the runner with its default value. "\
-                          "The option 'access_level_on_creation' will switch to 'true' in community.general 7.0.0"
-                self._module.deprecate(message, version='7.0.0', collection_name='community.general')
-                access_level_on_creation = False
-
-            if access_level_on_creation:
-                arguments['access_level'] = options['access_level']
+            if not access_level_on_creation:
+                arguments.pop('access_level', None)
 
             runner = self.create_runner(arguments)
             changed = True
         else:
-            arguments['access_level'] = options['access_level']
             changed, runner = self.update_runner(self.runner_object, arguments)
 
         self.runner_object = runner
@@ -288,7 +295,7 @@ class GitLabRunner(object):
                     list1.sort()
                     list2 = arguments[arg_key]
                     list2.sort()
-                    if cmp(list1, list2):
+                    if list1 != list2:
                         setattr(runner, arg_key, arguments[arg_key])
                         changed = True
                 else:
@@ -345,11 +352,12 @@ def main():
         tag_list=dict(type='list', elements='str', default=[]),
         run_untagged=dict(type='bool', default=True),
         locked=dict(type='bool', default=False),
-        access_level=dict(type='str', default='ref_protected', choices=["not_protected", "ref_protected"]),
-        access_level_on_creation=dict(type='bool'),
+        access_level=dict(type='str', choices=["not_protected", "ref_protected"]),
+        access_level_on_creation=dict(type='bool', default=True),
         maximum_timeout=dict(type='int', default=3600),
         registration_token=dict(type='str', no_log=True),
         project=dict(type='str'),
+        group=dict(type='str'),
         state=dict(type='str', default="present", choices=["absent", "present"]),
     ))
 
@@ -362,6 +370,8 @@ def main():
             ['api_token', 'api_oauth_token'],
             ['api_token', 'api_job_token'],
             ['project', 'owned'],
+            ['group', 'owned'],
+            ['project', 'group'],
         ],
         required_together=[
             ['api_username', 'api_password'],
@@ -386,16 +396,33 @@ def main():
     maximum_timeout = module.params['maximum_timeout']
     registration_token = module.params['registration_token']
     project = module.params['project']
+    group = module.params['group']
+
+    if access_level is None:
+        message = "The option 'access_level' is unspecified, so 'ref_protected' is assumed. "\
+                  "In order to align the module with GitLab's runner API, this option will lose "\
+                  "its default value in community.general 8.0.0. From that version on, you must set "\
+                  "this option to 'ref_protected' explicitly, if you want to have a protected runner, "\
+                  "otherwise GitLab's default access level gets applied, which is 'not_protected'"
+        module.deprecate(message, version='8.0.0', collection_name='community.general')
+        access_level = 'ref_protected'
 
     gitlab_instance = gitlab_authentication(module)
     gitlab_project = None
+    gitlab_group = None
+
     if project:
         try:
             gitlab_project = gitlab_instance.projects.get(project)
         except gitlab.exceptions.GitlabGetError as e:
             module.fail_json(msg='No such a project %s' % project, exception=to_native(e))
+    elif group:
+        try:
+            gitlab_group = gitlab_instance.groups.get(group)
+        except gitlab.exceptions.GitlabGetError as e:
+            module.fail_json(msg='No such a group %s' % group, exception=to_native(e))
 
-    gitlab_runner = GitLabRunner(module, gitlab_instance, gitlab_project)
+    gitlab_runner = GitLabRunner(module, gitlab_instance, gitlab_group, gitlab_project)
     runner_exists = gitlab_runner.exists_runner(runner_description)
 
     if state == 'absent':

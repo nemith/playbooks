@@ -23,8 +23,14 @@ description:
     - "This module manages the members of an existing storage group."
 
 extends_documentation_fragment:
-- community.general.emc.emc_vnx
+    - community.general.emc.emc_vnx
+    - community.general.attributes
 
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 
 options:
     name:
@@ -40,8 +46,8 @@ options:
     state:
         description:
         - Indicates the desired lunid state.
-        - C(present) ensures specified lunid is present in the Storage Group.
-        - C(absent) ensures specified lunid is absent from Storage Group.
+        - V(present) ensures specified lunid is present in the Storage Group.
+        - V(absent) ensures specified lunid is absent from Storage Group.
         default: present
         choices: [ "present", "absent"]
         type: str

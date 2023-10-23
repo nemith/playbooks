@@ -18,6 +18,10 @@ description:
 extends_documentation_fragment:
   - community.general.attributes
   - community.general.attributes.info_module
+attributes:
+  check_mode:
+    version_added: 3.3.0
+    # This was backported to 2.5.4 and 1.3.11 as well, since this was a bugfix
 options:
   channel:
     description:
@@ -32,8 +36,8 @@ options:
     - >
       A Xfce preference key is an element in the Xfconf repository
       that corresponds to an application preference.
-    - If provided, then I(channel) is required.
-    - If not provided and a I(channel) is provided, then the module will list all available properties in that I(channel).
+    - If provided, then O(channel) is required.
+    - If not provided and a O(channel) is provided, then the module will list all available properties in that O(channel).
     type: str
 notes:
   - See man xfconf-query(1) for more details.
@@ -78,7 +82,7 @@ RETURN = '''
   properties:
     description:
       - List of available properties for a specific channel.
-      - Returned by passing only the I(channel) parameter to the module.
+      - Returned by passing only the O(channel) parameter to the module.
     returned: success
     type: list
     elements: str

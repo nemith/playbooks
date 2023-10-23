@@ -13,11 +13,18 @@ DOCUMENTATION = '''
 module: manageiq_provider
 short_description: Management of provider in ManageIQ
 extends_documentation_fragment:
-- community.general.manageiq
+  - community.general.manageiq
+  - community.general.attributes
 
 author: Daniel Korn (@dkorn)
 description:
   - The manageiq_provider module supports adding, updating, and deleting provider in ManageIQ.
+
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -131,7 +138,7 @@ options:
         description: The CA bundle string with custom certificates. defaults to None.
       path:
         type: str
-        description: Database name for oVirt metrics. Defaults to C(ovirt_engine_history).
+        description: Database name for oVirt metrics. Defaults to V(ovirt_engine_history).
 
   alerts:
     description: Alerts endpoint connection information.

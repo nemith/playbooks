@@ -20,6 +20,11 @@ author: "Vitaliy Zhhuta (@zhhuta)"
 requirements:
   - "python >= 2.6"
   - "influxdb >= 0.9"
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   user_name:
     description:
@@ -52,7 +57,8 @@ options:
     type: list
     elements: dict
 extends_documentation_fragment:
-- community.general.influxdb
+  - community.general.influxdb
+  - community.general.attributes
 
 '''
 
@@ -168,8 +174,14 @@ def drop_user(module, client, user_name):
 def set_user_grants(module, client, user_name, grants):
     changed = False
 
+    current_grants = []
     try:
         current_grants = client.get_list_privileges(user_name)
+    except influx.exceptions.InfluxDBClientError as e:
+        if not module.check_mode or 'user not found' not in e.content:
+            module.fail_json(msg=e.content)
+
+    try:
         parsed_grants = []
         # Fix privileges wording
         for i, v in enumerate(current_grants):

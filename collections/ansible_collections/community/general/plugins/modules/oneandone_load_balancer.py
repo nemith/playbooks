@@ -12,8 +12,15 @@ DOCUMENTATION = '''
 module: oneandone_load_balancer
 short_description: Configure 1&1 load balancer
 description:
-     - Create, remove, update load balancers.
-       This module has a dependency on 1and1 >= 1.0
+  - Create, remove, update load balancers.
+    This module has a dependency on 1and1 >= 1.0.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   state:
     description:
@@ -33,7 +40,7 @@ options:
   api_url:
     description:
       - Custom API URL. Overrides the
-        ONEANDONE_API_URL environment variable.
+        E(ONEANDONE_API_URL) environment variable.
     type: str
     required: false
   name:
@@ -76,7 +83,7 @@ options:
   datacenter:
     description:
       - ID or country code of the datacenter where the load balancer will be created.
-      - If not specified, it defaults to I(US).
+      - If not specified, it defaults to V(US).
     type: str
     choices: [ "US", "ES", "DE", "GB" ]
     required: false

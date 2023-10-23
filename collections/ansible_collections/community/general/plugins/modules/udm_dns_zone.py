@@ -14,13 +14,18 @@ DOCUMENTATION = '''
 ---
 module: udm_dns_zone
 author:
-- Tobias Rüetschi (@keachi)
+    - Tobias Rüetschi (@keachi)
 short_description: Manage dns zones on a univention corporate server
 description:
     - "This module allows to manage dns zones on a univention corporate server (UCS).
        It uses the python API of the UCS to create a new object or edit it."
-requirements:
-    - Python >= 2.6
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: partial
 options:
     state:
         type: str
@@ -33,26 +38,26 @@ options:
         required: true
         description:
             - Define if the zone is a forward or reverse DNS zone.
-            - "The available choices are: C(forward_zone), C(reverse_zone)."
+            - "The available choices are: V(forward_zone), V(reverse_zone)."
     zone:
         type: str
         required: true
         description:
-            - DNS zone name, e.g. C(example.com).
+            - DNS zone name, for example V(example.com).
         aliases: [name]
     nameserver:
         type: list
         elements: str
         default: []
         description:
-            - List of appropriate name servers. Required if I(state=present).
+            - List of appropriate name servers. Required if O(state=present).
     interfaces:
         type: list
         elements: str
         default: []
         description:
             - List of interface IP addresses, on which the server should
-              response this zone. Required if I(state=present).
+              response this zone. Required if O(state=present).
 
     refresh:
         type: int

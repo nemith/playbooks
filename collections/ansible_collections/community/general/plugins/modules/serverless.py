@@ -13,7 +13,14 @@ DOCUMENTATION = r'''
 module: serverless
 short_description: Manages a Serverless Framework project
 description:
-     - Provides support for managing Serverless Framework (https://serverless.com/) project deployments and stacks.
+  - Provides support for managing Serverless Framework (U(https://serverless.com/)) project deployments and stacks.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   state:
     description:
@@ -39,13 +46,13 @@ options:
   region:
     description:
       - AWS region to deploy the service to.
-      - This parameter defaults to C(us-east-1).
+      - This parameter defaults to V(us-east-1).
     type: str
     default: ''
   deploy:
     description:
       - Whether or not to deploy artifacts after building them.
-      - When this option is C(false) all the functions will be built, but no stack update will be run to send them out.
+      - When this option is V(false) all the functions will be built, but no stack update will be run to send them out.
       - This is mostly useful for generating artifacts to be stored/deployed elsewhere.
     type: bool
     default: true

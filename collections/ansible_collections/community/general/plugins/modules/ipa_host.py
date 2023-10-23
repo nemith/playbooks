@@ -13,7 +13,12 @@ module: ipa_host
 author: Thomas Krahn (@Nosmoht)
 short_description: Manage FreeIPA host
 description:
-- Add, modify and delete an IPA host using IPA API.
+  - Add, modify and delete an IPA host using IPA API.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   fqdn:
     description:
@@ -75,14 +80,15 @@ options:
     type: str
   update_dns:
     description:
-    - If set C("True") with state as C("absent"), then removes DNS records of the host managed by FreeIPA DNS.
+    - If set V(true) with O(state=absent), then removes DNS records of the host managed by FreeIPA DNS.
     - This option has no effect for states other than "absent".
     type: bool
   random_password:
     description: Generate a random password to be used in bulk enrollment.
     type: bool
 extends_documentation_fragment:
-- community.general.ipa.documentation
+  - community.general.ipa.documentation
+  - community.general.attributes
 
 '''
 

@@ -63,11 +63,7 @@ def puppet_runner(module):
         return cmd
 
     def noop_func(v):
-        _noop = cmd_runner_fmt.as_map({
-            True: "--noop",
-            False: "--no-noop",
-        })
-        return _noop(module.check_mode or v)
+        return ["--noop"] if module.check_mode or v else ["--no-noop"]
 
     _logdest_map = {
         "syslog": ["--logdest", "syslog"],
@@ -96,6 +92,7 @@ def puppet_runner(module):
             confdir=cmd_runner_fmt.as_opt_val("--confdir"),
             environment=cmd_runner_fmt.as_opt_val("--environment"),
             tags=cmd_runner_fmt.as_func(lambda v: ["--tags", ",".join(v)]),
+            skip_tags=cmd_runner_fmt.as_func(lambda v: ["--skip_tags", ",".join(v)]),
             certname=cmd_runner_fmt.as_opt_eq_val("--certname"),
             noop=cmd_runner_fmt.as_func(noop_func),
             use_srv_records=cmd_runner_fmt.as_map({

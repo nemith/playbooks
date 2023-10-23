@@ -5,6 +5,47 @@ ansible.posix Release Notes
 .. contents:: Topics
 
 
+v1.5.4
+======
+
+Minor Changes
+-------------
+
+- json and jsonl - Add the ``ANSIBLE_JSON_INDENT`` parameter
+- json and jsonl - Add the ``path`` attribute into the play and task output
+
+Bugfixes
+--------
+
+- Fix sysctl integration test failing on newer versions of core. Previously NoneType was allowable, now it fails to convert to a str type.
+- Support new sanity test for the ansible-core devel branch CI test (https://github.com/ansible-collections/ansible.posix/issues/446).
+- firewall - Fix issue where adding an interface to a zone would fail when the daemon is offline
+- firewall - Fix issue where opening a specific port resulted in opening the whole protocol of the specified port
+- firewalld - Consider value of masquerade and icmp_block_inversion parameters when a boolean like value is passed
+
+v1.5.2
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``ansible.posix`` collection.
+This changelog contains all changes to the modules and plugins
+in this collection that have been added after the release of
+``ansible.posix`` 1.5.1.
+
+Minor Changes
+-------------
+
+- Add jsonl callback plugin to ansible.posix collection
+- firewalld - add `protocol` parameter
+
+Bugfixes
+--------
+
+- Fixed a bug where firewalld module fails to create/remove zones when the daemon is stopped
+- rhel_facts - Call exit_json with all keyword arguments
+
 v1.5.1
 ======
 

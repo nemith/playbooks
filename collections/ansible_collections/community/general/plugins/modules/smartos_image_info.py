@@ -21,13 +21,17 @@ author: Adam Števko (@xen0l)
 extends_documentation_fragment:
     - community.general.attributes
     - community.general.attributes.info_module
+attributes:
+    check_mode:
+        version_added: 3.3.0
+        # This was backported to 2.5.4 and 1.3.11 as well, since this was a bugfix
 options:
     filters:
         description:
             - Criteria for selecting image. Can be any value from image
-              manifest and 'published_date', 'published', 'source', 'clones',
-              and 'size'. More information can be found at U(https://smartos.org/man/1m/imgadm)
-              under 'imgadm list'.
+              manifest and C(published_date), C(published), C(source), C(clones),
+              and C(size). More information can be found at U(https://smartos.org/man/1m/imgadm)
+              under C(imgadm list).
         type: str
 '''
 

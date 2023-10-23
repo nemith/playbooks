@@ -6,6 +6,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import os
 from functools import wraps
 
 from ansible.module_utils.common.collections import is_sequence
@@ -147,6 +148,11 @@ class _Format(object):
 
     @staticmethod
     def as_default_type(_type, arg="", ignore_none=None):
+        #
+        # DEPRECATION: This method is deprecated and will be removed in community.general 10.0.0
+        #
+        # Instead of using the implicit formats provided here, use the explicit necessary format method.
+        #
         fmt = _Format
         if _type == "dict":
             return fmt.as_func(lambda d: ["--{0}={1}".format(*a) for a in iteritems(d)], ignore_none=ignore_none)
@@ -199,11 +205,16 @@ class CmdRunner(object):
             environ_update = {}
         self.environ_update = environ_update
 
-        self.command[0] = module.get_bin_path(self.command[0], opt_dirs=path_prefix, required=True)
+        _cmd = self.command[0]
+        self.command[0] = _cmd if (os.path.isabs(_cmd) or '/' in _cmd) else module.get_bin_path(_cmd, opt_dirs=path_prefix, required=True)
 
         for mod_param_name, spec in iteritems(module.argument_spec):
             if mod_param_name not in self.arg_formats:
-                self.arg_formats[mod_param_name] = _Format.as_default_type(spec['type'], mod_param_name)
+                self.arg_formats[mod_param_name] = _Format.as_default_type(spec.get('type', 'str'), mod_param_name)
+
+    @property
+    def binary(self):
+        return self.command[0]
 
     def __call__(self, args_order=None, output_process=None, ignore_value_none=True, check_mode_skip=False, check_mode_return=None, **kwargs):
         if output_process is None:
@@ -309,11 +320,3 @@ class _CmdRunnerContext(object):
 
 
 cmd_runner_fmt = _Format()
-
-#
-# The fmt form is deprecated and will be removed in community.general 7.0.0
-# Please use:
-#   cmd_runner_fmt
-# Or, to retain the same effect, use:
-#   from ansible_collections.community.general.plugins.module_utils.cmd_runner import cmd_runner_fmt as fmt
-fmt = cmd_runner_fmt

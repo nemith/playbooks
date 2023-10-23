@@ -15,14 +15,19 @@ DOCUMENTATION = '''
 ---
 module: homebrew_cask
 author:
-- "Indrajit Raychaudhuri (@indrajitr)"
-- "Daniel Jaouen (@danieljaouen)"
-- "Enric Lluelles (@enriclluelles)"
-requirements:
-- "python >= 2.6"
+  - "Indrajit Raychaudhuri (@indrajitr)"
+  - "Daniel Jaouen (@danieljaouen)"
+  - "Enric Lluelles (@enriclluelles)"
 short_description: Install and uninstall homebrew casks
 description:
-- Manages Homebrew casks.
+  - Manages Homebrew casks.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description:
@@ -73,8 +78,9 @@ options:
   greedy:
     description:
     - Upgrade casks that auto update.
-    - Passes --greedy to brew cask outdated when checking
-      if an installed cask has a newer version available.
+    - Passes C(--greedy) to C(brew outdated --cask) when checking
+      if an installed cask has a newer version available,
+      or to C(brew upgrade --cask) when upgrading all casks.
     type: bool
     default: false
 '''
@@ -122,6 +128,11 @@ EXAMPLES = '''
 - name: Upgrade all casks
   community.general.homebrew_cask:
     upgrade_all: true
+
+- name: Upgrade all casks with greedy option
+  community.general.homebrew_cask:
+    upgrade_all: true
+    greedy: true
 
 - name: Upgrade given cask with force option
   community.general.homebrew_cask:
@@ -575,6 +586,9 @@ class HomebrewCask(object):
             cmd = [self.brew_path, 'upgrade', '--cask']
         else:
             cmd = [self.brew_path, 'cask', 'upgrade']
+
+        if self.greedy:
+            cmd = cmd + ['--greedy']
 
         rc, out, err = '', '', ''
 

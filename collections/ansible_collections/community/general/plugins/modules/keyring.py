@@ -26,6 +26,13 @@ requirements:
   - keyring (Python library)
   - gnome-keyring (application - required for headless Gnome keyring access)
   - dbus-run-session (application - required for headless Gnome keyring access)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   service:
     description: The name of the service.
@@ -99,7 +106,7 @@ def del_passphrase(module):
     try:
         keyring.delete_password(module.params["service"], module.params["username"])
         return None
-    except keyring.errors.KeyringLocked as keyring_locked_err:  # pylint: disable=unused-variable
+    except keyring.errors.KeyringLocked:
         delete_argument = (
             'echo "%s" | gnome-keyring-daemon --unlock\nkeyring del %s %s\n'
             % (
@@ -133,7 +140,7 @@ def set_passphrase(module):
             module.params["user_password"],
         )
         return None
-    except keyring.errors.KeyringLocked as keyring_locked_err:  # pylint: disable=unused-variable
+    except keyring.errors.KeyringLocked:
         set_argument = (
             'echo "%s" | gnome-keyring-daemon --unlock\nkeyring set %s %s\n%s\n'
             % (

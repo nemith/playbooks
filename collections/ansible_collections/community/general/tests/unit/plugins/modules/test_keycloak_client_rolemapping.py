@@ -10,8 +10,8 @@ __metaclass__ = type
 from contextlib import contextmanager
 
 from ansible_collections.community.general.tests.unit.compat import unittest
-from ansible_collections.community.general.tests.unit.compat.mock import call, patch
-from ansible_collections.community.general.tests.unit.plugins.modules.utils import AnsibleExitJson, AnsibleFailJson, ModuleTestCase, set_module_args
+from ansible_collections.community.general.tests.unit.compat.mock import patch
+from ansible_collections.community.general.tests.unit.plugins.modules.utils import AnsibleExitJson, ModuleTestCase, set_module_args
 
 from ansible_collections.community.general.plugins.modules import keycloak_client_rolemapping
 
@@ -120,6 +120,11 @@ class TestKeycloakRealm(ModuleTestCase):
             'state': 'present',
             'client_id': 'test_client',
             'group_name': 'test_group',
+            'parents': [
+                {
+                    'name': 'parent_group'
+                }
+            ],
             'roles': [
                 {
                     'name': 'test_role1',
@@ -139,7 +144,7 @@ class TestKeycloakRealm(ModuleTestCase):
             "clientRoles": "{}",
             "id": "92f2400e-0ecb-4185-8950-12dcef616c2b",
             "name": "test_group",
-            "path": "/test_group",
+            "path": "/parent_group/test_group",
             "realmRoles": "[]",
             "subGroups": "[]"
         }]

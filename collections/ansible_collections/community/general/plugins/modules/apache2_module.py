@@ -19,6 +19,13 @@ author:
 short_description: Enables/disables a module of the Apache2 webserver
 description:
    - Enables or disables a specified module of the Apache2 webserver.
+extends_documentation_fragment:
+   - community.general.attributes
+attributes:
+   check_mode:
+     support: full
+   diff_mode:
+     support: none
 options:
    name:
      type: str
@@ -30,7 +37,7 @@ options:
      description:
          - Identifier of the module as listed by C(apache2ctl -M).
            This is optional and usually determined automatically by the common convention of
-           appending C(_module) to I(name) as well as custom exception for popular modules.
+           appending V(_module) to O(name) as well as custom exception for popular modules.
      required: false
    force:
      description:
@@ -147,7 +154,7 @@ def _get_ctl_binary(module):
         if ctl_binary is not None:
             return ctl_binary
 
-    module.fail_json(msg="Neither of apache2ctl nor apachctl found. At least one apache control binary is necessary.")
+    module.fail_json(msg="Neither of apache2ctl nor apachectl found. At least one apache control binary is necessary.")
 
 
 def _module_is_enabled(module):

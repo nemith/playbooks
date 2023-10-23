@@ -22,6 +22,120 @@ plugin_routing:
     nios_next_network:
       redirect: infoblox.nios_modules.nios_next_network
   modules:
+    rax_cbs_attachments:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_cbs:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_cdb_database:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_cdb_user:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_cdb:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_clb_nodes:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_clb_ssl:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_clb:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_dns_record:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_dns:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_facts:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_files_objects:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_files:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_identity:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_keypair:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_meta:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_mon_alarm:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_mon_check:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_mon_entity:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_mon_notification_plan:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_mon_notification:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_network:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_queue:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_scaling_group:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rax_scaling_policy:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on the deprecated package pyrax.
+    rhn_channel:
+      deprecation:
+        removal_version: 10.0.0
+        warning_text: RHN is EOL, please contact the community.general maintainers
+          if still using this; see the module documentation for more details.
+    rhn_register:
+      deprecation:
+        removal_version: 10.0.0
+        warning_text: RHN is EOL, please contact the community.general maintainers
+          if still using this; see the module documentation for more details.
     database.aerospike.aerospike_migrations:
       redirect: community.general.aerospike_migrations
       deprecation:
@@ -36,6 +150,12 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.airbrake_deployment
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    stackdriver:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: >
+          This module relies on HTTPS APIs that do not exist anymore, and any new development in the
+          direction of providing an alternative should happen in the context of the google.cloud collection.
     system.aix_devices:
       redirect: community.general.aix_devices
       deprecation:
@@ -684,6 +804,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.flatpak_remote
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    flowdock:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     notification.flowdock:
       redirect: community.general.flowdock
       deprecation:
@@ -972,6 +1096,8 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.heroku_collaborator
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    hana_query:
+      redirect: community.sap_libs.sap_hdbsql
     hetzner_failover_ip:
       redirect: community.hrobot.failover_ip
     hetzner_failover_ip_info:
@@ -3389,6 +3515,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.redfish_info
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    sapcar_extract:
+      redirect: community.sap_libs.sapcar_extract
+    sap_task_list_execute:
+      redirect: community.sap_libs.sap_task_list_execute
     packaging.os.redhat_subscription:
       redirect: community.general.redhat_subscription
       deprecation:
@@ -4313,6 +4443,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.wdc_redfish_info
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    webfaction_app:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     cloud.webfaction.webfaction_app:
       redirect: community.general.webfaction_app
       deprecation:
@@ -4320,6 +4454,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.webfaction_app
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    webfaction_db:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     cloud.webfaction.webfaction_db:
       redirect: community.general.webfaction_db
       deprecation:
@@ -4327,6 +4465,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.webfaction_db
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    webfaction_domain:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     cloud.webfaction.webfaction_domain:
       redirect: community.general.webfaction_domain
       deprecation:
@@ -4334,6 +4476,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.webfaction_domain
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    webfaction_mailbox:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     cloud.webfaction.webfaction_mailbox:
       redirect: community.general.webfaction_mailbox
       deprecation:
@@ -4341,6 +4487,10 @@ plugin_routing:
         warning_text: You are using an internal name to access the community.general.webfaction_mailbox
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
+    webfaction_site:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module relies on HTTPS APIs that do not exist anymore and there is no clear path to update.
     cloud.webfaction.webfaction_site:
       redirect: community.general.webfaction_site
       deprecation:
@@ -4493,6 +4643,10 @@ plugin_routing:
           modules. This has never been supported or documented, and will stop working
           in community.general 9.0.0.
   doc_fragments:
+    rackspace:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This doc fragment is used by rax modules, that rely on the deprecated package pyrax.
     _gcp:
       redirect: community.google._gcp
     docker:
@@ -4508,6 +4662,10 @@ plugin_routing:
     postgresql:
       redirect: community.postgresql.postgresql
   module_utils:
+    rax:
+      deprecation:
+        removal_version: 9.0.0
+        warning_text: This module util relies on the deprecated package pyrax.
     docker.common:
       redirect: community.docker.common
     docker.swarm:

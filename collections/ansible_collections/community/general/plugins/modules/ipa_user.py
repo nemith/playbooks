@@ -14,6 +14,11 @@ author: Thomas Krahn (@Nosmoht)
 short_description: Manage FreeIPA users
 description:
 - Add, modify and delete user within IPA server.
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   displayname:
     description: Display name.
@@ -25,7 +30,9 @@ options:
     default: 'always'
     choices: [ always, on_create ]
   givenname:
-    description: First name.
+    description:
+    - First name.
+    - If user does not exist and O(state=present), the usage of O(givenname) is required.
     type: str
   krbpasswordexpiration:
     description:
@@ -46,10 +53,12 @@ options:
   password:
     description:
     - Password for a user.
-    - Will not be set for an existing user unless I(update_password=always), which is the default.
+    - Will not be set for an existing user unless O(update_password=always), which is the default.
     type: str
   sn:
-    description: Surname.
+    description:
+    - Surname.
+    - If user does not exist and O(state=present), the usage of O(sn) is required.
     type: str
   sshpubkey:
     description:
@@ -99,7 +108,8 @@ options:
     elements: str
     version_added: '1.2.0'
 extends_documentation_fragment:
-- community.general.ipa.documentation
+  - community.general.ipa.documentation
+  - community.general.attributes
 
 requirements:
 - base64

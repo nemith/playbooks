@@ -18,17 +18,24 @@ description:
   - IPS packages are the native packages in Solaris 11 and higher.
 notes:
   - The naming of IPS packages is explained at U(http://www.oracle.com/technetwork/articles/servers-storage-admin/ips-package-versioning-2232906.html).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description:
       - An FRMI of the package(s) to be installed/removed/updated.
-      - Multiple packages may be specified, separated by C(,).
+      - Multiple packages may be specified, separated by V(,).
     required: true
     type: list
     elements: str
   state:
     description:
-      - Whether to install (I(present), I(latest)), or remove (I(absent)) a package.
+      - Whether to install (V(present), V(latest)), or remove (V(absent)) a package.
     choices: [ absent, latest, present, installed, removed, uninstalled ]
     default: present
     type: str

@@ -18,6 +18,13 @@ description:
   - "Adds or removes deploy keys for GitHub repositories. Supports authentication using username and password,
   username and password and 2-factor authentication code (OTP), OAuth2 token, or personal access token. Admin
   rights on the repository are required."
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   github_url:
     description:
@@ -51,7 +58,7 @@ options:
     type: str
   read_only:
     description:
-      - If C(true), the deploy key will only be able to read repository contents. Otherwise, the deploy key will be able to read and write.
+      - If V(true), the deploy key will only be able to read repository contents. Otherwise, the deploy key will be able to read and write.
     type: bool
     default: true
   state:
@@ -62,7 +69,7 @@ options:
     type: str
   force:
     description:
-      - If C(true), forcefully adds the deploy key by deleting any existing deploy key with the same public key or title.
+      - If V(true), forcefully adds the deploy key by deleting any existing deploy key with the same public key or title.
     type: bool
     default: false
   username:
@@ -71,15 +78,15 @@ options:
     type: str
   password:
     description:
-      - The password to authenticate with. Alternatively, a personal access token can be used instead of I(username) and I(password) combination.
+      - The password to authenticate with. Alternatively, a personal access token can be used instead of O(username) and O(password) combination.
     type: str
   token:
     description:
-      - The OAuth2 token or personal access token to authenticate with. Mutually exclusive with I(password).
+      - The OAuth2 token or personal access token to authenticate with. Mutually exclusive with O(password).
     type: str
   otp:
     description:
-      - The 6 digit One Time Password for 2-Factor Authentication. Required together with I(username) and I(password).
+      - The 6 digit One Time Password for 2-Factor Authentication. Required together with O(username) and O(password).
     type: int
 notes:
    - "Refer to GitHub's API documentation here: https://developer.github.com/v3/repos/keys/."

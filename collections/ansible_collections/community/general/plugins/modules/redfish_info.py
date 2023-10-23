@@ -21,6 +21,10 @@ description:
 extends_documentation_fragment:
   - community.general.attributes
   - community.general.attributes.info_module
+attributes:
+  check_mode:
+    version_added: 3.3.0
+    # This was backported to 2.5.4 and 1.3.11 as well, since this was a bugfix
 options:
   category:
     required: false
@@ -56,7 +60,8 @@ options:
   timeout:
     description:
       - Timeout in seconds for HTTP requests to OOB controller.
-    default: 10
+      - The default value for this param is C(10) but that is being deprecated
+        and it will be replaced with C(60) in community.general 9.0.0.
     type: int
   update_handle:
     required: false
@@ -317,6 +322,30 @@ EXAMPLES = '''
       baseuri: "{{ baseuri }}"
       username: "{{ username }}"
       password: "{{ password }}"
+
+  - name: Get HPE Thermal Config
+    community.general.redfish_info:
+      category: Chassis
+      command: GetHPEThermalConfig
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  - name: Get HPE Fan Percent Minimum
+    community.general.redfish_info:
+      category: Chassis
+      command: GetHPEFanPercentMin
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  - name: Get BIOS registry
+    community.general.redfish_info:
+      category: Systems
+      command: GetBiosRegistries
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
 '''
 
 RETURN = '''
@@ -334,9 +363,9 @@ CATEGORY_COMMANDS_ALL = {
     "Systems": ["GetSystemInventory", "GetPsuInventory", "GetCpuInventory",
                 "GetMemoryInventory", "GetNicInventory", "GetHealthReport",
                 "GetStorageControllerInventory", "GetDiskInventory", "GetVolumeInventory",
-                "GetBiosAttributes", "GetBootOrder", "GetBootOverride", "GetVirtualMedia"],
+                "GetBiosAttributes", "GetBootOrder", "GetBootOverride", "GetVirtualMedia", "GetBiosRegistries"],
     "Chassis": ["GetFanInventory", "GetPsuInventory", "GetChassisPower",
-                "GetChassisThermals", "GetChassisInventory", "GetHealthReport"],
+                "GetChassisThermals", "GetChassisInventory", "GetHealthReport", "GetHPEThermalConfig", "GetHPEFanPercentMin"],
     "Accounts": ["ListUsers"],
     "Sessions": ["GetSessions"],
     "Update": ["GetFirmwareInventory", "GetFirmwareUpdateCapabilities", "GetSoftwareInventory",
@@ -366,7 +395,7 @@ def main():
             username=dict(),
             password=dict(no_log=True),
             auth_token=dict(no_log=True),
-            timeout=dict(type='int', default=10),
+            timeout=dict(type='int'),
             update_handle=dict(),
         ),
         required_together=[
@@ -380,6 +409,16 @@ def main():
         ],
         supports_check_mode=True,
     )
+
+    if module.params['timeout'] is None:
+        timeout = 10
+        module.deprecate(
+            'The default value {0} for parameter param1 is being deprecated and it will be replaced by {1}'.format(
+                10, 60
+            ),
+            version='9.0.0',
+            collection_name='community.general'
+        )
 
     # admin credentials used for authentication
     creds = {'user': module.params['username'],
@@ -458,6 +497,8 @@ def main():
                     result["health_report"] = rf_utils.get_multi_system_health_report()
                 elif command == "GetVirtualMedia":
                     result["virtual_media"] = rf_utils.get_multi_virtualmedia(category)
+                elif command == "GetBiosRegistries":
+                    result["bios_registries"] = rf_utils.get_bios_registries()
 
         elif category == "Chassis":
             # execute only if we find Chassis resource
@@ -478,6 +519,10 @@ def main():
                     result["chassis"] = rf_utils.get_chassis_inventory()
                 elif command == "GetHealthReport":
                     result["health_report"] = rf_utils.get_multi_chassis_health_report()
+                elif command == "GetHPEThermalConfig":
+                    result["hpe_thermal_config"] = rf_utils.get_hpe_thermal_config()
+                elif command == "GetHPEFanPercentMin":
+                    result["hpe_fan_percent_min"] = rf_utils.get_hpe_fan_percent_min()
 
         elif category == "Accounts":
             # execute only if we find an Account service resource

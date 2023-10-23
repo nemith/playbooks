@@ -18,6 +18,13 @@ short_description: Manage Kibana plugins
 description:
     - This module can be used to manage Kibana plugins.
 author: Thierno IB. BARRY (@barryib)
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
 options:
     name:
       description:
@@ -53,7 +60,7 @@ options:
     version:
       description:
       - Version of the plugin to be installed.
-      - If plugin exists with previous version, plugin will NOT be updated unless C(force) is set to yes.
+      - If plugin exists with previous version, plugin will B(not) be updated unless O(force) is set to V(true).
       type: str
     force:
       description:

@@ -14,30 +14,37 @@ DOCUMENTATION = r'''
 module: sendgrid
 short_description: Sends an email with the SendGrid API
 description:
-   - "Sends an email with a SendGrid account through their API, not through
-     the SMTP service."
+  - "Sends an email with a SendGrid account through their API, not through
+    the SMTP service."
 notes:
-   - "This module is non-idempotent because it sends an email through the
-     external API. It is idempotent only in the case that the module fails."
-   - "Like the other notification modules, this one requires an external
-     dependency to work. In this case, you'll need an active SendGrid
-     account."
-   - "In order to use api_key, cc, bcc, attachments, from_name, html_body, headers
-     you must pip install sendgrid"
-   - "since 2.2 I(username) and I(password) are not required if you supply an I(api_key)"
+  - "This module is non-idempotent because it sends an email through the
+    external API. It is idempotent only in the case that the module fails."
+  - "Like the other notification modules, this one requires an external
+    dependency to work. In this case, you'll need an active SendGrid
+    account."
+  - "In order to use api_key, cc, bcc, attachments, from_name, html_body, headers
+    you must pip install sendgrid"
+  - "Since Ansible 2.2 O(username) and O(password) are not required if you supply an O(api_key)"
 requirements:
   - sendgrid Python library 1.6.22 or lower (Sendgrid API V2 supported)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   username:
     type: str
     description:
       - Username for logging into the SendGrid account.
-      - Since 2.2 it is only required if I(api_key) is not supplied.
+      - Since 2.2 it is only required if O(api_key) is not supplied.
   password:
     type: str
     description:
       - Password that corresponds to the username.
-      - Since 2.2 it is only required if I(api_key) is not supplied.
+      - Since 2.2 it is only required if O(api_key) is not supplied.
   from_address:
     type: str
     description:

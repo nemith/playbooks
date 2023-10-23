@@ -8,8 +8,7 @@ __metaclass__ = type
 
 from ansible_collections.community.general.tests.unit.compat.mock import call, patch
 from ansible_collections.community.general.plugins.modules import npm
-from ansible_collections.community.general.tests.unit.plugins.modules.utils import (
-    AnsibleExitJson, AnsibleFailJson, ModuleTestCase, set_module_args)
+from ansible_collections.community.general.tests.unit.plugins.modules.utils import AnsibleExitJson, ModuleTestCase, set_module_args
 
 
 class NPMModuleTestCase(ModuleTestCase):
@@ -49,8 +48,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'install', '--global', 'coffee-script'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'install', '--global', 'coffee-script'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_missing(self):
@@ -68,8 +67,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'install', '--global', 'coffee-script'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'install', '--global', 'coffee-script'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_version(self):
@@ -88,8 +87,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'install', '--global', 'coffee-script@2.5.1'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'install', '--global', 'coffee-script@2.5.1'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_version_update(self):
@@ -108,8 +107,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'install', '--global', 'coffee-script@2.5.1'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'install', '--global', 'coffee-script@2.5.1'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_version_exists(self):
@@ -128,7 +127,7 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertFalse(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_absent(self):
@@ -146,8 +145,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_absent_version(self):
@@ -166,8 +165,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_absent_version_different(self):
@@ -186,8 +185,8 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None),
-            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'list', '--json', '--long', '--global'], check_rc=False, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
+            call(['/testbin/npm', 'uninstall', '--global', 'coffee-script'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_package_json(self):
@@ -204,7 +203,7 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'install', '--global'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'install', '--global'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_package_json_production(self):
@@ -222,7 +221,7 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'install', '--global', '--production'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'install', '--global', '--production'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_package_json_ci(self):
@@ -240,7 +239,7 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'ci', '--global'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'ci', '--global'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])
 
     def test_present_package_json_ci_production(self):
@@ -259,5 +258,5 @@ class NPMModuleTestCase(ModuleTestCase):
 
         self.assertTrue(result['changed'])
         self.module_main_command.assert_has_calls([
-            call(['/testbin/npm', 'ci', '--global', '--production'], check_rc=True, cwd=None),
+            call(['/testbin/npm', 'ci', '--global', '--production'], check_rc=True, cwd=None, environ_update={'LANGUAGE': 'C', 'LC_ALL': 'C'}),
         ])

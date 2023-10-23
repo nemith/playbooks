@@ -16,6 +16,13 @@ short_description: Manage LXD profiles
 description:
   - Management of LXD profiles
 author: "Hiroaki Nakamura (@hnakamur)"
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -25,7 +32,7 @@ options:
     project:
         description:
          - 'Project of a profile.
-           See U(https://github.com/lxc/lxd/blob/master/doc/projects.md).'
+           See U(https://documentation.ubuntu.com/lxd/en/latest/projects/).'
         type: str
         required: false
         version_added: 4.8.0
@@ -35,13 +42,14 @@ options:
         type: str
     config:
         description:
-          - 'The config for the container (e.g. {"limits.memory": "4GB"}).
-            See U(https://github.com/lxc/lxd/blob/master/doc/rest-api.md#patch-3)'
+          - 'The config for the instance (e.g. {"limits.memory": "4GB"}).
+            See U(https://documentation.ubuntu.com/lxd/en/latest/api/#/profiles/profile_get).'
           - If the profile already exists and its "config" value in metadata
             obtained from
             GET /1.0/profiles/<name>
-            U(https://github.com/lxc/lxd/blob/master/doc/rest-api.md#get-19)
-            are different, they this module tries to apply the configurations.
+            U(https://documentation.ubuntu.com/lxd/en/latest/api/#/profiles/profile_get)
+            are different, then this module tries to apply the configurations
+            U(https://documentation.ubuntu.com/lxd/en/latest/api/#/profiles/profile_put).
           - Not all config values are supported to apply the existing profile.
             Maybe you need to delete and recreate a profile.
         required: false
@@ -50,14 +58,14 @@ options:
         description:
           - 'The devices for the profile
             (e.g. {"rootfs": {"path": "/dev/kvm", "type": "unix-char"}).
-            See U(https://github.com/lxc/lxd/blob/master/doc/rest-api.md#patch-3)'
+            See U(https://documentation.ubuntu.com/lxd/en/latest/api/#/profiles/profile_get).'
         required: false
         type: dict
     new_name:
         description:
           - A new name of a profile.
           - If this parameter is specified a profile will be renamed to this name.
-            See U(https://github.com/lxc/lxd/blob/master/doc/rest-api.md#post-11)
+            See U(https://documentation.ubuntu.com/lxd/en/latest/api/#/profiles/profile_post).
         required: false
         type: str
     merge_profile:
@@ -247,7 +255,7 @@ CONFIG_PARAMS = [
 
 class LXDProfileManagement(object):
     def __init__(self, module):
-        """Management of LXC containers via Ansible.
+        """Management of LXC profiles via Ansible.
 
         :param module: Processed Ansible Module.
         :type module: ``object``

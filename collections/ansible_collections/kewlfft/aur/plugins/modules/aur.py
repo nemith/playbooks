@@ -138,18 +138,8 @@ def check_packages(module, packages):
     """
     Inform the user what would change if the module were run
     """
-    would_be_changed = []
-    diff = {
-        'before': '',
-        'after': '',
-    }
-
-    for package in packages:
-        installed = package_installed(module, package)
-        if not installed:
-            would_be_changed.append(package)
-            if module._diff:
-                diff['after'] += package + "\n"
+    would_be_changed = [package for package in packages if not package_installed(module, package)]
+    diff = {'before': '', 'after': '\n'.join(package for package in would_be_changed if module._diff)}
 
     if would_be_changed:
         status = True
@@ -231,11 +221,10 @@ def check_upgrade(module, use):
     Inform user how many packages would be upgraded
     """
     rc, stdout, stderr = module.run_command([use, '-Qu'], check_rc=True)
-    data = stdout.split('\n')
-    data.remove('')
+    num_packages = sum(1 for line in stdout.splitlines() if line.strip())
     module.exit_json(
-        changed=len(data) > 0,
-        msg="{} package(s) would be upgraded".format(len(data)),
+        changed=num_packages > 0,
+        msg=f"{num_packages} package(s) would be upgraded",
         helper=use,
     )
 
@@ -270,10 +259,9 @@ def install_packages(module, packages, use, extra_args, state, skip_pgp_check, i
     changed_iter = False
 
     for package in packages:
-        if state == 'present':
-            if package_installed(module, package):
-                rc = 0
-                continue
+        if state == 'present' and package_installed(module, package):
+            rc = 0
+            continue
         if use == 'makepkg':
             rc, out, err = install_with_makepkg(module, package, extra_args, skip_pgp_check, ignore_arch, local_pkgbuild)
         elif local_pkgbuild:
@@ -283,7 +271,7 @@ def install_packages(module, packages, use, extra_args, state, skip_pgp_check, i
             command.append(package)
             rc, out, err = module.run_command(command, check_rc=True)
 
-        changed_iter = changed_iter or not (out == '' or '-- skipping' in out or 'nothing to do' in out.lower())
+        changed_iter |= not (out == '' or 'up-to-date -- skipping' in out or 'nothing to do' in out.lower())
 
     message = 'installed package(s)' if changed_iter else 'package(s) already installed'
 

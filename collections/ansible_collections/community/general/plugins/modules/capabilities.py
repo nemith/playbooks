@@ -14,6 +14,13 @@ module: capabilities
 short_description: Manage Linux capabilities
 description:
     - This module manipulates files privileges using the Linux capabilities(7) system.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     path:
         description:
@@ -23,7 +30,7 @@ options:
         aliases: [ key ]
     capability:
         description:
-            - Desired capability to set (with operator and flags, if state is C(present)) or remove (if state is C(absent))
+            - Desired capability to set (with operator and flags, if O(state=present)) or remove (if O(state=absent))
         type: str
         required: true
         aliases: [ cap ]

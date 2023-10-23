@@ -13,19 +13,22 @@ DOCUMENTATION = '''
 module: rax_mon_alarm
 short_description: Create or delete a Rackspace Cloud Monitoring alarm
 description:
-  - Create or delete a Rackspace Cloud Monitoring alarm that associates an
-    existing rax_mon_entity, rax_mon_check, and rax_mon_notification_plan with
-    criteria that specify what conditions will trigger which levels of
-    notifications. Rackspace monitoring module flow | rax_mon_entity ->
-    rax_mon_check -> rax_mon_notification -> rax_mon_notification_plan ->
-    *rax_mon_alarm*.
-  - This module relies on the C(pyrax) package which is deprecated in favour of using Openstack API.
-  - Unless maintainers step up to work on the module, it will be marked as deprecated in community.general 7.0.0 and removed in version 9.0.0.
+- Create or delete a Rackspace Cloud Monitoring alarm that associates an
+  existing rax_mon_entity, rax_mon_check, and rax_mon_notification_plan with
+  criteria that specify what conditions will trigger which levels of
+  notifications. Rackspace monitoring module flow | rax_mon_entity ->
+  rax_mon_check -> rax_mon_notification -> rax_mon_notification_plan ->
+  *rax_mon_alarm*
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   state:
     type: str
     description:
-    - Ensure that the alarm with this C(label) exists or does not exist.
+    - Ensure that the alarm with this O(label) exists or does not exist.
     choices: [ "present", "absent" ]
     required: false
     default: present
@@ -73,7 +76,8 @@ options:
       keys and values between 1 and 255 characters long.
 author: Ash Wilson (@smashwilson)
 extends_documentation_fragment:
-- community.general.rackspace.openstack
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

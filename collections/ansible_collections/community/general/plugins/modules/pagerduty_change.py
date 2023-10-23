@@ -19,6 +19,15 @@ author:
   - Adam Vaughan (@adamvaughan)
 requirements:
   - PagerDuty integration key
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+    details:
+      - Check mode simply does nothing except returning C(changed=true) in case the O(url) seems to be correct.
+  diff_mode:
+    support: none
 options:
   integration_key:
     description:
@@ -52,7 +61,7 @@ options:
     type: str
   environment:
     description:
-      - The environment name, typically C(production), C(staging), etc.
+      - The environment name, typically V(production), V(staging), and so on.
     required: false
     type: str
   link_url:
@@ -73,13 +82,11 @@ options:
     type: str
   validate_certs:
     description:
-      - If C(false), SSL certificates for the target URL will not be validated.
+      - If V(false), SSL certificates for the target URL will not be validated.
         This should only be used on personally controlled sites using self-signed certificates.
     required: false
     default: true
     type: bool
-notes:
-  - Supports C(check_mode). Note that check mode simply does nothing except returning C(changed=true) in case the I(url) seems to be correct.
 '''
 
 EXAMPLES = '''

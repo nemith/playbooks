@@ -16,6 +16,13 @@ short_description: Manages Mercurial (hg) repositories
 description:
     - Manages Mercurial (hg) repositories. Supports SSH, HTTP/S and local address.
 author: "Yeukhon Wong (@yeukhon)"
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     repo:
         description:
@@ -37,7 +44,7 @@ options:
     force:
         description:
             - Discards uncommitted changes. Runs C(hg update -C).  Prior to
-              1.9, the default was C(true).
+              Ansible 1.9, the default was V(true).
         type: bool
         default: false
     purge:
@@ -47,12 +54,12 @@ options:
         default: false
     update:
         description:
-            - If C(false), do not retrieve new revisions from the origin repository
+            - If V(false), do not retrieve new revisions from the origin repository
         type: bool
         default: true
     clone:
         description:
-            - If C(false), do not clone the repository if it does not exist locally.
+            - If V(false), do not clone the repository if it does not exist locally.
         type: bool
         default: true
     executable:

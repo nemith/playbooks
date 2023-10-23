@@ -12,11 +12,25 @@ DOCUMENTATION = r'''
 module: shutdown
 short_description: Shut down a machine
 notes:
-  - C(PATH) is ignored on the remote node when searching for the C(shutdown) command. Use I(search_paths)
+  - E(PATH) is ignored on the remote node when searching for the C(shutdown) command. Use O(search_paths)
     to specify locations to search if the default paths do not work.
+  - The O(msg) and O(delay) options are not supported when a shutdown command is not found in O(search_paths), instead
+    the module will attempt to shutdown the system by calling C(systemctl shutdown).
 description:
-    - Shut downs a machine.
+  - Shut downs a machine.
 version_added: "1.1.0"
+extends_documentation_fragment:
+  - community.general.attributes
+  - community.general.attributes.flow
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+  action:
+    support: full
+  async:
+    support: full
 options:
   delay:
     description:
@@ -33,7 +47,7 @@ options:
   search_paths:
     description:
       - Paths to search on the remote machine for the C(shutdown) command.
-      - I(Only) these paths will be searched for the C(shutdown) command. C(PATH) is ignored in the remote node when searching for the C(shutdown) command.
+      - I(Only) these paths will be searched for the C(shutdown) command. E(PATH) is ignored in the remote node when searching for the C(shutdown) command.
     type: list
     elements: path
     default: ['/sbin', '/usr/sbin', '/usr/local/sbin']
@@ -62,7 +76,7 @@ EXAMPLES = r'''
 
 RETURN = r'''
 shutdown:
-  description: C(true) if the machine has been shut down.
+  description: V(true) if the machine has been shut down.
   returned: always
   type: bool
   sample: true

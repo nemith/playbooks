@@ -29,6 +29,15 @@ author:
     - Tomas Karasek (@t0mk) <tom.to.the.k@gmail.com>
     - Nurfet Becirevic (@nurfet-becirevic) <nurfet.becirevic@gmail.com>
 
+extends_documentation_fragment:
+    - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+
 options:
   state:
     description:
@@ -39,7 +48,7 @@ options:
 
   auth_token:
     description:
-      - Packet API token. You can also supply it in env var C(PACKET_API_TOKEN).
+      - Packet API token. You can also supply it in environment variable E(PACKET_API_TOKEN).
     type: str
 
   project_id:

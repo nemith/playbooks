@@ -14,11 +14,18 @@ DOCUMENTATION = r'''
 ---
 module: archive
 short_description: Creates a compressed archive of one or more files or trees
-extends_documentation_fragment: files
+extends_documentation_fragment:
+    - files
+    - community.general.attributes
 description:
     - Creates or extends an archive.
     - The source and archive are on the remote host, and the archive I(is not) copied to the local host.
-    - Source files can be deleted after archival by specifying I(remove=True).
+    - Source files can be deleted after archival by specifying O(remove=True).
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   path:
     description:
@@ -36,20 +43,20 @@ options:
   dest:
     description:
       - The file name of the destination archive. The parent directory must exists on the remote host.
-      - This is required when C(path) refers to multiple files by either specifying a glob, a directory or multiple paths in a list.
+      - This is required when O(path) refers to multiple files by either specifying a glob, a directory or multiple paths in a list.
       - If the destination archive already exists, it will be truncated and overwritten.
     type: path
   exclude_path:
     description:
-      - Remote absolute path, glob, or list of paths or globs for the file or files to exclude from I(path) list and glob expansion.
-      - Use I(exclusion_patterns) to instead exclude files or subdirectories below any of the paths from the I(path) list.
+      - Remote absolute path, glob, or list of paths or globs for the file or files to exclude from O(path) list and glob expansion.
+      - Use O(exclusion_patterns) to instead exclude files or subdirectories below any of the paths from the O(path) list.
     type: list
     elements: path
     default: []
   exclusion_patterns:
     description:
       - Glob style patterns to exclude files or directories from the resulting archive.
-      - This differs from I(exclude_path) which applies only to the source paths from I(path).
+      - This differs from O(exclude_path) which applies only to the source paths from O(path).
     type: list
     elements: path
     version_added: 3.2.0
@@ -66,7 +73,7 @@ options:
     type: bool
     default: false
 notes:
-    - Can produce I(gzip), I(bzip2), I(lzma), and I(zip) compressed files or archives.
+    - Can produce C(gzip), C(bzip2), C(lzma), and C(zip) compressed files or archives.
     - This module uses C(tarfile), C(zipfile), C(gzip), and C(bz2) packages on the target host to create archives.
       These are part of the Python standard library for Python 2 and 3.
 requirements:
@@ -137,16 +144,16 @@ EXAMPLES = r'''
 RETURN = r'''
 state:
     description:
-        The state of the input C(path).
+        The state of the input O(path).
     type: str
     returned: always
 dest_state:
     description:
-      - The state of the I(dest) file.
-      - C(absent) when the file does not exist.
-      - C(archive) when the file is an archive.
-      - C(compress) when the file is compressed, but not an archive.
-      - C(incomplete) when the file is an archive, but some files under I(path) were not found.
+      - The state of the O(dest) file.
+      - V(absent) when the file does not exist.
+      - V(archive) when the file is an archive.
+      - V(compress) when the file is compressed, but not an archive.
+      - V(incomplete) when the file is an archive, but some files under O(path) were not found.
     type: str
     returned: success
     version_added: 3.4.0
@@ -191,6 +198,10 @@ from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 from ansible.module_utils.common.text.converters import to_bytes, to_native
 from ansible.module_utils import six
 
+try:  # python 3.2+
+    from zipfile import BadZipFile  # type: ignore[attr-defined]
+except ImportError:  # older python
+    from zipfile import BadZipfile as BadZipFile
 
 LZMA_IMP_ERR = None
 if six.PY3:
@@ -527,7 +538,7 @@ class ZipArchive(Archive):
             archive = zipfile.ZipFile(_to_native_ascii(path), 'r')
             checksums = set((info.filename, info.CRC) for info in archive.infolist())
             archive.close()
-        except zipfile.BadZipfile:
+        except BadZipFile:
             checksums = set()
         return checksums
 
@@ -597,7 +608,13 @@ class TarArchive(Archive):
                 # The python implementations of gzip, bz2, and lzma do not support restoring compressed files
                 # to their original names so only file checksum is returned
                 f = self._open_compressed_file(_to_native_ascii(path), 'r')
-                checksums = set([(b'', crc32(f.read()))])
+                checksum = 0
+                while True:
+                    chunk = f.read(16 * 1024 * 1024)
+                    if not chunk:
+                        break
+                    checksum = crc32(chunk, checksum)
+                checksums = set([(b'', checksum)])
                 f.close()
             except Exception:
                 checksums = set()

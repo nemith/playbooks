@@ -6,7 +6,6 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import os
 import textwrap
 
 import pytest
@@ -74,6 +73,18 @@ RENDER_VALID = [
             MEMORY="1024"
             NIC=[NAME="NIC0",NETWORK_ID="0"]
             NIC=[NAME="NIC1",NETWORK_ID="1"]
+        ''').strip()
+    ),
+    (
+        {
+            'EMPTY_VALUE': None,
+            'SCHED_REQUIREMENTS': 'CLUSTER_ID="100"',
+            'BACKSLASH_ESCAPED': "this is escaped: \\n; this isn't: \"\nend",
+        },
+        textwrap.dedent('''
+            BACKSLASH_ESCAPED="this is escaped: \\\\n; this isn't: \\"
+            end"
+            SCHED_REQUIREMENTS="CLUSTER_ID=\\"100\\""
         ''').strip()
     ),
 ]

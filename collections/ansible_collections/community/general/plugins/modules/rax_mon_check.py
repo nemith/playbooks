@@ -14,19 +14,22 @@ module: rax_mon_check
 short_description: Create or delete a Rackspace Cloud Monitoring check for an
                    existing entity.
 description:
-  - Create or delete a Rackspace Cloud Monitoring check associated with an
-    existing rax_mon_entity. A check is a specific test or measurement that is
-    performed, possibly from different monitoring zones, on the systems you
-    monitor. Rackspace monitoring module flow | rax_mon_entity ->
-    *rax_mon_check* -> rax_mon_notification -> rax_mon_notification_plan ->
-    rax_mon_alarm
-  - This module relies on the C(pyrax) package which is deprecated in favour of using Openstack API.
-  - Unless maintainers step up to work on the module, it will be marked as deprecated in community.general 7.0.0 and removed in version 9.0.0.
+- Create or delete a Rackspace Cloud Monitoring check associated with an
+  existing rax_mon_entity. A check is a specific test or measurement that is
+  performed, possibly from different monitoring zones, on the systems you
+  monitor. Rackspace monitoring module flow | rax_mon_entity ->
+  *rax_mon_check* -> rax_mon_notification -> rax_mon_notification_plan ->
+  rax_mon_alarm
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   state:
     type: str
     description:
-    - Ensure that a check with this C(label) exists or does not exist.
+    - Ensure that a check with this O(label) exists or does not exist.
     choices: ["present", "absent"]
     default: present
   entity_id:
@@ -47,27 +50,27 @@ options:
       that have a non-null C(agent_id).
     - |
         Choices for this option are:
-        - C(remote.dns)
-        - C(remote.ftp-banner)
-        - C(remote.http)
-        - C(remote.imap-banner)
-        - C(remote.mssql-banner)
-        - C(remote.mysql-banner)
-        - C(remote.ping)
-        - C(remote.pop3-banner)
-        - C(remote.postgresql-banner)
-        - C(remote.smtp-banner)
-        - C(remote.smtp)
-        - C(remote.ssh)
-        - C(remote.tcp)
-        - C(remote.telnet-banner)
-        - C(agent.filesystem)
-        - C(agent.memory)
-        - C(agent.load_average)
-        - C(agent.cpu)
-        - C(agent.disk)
-        - C(agent.network)
-        - C(agent.plugin)
+        - V(remote.dns)
+        - V(remote.ftp-banner)
+        - V(remote.http)
+        - V(remote.imap-banner)
+        - V(remote.mssql-banner)
+        - V(remote.mysql-banner)
+        - V(remote.ping)
+        - V(remote.pop3-banner)
+        - V(remote.postgresql-banner)
+        - V(remote.smtp-banner)
+        - V(remote.smtp)
+        - V(remote.ssh)
+        - V(remote.tcp)
+        - V(remote.telnet-banner)
+        - V(agent.filesystem)
+        - V(agent.memory)
+        - V(agent.load_average)
+        - V(agent.cpu)
+        - V(agent.disk)
+        - V(agent.network)
+        - V(agent.plugin)
     required: true
   monitoring_zones_poll:
     type: str
@@ -78,15 +81,15 @@ options:
   target_hostname:
     type: str
     description:
-    - One of I(target_hostname) and I(target_alias) is required for remote.* checks,
+    - One of O(target_hostname) and O(target_alias) is required for remote.* checks,
       but prohibited for agent.* checks. The hostname this check should target.
       Must be a valid IPv4, IPv6, or FQDN.
   target_alias:
     type: str
     description:
-    - One of I(target_alias) and I(target_hostname) is required for remote.* checks,
+    - One of O(target_alias) and O(target_hostname) is required for remote.* checks,
       but prohibited for agent.* checks. Use the corresponding key in the entity's
-      I(ip_addresses) hash to resolve an IP address to target.
+      C(ip_addresses) hash to resolve an IP address to target.
   details:
     type: dict
     default: {}
@@ -96,7 +99,7 @@ options:
       256 items.
   disabled:
     description:
-    - If C(true), ensure the check is created, but don't actually use it yet.
+    - If V(true), ensure the check is created, but don't actually use it yet.
     type: bool
     default: false
   metadata:
@@ -117,7 +120,8 @@ options:
       results. Must be less than the period.
 author: Ash Wilson (@smashwilson)
 extends_documentation_fragment:
-- community.general.rackspace.openstack
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

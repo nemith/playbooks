@@ -16,15 +16,24 @@ description:
   - Sets or unsets the release version used by RHSM repositories.
 notes:
   - This module will fail on an unregistered system.
-    Use the C(redhat_subscription) module to register a system
+    Use the M(community.general.redhat_subscription) module to register a system
     prior to setting the RHSM release.
+  - It is possible to interact with C(subscription-manager) only as root,
+    so root permissions are required to successfully run this module.
 requirements:
   - Red Hat Enterprise Linux 6+ with subscription-manager installed
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   release:
     description:
-      - RHSM release version to use (use null to unset)
-    required: true
+      - RHSM release version to use.
+      - To unset either pass V(null) for this option, or omit this option.
     type: str
 author:
   - Sean Myers (@seandst)
@@ -34,17 +43,17 @@ EXAMPLES = '''
 # Set release version to 7.1
 - name: Set RHSM release version
   community.general.rhsm_release:
-      release: "7.1"
+    release: "7.1"
 
 # Set release version to 6Server
 - name: Set RHSM release version
   community.general.rhsm_release:
-      release: "6Server"
+    release: "6Server"
 
 # Unset release version
 - name: Unset RHSM release release
   community.general.rhsm_release:
-      release: null
+    release: null
 '''
 
 RETURN = '''
@@ -56,6 +65,7 @@ current_release:
 
 from ansible.module_utils.basic import AnsibleModule
 
+import os
 import re
 
 # Matches release-like values such as 7.2, 5.10, 6Server, 8
@@ -67,9 +77,9 @@ def _sm_release(module, *args):
     # pass args to s-m release, e.g. _sm_release(module, '--set', '0.1') becomes
     # "subscription-manager release --set 0.1"
     sm_bin = module.get_bin_path('subscription-manager', required=True)
-    cmd = '{0} release {1}'.format(sm_bin, " ".join(args))
+    cmd = [sm_bin, 'release'] + list(args)
     # delegate nonzero rc handling to run_command
-    return module.run_command(cmd, check_rc=True)
+    return module.run_command(cmd, check_rc=True, expand_user_and_vars=False)
 
 
 def get_release(module):
@@ -97,10 +107,15 @@ def set_release(module, release):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            release=dict(type='str', required=True),
+            release=dict(type='str'),
         ),
         supports_check_mode=True
     )
+
+    if os.getuid() != 0:
+        module.fail_json(
+            msg="Interacting with subscription-manager requires root permissions ('become: true')"
+        )
 
     target_release = module.params['release']
 

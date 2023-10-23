@@ -22,7 +22,13 @@ description:
 extends_documentation_fragment:
   - community.general.scaleway
   - community.general.scaleway_waitable_resource
+  - community.general.attributes
 
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -43,7 +49,7 @@ options:
   region:
     type: str
     description:
-      - Scaleway region to use (for example C(fr-par)).
+      - Scaleway region to use (for example V(fr-par)).
     required: true
     choices:
       - fr-par
@@ -66,7 +72,7 @@ options:
     type: str
     description:
       - Default visibility policy.
-      - Everyone will be able to pull images from a C(public) registry.
+      - Everyone will be able to pull images from a V(public) registry.
     choices:
       - public
       - private
@@ -93,7 +99,7 @@ EXAMPLES = '''
 RETURN = '''
 container_registry:
   description: The container registry information.
-  returned: when I(state=present)
+  returned: when O(state=present)
   type: dict
   sample:
     created_at: "2022-10-14T09:51:07.949716Z"
@@ -113,7 +119,7 @@ container_registry:
 '''
 
 from ansible_collections.community.general.plugins.module_utils.scaleway import (
-    SCALEWAY_ENDPOINT, SCALEWAY_REGIONS, scaleway_argument_spec, Scaleway,
+    SCALEWAY_REGIONS, scaleway_argument_spec, Scaleway,
     scaleway_waitable_resource_argument_spec, resource_attributes_should_be_changed
 )
 from ansible.module_utils.basic import AnsibleModule

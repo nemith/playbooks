@@ -19,6 +19,12 @@ description:
 
 version_added: "3.3.0"
 
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: full
+
 options:
     realm:
         description:
@@ -37,6 +43,7 @@ options:
     providerId:
         description:
             - C(providerId) for the new flow when not copied from an existing flow.
+        choices: [ "basic-flow", "client-flow" ]
         type: str
     copyFrom:
         description:
@@ -73,6 +80,14 @@ options:
                 description:
                     - Priority order of the execution.
                 type: int
+            subFlowType:
+                description:
+                    - For new subflows, optionally specify the type.
+                    - Is only used at creation.
+                choices: ["basic-flow", "form-flow"]
+                default: "basic-flow"
+                type: str
+                version_added: 6.6.0
     state:
         description:
             - Control if the authentication flow must exists or not.
@@ -83,10 +98,11 @@ options:
         type: bool
         default: false
         description:
-            - If C(true), allows to remove the authentication flow and recreate it.
+            - If V(true), allows to remove the authentication flow and recreate it.
 
 extends_documentation_fragment:
-- community.general.keycloak
+    - community.general.keycloak
+    - community.general.attributes
 
 author:
     - Philippe Gauthier (@elfelip)
@@ -94,77 +110,77 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Create an authentication flow from first broker login and add an execution to it.
-      community.general.keycloak_authentication:
-        auth_keycloak_url: http://localhost:8080/auth
-        auth_realm: master
-        auth_username: admin
-        auth_password: password
-        realm: master
-        alias: "Copy of first broker login"
-        copyFrom: "first broker login"
-        authenticationExecutions:
-          - providerId: "test-execution1"
-            requirement: "REQUIRED"
-            authenticationConfig:
-              alias: "test.execution1.property"
-              config:
-                test1.property: "value"
-          - providerId: "test-execution2"
-            requirement: "REQUIRED"
-            authenticationConfig:
-              alias: "test.execution2.property"
-              config:
-                test2.property: "value"
-        state: present
+- name: Create an authentication flow from first broker login and add an execution to it.
+  community.general.keycloak_authentication:
+    auth_keycloak_url: http://localhost:8080/auth
+    auth_realm: master
+    auth_username: admin
+    auth_password: password
+    realm: master
+    alias: "Copy of first broker login"
+    copyFrom: "first broker login"
+    authenticationExecutions:
+      - providerId: "test-execution1"
+        requirement: "REQUIRED"
+        authenticationConfig:
+            alias: "test.execution1.property"
+            config:
+            test1.property: "value"
+      - providerId: "test-execution2"
+        requirement: "REQUIRED"
+        authenticationConfig:
+            alias: "test.execution2.property"
+            config:
+            test2.property: "value"
+    state: present
 
-    - name: Re-create the authentication flow
-      community.general.keycloak_authentication:
-        auth_keycloak_url: http://localhost:8080/auth
-        auth_realm: master
-        auth_username: admin
-        auth_password: password
-        realm: master
-        alias: "Copy of first broker login"
-        copyFrom: "first broker login"
-        authenticationExecutions:
-          - providerId: "test-provisioning"
-            requirement: "REQUIRED"
-            authenticationConfig:
-              alias: "test.provisioning.property"
-              config:
-                test.provisioning.property: "value"
-        state: present
-        force: true
+- name: Re-create the authentication flow
+  community.general.keycloak_authentication:
+    auth_keycloak_url: http://localhost:8080/auth
+    auth_realm: master
+    auth_username: admin
+    auth_password: password
+    realm: master
+    alias: "Copy of first broker login"
+    copyFrom: "first broker login"
+    authenticationExecutions:
+      - providerId: "test-provisioning"
+        requirement: "REQUIRED"
+        authenticationConfig:
+            alias: "test.provisioning.property"
+            config:
+            test.provisioning.property: "value"
+    state: present
+    force: true
 
-    - name: Create an authentication flow with subflow containing an execution.
-      community.general.keycloak_authentication:
-        auth_keycloak_url: http://localhost:8080/auth
-        auth_realm: master
-        auth_username: admin
-        auth_password: password
-        realm: master
-        alias: "Copy of first broker login"
-        copyFrom: "first broker login"
-        authenticationExecutions:
-          - providerId: "test-execution1"
-            requirement: "REQUIRED"
-          - displayName: "New Subflow"
-            requirement: "REQUIRED"
-          - providerId: "auth-cookie"
-            requirement: "REQUIRED"
-            flowAlias: "New Sublow"
-        state: present
+- name: Create an authentication flow with subflow containing an execution.
+  community.general.keycloak_authentication:
+    auth_keycloak_url: http://localhost:8080/auth
+    auth_realm: master
+    auth_username: admin
+    auth_password: password
+    realm: master
+    alias: "Copy of first broker login"
+    copyFrom: "first broker login"
+    authenticationExecutions:
+      - providerId: "test-execution1"
+        requirement: "REQUIRED"
+      - displayName: "New Subflow"
+        requirement: "REQUIRED"
+      - providerId: "auth-cookie"
+        requirement: "REQUIRED"
+        flowAlias: "New Sublow"
+    state: present
 
-    - name: Remove authentication.
-      community.general.keycloak_authentication:
-        auth_keycloak_url: http://localhost:8080/auth
-        auth_realm: master
-        auth_username: admin
-        auth_password: password
-        realm: master
-        alias: "Copy of first broker login"
-        state: absent
+- name: Remove authentication.
+  community.general.keycloak_authentication:
+    auth_keycloak_url: http://localhost:8080/auth
+    auth_realm: master
+    auth_username: admin
+    auth_password: password
+    realm: master
+    alias: "Copy of first broker login"
+    state: absent
 '''
 
 RETURN = '''
@@ -206,7 +222,7 @@ end_state:
 '''
 
 from ansible_collections.community.general.plugins.module_utils.identity.keycloak.keycloak \
-    import KeycloakAPI, camel, keycloak_argument_spec, get_token, KeycloakError, is_struct_included
+    import KeycloakAPI, keycloak_argument_spec, get_token, KeycloakError, is_struct_included
 from ansible.module_utils.basic import AnsibleModule
 
 
@@ -257,13 +273,15 @@ def create_or_update_executions(kc, config, realm='master'):
                 exec_index = find_exec_in_executions(new_exec, existing_executions)
                 if exec_index != -1:
                     # Remove key that doesn't need to be compared with existing_exec
-                    exclude_key = ["flowAlias"]
+                    exclude_key = ["flowAlias", "subFlowType"]
                     for index_key, key in enumerate(new_exec, start=0):
                         if new_exec[key] is None:
                             exclude_key.append(key)
                     # Compare the executions to see if it need changes
                     if not is_struct_included(new_exec, existing_executions[exec_index], exclude_key) or exec_index != new_exec_index:
                         exec_found = True
+                        if new_exec['index'] is None:
+                            new_exec_index = exec_index
                         before += str(existing_executions[exec_index]) + '\n'
                     id_to_update = existing_executions[exec_index]["id"]
                     # Remove exec from list in case 2 exec with same name
@@ -275,7 +293,7 @@ def create_or_update_executions(kc, config, realm='master'):
                     id_to_update = kc.get_executions_representation(config, realm=realm)[exec_index]["id"]
                     after += str(new_exec) + '\n'
                 elif new_exec["displayName"] is not None:
-                    kc.create_subflow(new_exec["displayName"], flow_alias_parent, realm=realm)
+                    kc.create_subflow(new_exec["displayName"], flow_alias_parent, realm=realm, flowType=new_exec["subFlowType"])
                     exec_found = True
                     exec_index = new_exec_index
                     id_to_update = kc.get_executions_representation(config, realm=realm)[exec_index]["id"]
@@ -292,7 +310,7 @@ def create_or_update_executions(kc, config, realm='master'):
                             kc.add_authenticationConfig_to_execution(updated_exec["id"], new_exec["authenticationConfig"], realm=realm)
                         for key in new_exec:
                             # remove unwanted key for the next API call
-                            if key != "flowAlias" and key != "authenticationConfig":
+                            if key not in ("flowAlias", "authenticationConfig", "subFlowType"):
                                 updated_exec[key] = new_exec[key]
                         if new_exec["requirement"] is not None:
                             kc.update_authentication_executions(flow_alias_parent, updated_exec, realm=realm)
@@ -316,7 +334,7 @@ def main():
     meta_args = dict(
         realm=dict(type='str', required=True),
         alias=dict(type='str', required=True),
-        providerId=dict(type='str'),
+        providerId=dict(type='str', choices=["basic-flow", "client-flow"]),
         description=dict(type='str'),
         copyFrom=dict(type='str'),
         authenticationExecutions=dict(type='list', elements='dict',
@@ -327,6 +345,7 @@ def main():
                                           flowAlias=dict(type='str'),
                                           authenticationConfig=dict(type='dict'),
                                           index=dict(type='int'),
+                                          subFlowType=dict(choices=["basic-flow", "form-flow"], default='basic-flow', type='str'),
                                       )),
         state=dict(choices=["absent", "present"], default='present'),
         force=dict(type='bool', default=False),

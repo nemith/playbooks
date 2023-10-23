@@ -17,6 +17,13 @@ short_description: Install or uninstall overlay additional packages
 version_added: "2.0.0"
 description:
     - Install or uninstall overlay additional packages using C(rpm-ostree) command.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+      support: none
+    diff_mode:
+      support: none
 options:
     name:
       description:
@@ -28,16 +35,14 @@ options:
     state:
       description:
       - State of the overlay package.
-      - C(present) simply ensures that a desired package is installed.
-      - C(absent) removes the specified package.
+      - V(present) simply ensures that a desired package is installed.
+      - V(absent) removes the specified package.
       choices: [ 'absent', 'present' ]
       default: 'present'
       type: str
 author:
-- Dusty Mabe (@dustymabe)
-- Abhijeet Kasurde (@Akasurde)
-notes:
-- Does not support C(check_mode).
+    - Dusty Mabe (@dustymabe)
+    - Abhijeet Kasurde (@Akasurde)
 '''
 
 EXAMPLES = r'''

@@ -22,7 +22,13 @@ description:
     - "This module manages SSH keys on Scaleway account U(https://developer.scaleway.com)."
 extends_documentation_fragment:
 - community.general.scaleway
+- community.general.attributes
 
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 
 options:
   state:
@@ -66,8 +72,8 @@ EXAMPLES = '''
 
 RETURN = '''
 data:
-    description: This is only present when I(state=present).
-    returned: when I(state=present)
+    description: This is only present when O(state=present).
+    returned: when O(state=present)
     type: dict
     sample: {
         "ssh_public_keys": [

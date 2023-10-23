@@ -43,7 +43,7 @@ options:
             - client
             - server
         description:
-            - Type of the user I(user_name).
+            - Type of the user O(user_name).
 """
 
 EXAMPLES = """
@@ -160,7 +160,7 @@ def main():
                 default="client",
             ),
         )
-    ),
+    )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 

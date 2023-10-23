@@ -16,6 +16,13 @@ short_description: Sends a notification to a grove.io channel
 description:
      - The C(grove) module sends a message for a service to a Grove.io
        channel.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   channel_token:
     type: str
@@ -32,7 +39,7 @@ options:
     type: str
     description:
       - Message content.
-      - The alias I(message) is deprecated and will be removed in community.general 4.0.0.
+      - The alias O(ignore:message) has been removed in community.general 4.0.0.
     required: true
   url:
     type: str
@@ -46,7 +53,7 @@ options:
     required: false
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     default: true
     type: bool

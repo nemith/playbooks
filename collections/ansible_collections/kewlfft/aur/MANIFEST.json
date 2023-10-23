@@ -2,7 +2,7 @@
  "collection_info": {
   "namespace": "kewlfft",
   "name": "aur",
-  "version": "0.10.0",
+  "version": "0.11.1",
   "authors": [
    "kewl fft <kewl@alto.eu.org>"
   ],
@@ -31,7 +31,7 @@
   "name": "FILES.json",
   "ftype": "file",
   "chksum_type": "sha256",
-  "chksum_sha256": "0235f5a41cfde1a1ced9942d1a7a94489e2b80f43024967d393781a65c1839cd",
+  "chksum_sha256": "4fd08a9b234f69b557dd46524dff0f69e52ce31a89a34cdac20193afa0e59eac",
   "format": 1
  },
  "format": 1

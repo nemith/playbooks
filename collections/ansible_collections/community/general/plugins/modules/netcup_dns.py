@@ -16,6 +16,13 @@ notes: []
 short_description: Manage Netcup DNS records
 description:
   - "Manages DNS records via the Netcup API, see the docs U(https://ccp.netcup.net/run/webservice/servers/endpoint.php)."
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   api_key:
     description:
@@ -39,7 +46,7 @@ options:
     type: str
   record:
     description:
-      - Record to add or delete, supports wildcard (*). Default is C(@) (e.g. the zone name).
+      - Record to add or delete, supports wildcard (V(*)). Default is V(@) (that is, the zone name).
     default: "@"
     aliases: [ name ]
     type: str
@@ -58,11 +65,11 @@ options:
     type: bool
     default: false
     description:
-      - Whether the record should be the only one for that record type and record name. Only use with I(state=present).
+      - Whether the record should be the only one for that record type and record name. Only use with O(state=present).
       - This will delete all other records with the same record name and type.
   priority:
     description:
-      - Record priority. Required for I(type=MX).
+      - Record priority. Required for O(type=MX).
     required: false
     type: int
   state:

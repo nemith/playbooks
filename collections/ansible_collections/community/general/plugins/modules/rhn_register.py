@@ -15,17 +15,24 @@ short_description: Manage Red Hat Network registration using the C(rhnreg_ks) co
 description:
     - Manage registration to the Red Hat Network.
 author:
-- James Laska (@jlaska)
+    - James Laska (@jlaska)
 notes:
     - This is for older Red Hat products. You probably want the M(community.general.redhat_subscription) module instead.
     - In order to register a system, C(rhnreg_ks) requires either a username and password, or an activationkey.
 requirements:
     - rhnreg_ks
     - either libxml2 or lxml
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: none
+    diff_mode:
+        support: none
 options:
     state:
         description:
-          - Whether to register (C(present)), or unregister (C(absent)) a system.
+          - Whether to register (V(present)), or unregister (V(absent)) a system.
         type: str
         choices: [ absent, present ]
         default: present
@@ -40,7 +47,7 @@ options:
     server_url:
         description:
             - Specify an alternative Red Hat Network server URL.
-            - The default is the current value of I(serverURL) from C(/etc/sysconfig/rhn/up2date).
+            - The default is the current value of C(serverURL) from C(/etc/sysconfig/rhn/up2date).
         type: str
     activationkey:
         description:
@@ -73,14 +80,24 @@ options:
         default: []
     enable_eus:
         description:
-            - If C(false), extended update support will be requested.
+            - If V(false), extended update support will be requested.
         type: bool
         default: false
     nopackages:
         description:
-            - If C(true), the registered node will not upload its installed packages information to Satellite server.
+            - If V(true), the registered node will not upload its installed packages information to Satellite server.
         type: bool
         default: false
+deprecated:
+    removed_in: 10.0.0
+    why: |
+      RHN hosted at redhat.com was discontinued years ago, and Spacewalk 5
+      (which uses RHN) is EOL since 2020, May 31st; while this module could
+      work on Uyuni / SUSE Manager (fork of Spacewalk 5), we have not heard
+      about anyone using it in those setups.
+    alternative: |
+      Contact the community.general maintainers to report the usage of this
+      module, and potentially step up to maintain it.
 '''
 
 EXAMPLES = r'''

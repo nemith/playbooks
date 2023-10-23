@@ -18,6 +18,13 @@ description:
   - Manages OOB controller ex. reboot, log management.
   - Manages OOB controller users ex. add, remove, update.
   - Manages system power ex. on, off, graceful and forced reboot.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   category:
     required: true
@@ -78,6 +85,22 @@ options:
     description:
       - Role of account to add/modify.
     type: str
+  account_types:
+    required: false
+    aliases: [ account_accounttypes ]
+    description:
+      - Array of account types to apply to a user account.
+    type: list
+    elements: str
+    version_added: '7.2.0'
+  oem_account_types:
+    required: false
+    aliases: [ account_oemaccounttypes ]
+    description:
+      - Array of OEM account types to apply to a user account.
+    type: list
+    elements: str
+    version_added: '7.2.0'
   bootdevice:
     required: false
     description:
@@ -86,7 +109,8 @@ options:
   timeout:
     description:
       - Timeout in seconds for HTTP requests to OOB controller.
-    default: 10
+      - The default value for this param is C(10) but that is being deprecated
+        and it will be replaced with C(60) in community.general 9.0.0.
     type: int
   boot_override_mode:
     description:
@@ -130,6 +154,12 @@ options:
       - URI of the image for the update.
     type: str
     version_added: '0.2.0'
+  update_image_file:
+    required: false
+    description:
+      - Filename, with optional path, of the image for the update.
+    type: path
+    version_added: '7.1.0'
   update_protocol:
     required: false
     description:
@@ -173,6 +203,12 @@ options:
       - InMaintenanceWindowOnReset
       - OnStartUpdateRequest
     version_added: '6.1.0'
+  update_oem_params:
+    required: false
+    description:
+      - Properties for HTTP Multipart Push Updates.
+    type: dict
+    version_added: '7.5.0'
   update_handle:
     required: false
     description:
@@ -239,8 +275,16 @@ options:
     type: bool
     default: false
     version_added: 3.7.0
+  bios_attributes:
+    required: false
+    description:
+      - BIOS attributes that needs to be verified in the given server.
+    type: dict
+    version_added: 6.4.0
 
-author: "Jose Delarosa (@jose-delarosa)"
+author:
+  - "Jose Delarosa (@jose-delarosa)"
+  - "T S Kushal (@TSKushal)"
 '''
 
 EXAMPLES = '''
@@ -358,6 +402,20 @@ EXAMPLES = '''
       new_username: "{{ new_username }}"
       new_password: "{{ new_password }}"
       roleid: "{{ roleid }}"
+
+  - name: Add user with specified account types
+    community.general.redfish_command:
+      category: Accounts
+      command: AddUser
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      new_username: "{{ new_username }}"
+      new_password: "{{ new_password }}"
+      roleid: "{{ roleid }}"
+      account_types:
+      - Redfish
+      - WebUI
 
   - name: Add user using new option aliases
     community.general.redfish_command:
@@ -526,6 +584,32 @@ EXAMPLES = '''
         username: operator
         password: supersecretpwd
 
+  - name: Multipart HTTP push update; timeout is 600 seconds to allow for a
+      large image transfer
+    community.general.redfish_command:
+      category: Update
+      command: MultipartHTTPPushUpdate
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      timeout: 600
+      update_image_file: ~/images/myupdate.img
+
+  - name: Multipart HTTP push with additional options; timeout is 600 seconds
+      to allow for a large image transfer
+    community.general.redfish_command:
+      category: Update
+      command: MultipartHTTPPushUpdate
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      timeout: 600
+      update_image_file: ~/images/myupdate.img
+      update_targets:
+        - /redfish/v1/UpdateService/FirmwareInventory/BMC
+      update_oem_params:
+        PreserveConfiguration: false
+
   - name: Perform requested operations to continue the update
     community.general.redfish_command:
       category: Update
@@ -629,6 +713,17 @@ EXAMPLES = '''
       category: Manager
       command: PowerReboot
       resource_id: BMC
+
+  - name: Verify BIOS attributes
+    community.general.redfish_command:
+      category: Systems
+      command: VerifyBiosAttributes
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      bios_attributes:
+        SubNumaClustering: "Disabled"
+        WorkloadProfile: "Virtualization-MaxPerformance"
 '''
 
 RETURN = '''
@@ -661,8 +756,8 @@ from ansible.module_utils.common.text.converters import to_native
 # More will be added as module features are expanded
 CATEGORY_COMMANDS_ALL = {
     "Systems": ["PowerOn", "PowerForceOff", "PowerForceRestart", "PowerGracefulRestart",
-                "PowerGracefulShutdown", "PowerReboot", "SetOneTimeBoot", "EnableContinuousBootOverride", "DisableBootOverride",
-                "IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink", "VirtualMediaInsert", "VirtualMediaEject"],
+                "PowerGracefulShutdown", "PowerReboot", "PowerCycle", "SetOneTimeBoot", "EnableContinuousBootOverride", "DisableBootOverride",
+                "IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink", "VirtualMediaInsert", "VirtualMediaEject", "VerifyBiosAttributes"],
     "Chassis": ["IndicatorLedOn", "IndicatorLedOff", "IndicatorLedBlink"],
     "Accounts": ["AddUser", "EnableUser", "DeleteUser", "DisableUser",
                  "UpdateUserRole", "UpdateUserPassword", "UpdateUserName",
@@ -671,7 +766,7 @@ CATEGORY_COMMANDS_ALL = {
     "Manager": ["GracefulRestart", "ClearLogs", "VirtualMediaInsert",
                 "VirtualMediaEject", "PowerOn", "PowerForceOff", "PowerForceRestart",
                 "PowerGracefulRestart", "PowerGracefulShutdown", "PowerReboot"],
-    "Update": ["SimpleUpdate", "PerformRequestedOperations"],
+    "Update": ["SimpleUpdate", "MultipartHTTPPushUpdate", "PerformRequestedOperations"],
 }
 
 
@@ -691,17 +786,21 @@ def main():
             new_username=dict(aliases=["account_username"]),
             new_password=dict(aliases=["account_password"], no_log=True),
             roleid=dict(aliases=["account_roleid"]),
+            account_types=dict(type='list', elements='str', aliases=["account_accounttypes"]),
+            oem_account_types=dict(type='list', elements='str', aliases=["account_oemaccounttypes"]),
             update_username=dict(type='str', aliases=["account_updatename"]),
             account_properties=dict(type='dict', default={}),
             bootdevice=dict(),
-            timeout=dict(type='int', default=10),
+            timeout=dict(type='int'),
             uefi_target=dict(),
             boot_next=dict(),
             boot_override_mode=dict(choices=['Legacy', 'UEFI']),
             resource_id=dict(),
             update_image_uri=dict(),
+            update_image_file=dict(type='path'),
             update_protocol=dict(),
             update_targets=dict(type='list', elements='str', default=[]),
+            update_oem_params=dict(type='dict'),
             update_creds=dict(
                 type='dict',
                 options=dict(
@@ -726,6 +825,7 @@ def main():
                 )
             ),
             strip_etag_quotes=dict(type='bool', default=False),
+            bios_attributes=dict(type="dict")
         ),
         required_together=[
             ('username', 'password'),
@@ -739,6 +839,16 @@ def main():
         supports_check_mode=False
     )
 
+    if module.params['timeout'] is None:
+        timeout = 10
+        module.deprecate(
+            'The default value {0} for parameter param1 is being deprecated and it will be replaced by {1}'.format(
+                10, 60
+            ),
+            version='9.0.0',
+            collection_name='community.general'
+        )
+
     category = module.params['category']
     command_list = module.params['command']
 
@@ -748,12 +858,16 @@ def main():
              'token': module.params['auth_token']}
 
     # user to add/modify/delete
-    user = {'account_id': module.params['id'],
-            'account_username': module.params['new_username'],
-            'account_password': module.params['new_password'],
-            'account_roleid': module.params['roleid'],
-            'account_updatename': module.params['update_username'],
-            'account_properties': module.params['account_properties']}
+    user = {
+        'account_id': module.params['id'],
+        'account_username': module.params['new_username'],
+        'account_password': module.params['new_password'],
+        'account_roleid': module.params['roleid'],
+        'account_accounttypes': module.params['account_types'],
+        'account_oemaccounttypes': module.params['oem_account_types'],
+        'account_updatename': module.params['update_username'],
+        'account_properties': module.params['account_properties'],
+    }
 
     # timeout
     timeout = module.params['timeout']
@@ -764,10 +878,12 @@ def main():
     # update options
     update_opts = {
         'update_image_uri': module.params['update_image_uri'],
+        'update_image_file': module.params['update_image_file'],
         'update_protocol': module.params['update_protocol'],
         'update_targets': module.params['update_targets'],
         'update_creds': module.params['update_creds'],
         'update_apply_time': module.params['update_apply_time'],
+        'update_oem_params': module.params['update_oem_params'],
         'update_handle': module.params['update_handle'],
     }
 
@@ -784,6 +900,9 @@ def main():
 
     # Etag options
     strip_etag_quotes = module.params['strip_etag_quotes']
+
+    # BIOS Attributes options
+    bios_attributes = module.params['bios_attributes']
 
     # Build root URI
     root_uri = "https://" + module.params['baseuri']
@@ -845,6 +964,8 @@ def main():
                 result = rf_utils.virtual_media_insert(virtual_media, category)
             elif command == 'VirtualMediaEject':
                 result = rf_utils.virtual_media_eject(virtual_media, category)
+            elif command == 'VerifyBiosAttributes':
+                result = rf_utils.verify_bios_attributes(bios_attributes)
 
     elif category == "Chassis":
         result = rf_utils._find_chassis_resource()
@@ -906,6 +1027,10 @@ def main():
         for command in command_list:
             if command == "SimpleUpdate":
                 result = rf_utils.simple_update(update_opts)
+                if 'update_status' in result:
+                    return_values['update_status'] = result['update_status']
+            elif command == "MultipartHTTPPushUpdate":
+                result = rf_utils.multipath_http_push_update(update_opts)
                 if 'update_status' in result:
                     return_values['update_status'] = result['update_status']
             elif command == "PerformRequestedOperations":

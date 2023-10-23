@@ -28,10 +28,19 @@ author:
     - Tomas Karasek (@t0mk) <tom.to.the.k@gmail.com>
     - Nurfet Becirevic (@nurfet-becirevic) <nurfet.becirevic@gmail.com>
 
+extends_documentation_fragment:
+    - community.general.attributes
+
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+
 options:
   auth_token:
     description:
-      - Packet API token. You can also supply it in env var C(PACKET_API_TOKEN).
+      - Packet API token. You can also supply it in environment variable E(PACKET_API_TOKEN).
     type: str
 
   hostname:
@@ -68,9 +77,9 @@ options:
   state:
     description:
       - Desired state of the IP subnet on the specified device.
-      - With state == C(present), you must specify either hostname or device_id. Subnet with given CIDR will then be assigned to the specified device.
-      - With state == C(absent), you can specify either hostname or device_id. The subnet will be removed from specified devices.
-      - If you leave both hostname and device_id empty, the subnet will be removed from any device it's assigned to.
+      - With O(state=present), you must specify either O(hostname) or O(device_id). Subnet with given CIDR will then be assigned to the specified device.
+      - With O(state=absent), you can specify either O(hostname) or O(device_id). The subnet will be removed from specified devices.
+      - If you leave both O(hostname) and O(device_id) empty, the subnet will be removed from any device it's assigned to.
     choices: ['present', 'absent']
     default: 'present'
     type: str

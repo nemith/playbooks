@@ -22,6 +22,13 @@ short_description: Package manager for Slackware >= 12.2
 description:
     - Manage binary packages for Slackware using 'slackpkg' which
       is available in versions after 12.2.
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     name:
         description:
@@ -33,7 +40,7 @@ options:
 
     state:
         description:
-            - state of the package, you can use "installed" as an alias for C(present) and removed as one for C(absent).
+            - State of the package, you can use V(installed) as an alias for V(present) and V(removed) as one for V(absent).
         choices: [ 'present', 'absent', 'latest', 'installed', 'removed' ]
         required: false
         default: present

@@ -17,6 +17,13 @@ short_description: Notify Rollbar about app deployments
 description:
   - Notify Rollbar about app deployments
     (see https://rollbar.com/docs/deploys_other/)
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   token:
     type: str
@@ -56,7 +63,7 @@ options:
     default: 'https://api.rollbar.com/api/1/deploy/'
   validate_certs:
     description:
-      - If C(false), SSL certificates for the target url will not be validated.
+      - If V(false), SSL certificates for the target url will not be validated.
         This should only be used on personally controlled sites using
         self-signed certificates.
     required: false

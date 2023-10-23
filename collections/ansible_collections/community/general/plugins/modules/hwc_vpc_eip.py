@@ -22,6 +22,11 @@ version_added: '0.2.0'
 author: Huawei Inc. (@huaweicloud)
 requirements:
     - keystoneauth1 >= 3.6.0
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         description:
@@ -70,7 +75,7 @@ options:
                 description:
                     - Specifies the bandwidth name. The value is a string of 1
                       to 64 characters that can contain letters, digits,
-                      underscores C(_), hyphens (-), and periods (.).
+                      underscores (V(_)), hyphens (V(-)), and periods (V(.)).
                 type: str
                 required: true
             size:
@@ -121,7 +126,8 @@ options:
         type: str
         required: false
 extends_documentation_fragment:
-- community.general.hwc
+  - community.general.hwc
+  - community.general.attributes
 
 '''
 
@@ -181,7 +187,7 @@ RETURN = '''
                 description:
                     - Specifies the bandwidth name. The value is a string of 1
                       to 64 characters that can contain letters, digits,
-                      underscores C(_), hyphens (-), and periods (.).
+                      underscores (V(_)), hyphens (V(-)), and periods (V(.)).
                 type: str
                 returned: success
             size:

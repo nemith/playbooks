@@ -17,11 +17,18 @@ notes:
   - Zone domains can be thought of as a collection of domains, all of which share the
     same DNS records (i.e. they point to the same IP). An API key generated via the
     Memset customer control panel is needed with the following minimum scope -
-    I(dns.zone_domain_create), I(dns.zone_domain_delete), I(dns.zone_domain_list).
+    C(dns.zone_domain_create), C(dns.zone_domain_delete), C(dns.zone_domain_list).
   - Currently this module can only create one domain at a time. Multiple domains should
-    be created using C(with_items).
+    be created using C(loop).
 description:
-    - Manage DNS zone domains in a Memset account.
+  - Manage DNS zone domains in a Memset account.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         default: present
@@ -188,7 +195,10 @@ def create_or_delete_domain(args=None):
         # informed of the reason.
         retvals['failed'] = has_failed
         retvals['msg'] = msg
-        retvals['stderr'] = "API returned an error: {0}" . format(response.status_code)
+        if response.status_code is not None:
+            retvals['stderr'] = "API returned an error: {0}" . format(response.status_code)
+        else:
+            retvals['stderr'] = response.stderr
         return retvals
 
     zone_exists, msg, counter, zone_id = get_zone_id(zone_name=args['zone'], current_zones=response.json())

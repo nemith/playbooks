@@ -19,6 +19,13 @@ description:
 notes:
     - This module works on ALT based distros.
     - Does NOT support checkmode, due to a limitation in apt-repo tool.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   repo:
     description:
@@ -34,7 +41,7 @@ options:
   remove_others:
     description:
       - Remove other then added repositories
-      - Used if I(state=present)
+      - Used if O(state=present)
     type: bool
     default: false
   update:

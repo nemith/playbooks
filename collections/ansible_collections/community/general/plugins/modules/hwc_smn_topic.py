@@ -22,6 +22,11 @@ author: Huawei Inc. (@huaweicloud)
 requirements:
     - requests >= 2.18.4
     - keystoneauth1 >= 3.6.0
+attributes:
+    check_mode:
+        support: full
+    diff_mode:
+        support: none
 options:
     state:
         description:
@@ -40,12 +45,13 @@ options:
         description:
             - Name of the topic to be created. The topic name is a string of 1
               to 256 characters. It must contain upper- or lower-case letters,
-              digits, hyphens (-), and underscores C(_), and must start with a
+              digits, hyphens (V(-)), and underscores (V(_)), and must start with a
               letter or digit.
         type: str
         required: true
 extends_documentation_fragment:
-- community.general.hwc
+  - community.general.hwc
+  - community.general.attributes
 
 '''
 
@@ -79,7 +85,7 @@ name:
     description:
         - Name of the topic to be created. The topic name is a string of 1
           to 256 characters. It must contain upper- or lower-case letters,
-          digits, hyphens (-), and underscores C(_), and must start with a
+          digits, hyphens (V(-)), and underscores (V(_)), and must start with a
           letter or digit.
     returned: success
     type: str

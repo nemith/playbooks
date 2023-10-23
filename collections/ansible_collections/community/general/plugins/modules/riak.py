@@ -14,11 +14,18 @@ DOCUMENTATION = '''
 module: riak
 short_description: This module handles some common Riak operations
 description:
-     - This module can be used to join nodes to a cluster, check
-       the status of the cluster.
+    - This module can be used to join nodes to a cluster, check
+      the status of the cluster.
 author:
     - "James Martin (@jsmartin)"
     - "Drew Kerrigan (@drewkerrigan)"
+extends_documentation_fragment:
+    - community.general.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   command:
     description:
@@ -57,7 +64,7 @@ options:
     type: str
   validate_certs:
     description:
-      - If C(false), SSL certificates will not be validated. This should only be used
+      - If V(false), SSL certificates will not be validated. This should only be used
         on personally controlled sites using self-signed certificates.
     type: bool
     default: true

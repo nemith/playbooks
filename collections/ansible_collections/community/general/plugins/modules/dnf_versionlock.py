@@ -18,12 +18,27 @@ description:
   excludes all other versions of those packages. This allows you to for example
   protect packages from being updated by newer versions. The state of the
   plugin that reflects locking of packages is the C(locklist).
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: partial
+    details:
+      - The logics of the C(versionlock) plugin for corner cases could be
+        confusing, so please take in account that this module will do its best to
+        give a C(check_mode) prediction on what is going to happen. In case of
+        doubt, check the documentation of the plugin.
+      - Sometimes the module could predict changes in C(check_mode) that will not
+        be such because C(versionlock) concludes that there is already a entry in
+        C(locklist) that already matches.
+  diff_mode:
+    support: none
 options:
   name:
     description:
       - Package name spec to add or exclude to or delete from the C(locklist)
         using the format expected by the C(dnf repoquery) command.
-      - This parameter is mutually exclusive with I(state=clean).
+      - This parameter is mutually exclusive with O(state=clean).
     type: list
     required: false
     elements: str
@@ -37,36 +52,28 @@ options:
     default: false
   state:
     description:
-        - Whether to add (C(present) or C(excluded)) to or remove (C(absent) or
-          C(clean)) from the C(locklist).
-        - C(present) will add a package name spec to the C(locklist). If there is a
+        - Whether to add (V(present) or V(excluded)) to or remove (V(absent) or
+          V(clean)) from the C(locklist).
+        - V(present) will add a package name spec to the C(locklist). If there is a
           installed package that matches, then only that version will be added.
           Otherwise, all available package versions will be added.
-        - C(excluded) will add a package name spec as excluded to the
+        - V(excluded) will add a package name spec as excluded to the
           C(locklist). It means that packages represented by the package name
           spec will be excluded from transaction operations. All available
           package versions will be added.
-        - C(absent) will delete entries in the C(locklist) that match the
+        - V(absent) will delete entries in the C(locklist) that match the
           package name spec.
-        - C(clean) will delete all entries in the C(locklist). This option is
-          mutually exclusive with C(name).
+        - V(clean) will delete all entries in the C(locklist). This option is
+          mutually exclusive with O(name).
     choices: [ 'absent', 'clean', 'excluded', 'present' ]
     type: str
     default: present
 notes:
-  - The logics of the C(versionlock) plugin for corner cases could be
-    confusing, so please take in account that this module will do its best to
-    give a C(check_mode) prediction on what is going to happen. In case of
-    doubt, check the documentation of the plugin.
-  - Sometimes the module could predict changes in C(check_mode) that will not
-    be such because C(versionlock) concludes that there is already a entry in
-    C(locklist) that already matches.
   - In an ideal world, the C(versionlock) plugin would have a dry-run option to
     know for sure what is going to happen. So far we have to work with a best
     guess as close as possible to the behaviour inferred from its code.
   - For most of cases where you want to lock and unlock specific versions of a
     package, this works fairly well.
-  - Supports C(check_mode).
 requirements:
   - dnf
   - dnf-plugin-versionlock

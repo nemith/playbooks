@@ -16,6 +16,13 @@ short_description: Manages Sensu client configuration
 description:
   - Manages Sensu client configuration.
   - 'For more information, refer to the Sensu documentation: U(https://sensuapp.org/docs/latest/reference/clients.html)'
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   state:
     type: str
@@ -70,7 +77,7 @@ options:
   deregister:
     description:
       - If a deregistration event should be created upon Sensu client process stop.
-      - Default is C(false).
+      - Default is V(false).
     type: bool
   deregistration:
     type: dict

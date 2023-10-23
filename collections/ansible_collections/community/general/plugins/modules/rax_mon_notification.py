@@ -17,11 +17,16 @@ description:
   channel that can be used to communicate alarms, such as email, webhooks, or
   PagerDuty. Rackspace monitoring module flow | rax_mon_entity -> rax_mon_check ->
   *rax_mon_notification* -> rax_mon_notification_plan -> rax_mon_alarm
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   state:
     type: str
     description:
-    - Ensure that the notification with this C(label) exists or does not exist.
+    - Ensure that the notification with this O(label) exists or does not exist.
     choices: ['present', 'absent']
     default: present
   label:
@@ -46,7 +51,8 @@ options:
     required: true
 author: Ash Wilson (@smashwilson)
 extends_documentation_fragment:
-- community.general.rackspace.openstack
+  - community.general.rackspace.openstack
+  - community.general.attributes
 
 '''
 

@@ -16,6 +16,13 @@ module: aix_devices
 short_description: Manages AIX devices
 description:
 - This module discovers, defines, removes and modifies attributes of AIX devices.
+extends_documentation_fragment:
+  - community.general.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   attributes:
     description:
@@ -24,7 +31,7 @@ options:
   device:
     description:
     - The name of the device.
-    - C(all) is valid to rescan C(available) all devices (AIX cfgmgr command).
+    - V(all) is valid to rescan C(available) all devices (AIX cfgmgr command).
     type: str
   force:
     description:
@@ -39,9 +46,9 @@ options:
   state:
     description:
     - Controls the device state.
-    - C(available) (alias C(present)) rescan a specific device or all devices (when C(device) is not specified).
-    - C(removed) (alias C(absent) removes a device.
-    - C(defined) changes device to Defined state.
+    - V(available) (alias V(present)) rescan a specific device or all devices (when O(device) is not specified).
+    - V(removed) (alias V(absent) removes a device.
+    - V(defined) changes device to Defined state.
     type: str
     choices: [ available, defined, removed ]
     default: available
@@ -101,7 +108,7 @@ EXAMPLES = r'''
     device: en1
     attributes:
       mtu: 900
-      arp: off
+      arp: 'off'
     state: available
 
 - name: Configure IP, netmask and set en1 up.

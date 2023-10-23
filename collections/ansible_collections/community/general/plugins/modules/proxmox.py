@@ -15,7 +15,12 @@ short_description: Management of instances in Proxmox VE cluster
 description:
   - allows you to create/delete/stop instances in Proxmox VE cluster
   - Starting in Ansible 2.1, it automatically detects containerization type (lxc for PVE 4, openvz for older)
-  - Since community.general 4.0.0 on, there are no more default values, see I(proxmox_default_behavior).
+  - Since community.general 4.0.0 on, there are no more default values, see O(proxmox_default_behavior).
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   password:
     description:
@@ -24,45 +29,45 @@ options:
   hostname:
     description:
       - the instance hostname
-      - required only for C(state=present)
+      - required only for O(state=present)
       - must be unique if vmid is not passed
     type: str
   ostemplate:
     description:
       - the template for VM creating
-      - required only for C(state=present)
+      - required only for O(state=present)
     type: str
   disk:
     description:
       - This option was previously described as "hard disk size in GB for instance" however several formats describing
         a lxc mount are permitted.
-      - Older versions of Proxmox will accept a numeric value for size using the I(storage) parameter to automatically
+      - Older versions of Proxmox will accept a numeric value for size using the O(storage) parameter to automatically
         choose which storage to allocate from, however new versions enforce the C(<STORAGE>:<SIZE>) syntax.
       - "Additional options are available by using some combination of the following key-value pairs as a
         comma-delimited list C([volume=]<volume> [,acl=<1|0>] [,mountoptions=<opt[;opt...]>] [,quota=<1|0>]
         [,replicate=<1|0>] [,ro=<1|0>] [,shared=<1|0>] [,size=<DiskSize>])."
       - See U(https://pve.proxmox.com/wiki/Linux_Container) for a full description.
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(3).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(3).
     type: str
   cores:
     description:
       - Specify number of cores per socket.
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(1).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(1).
     type: int
   cpus:
     description:
       - numbers of allocated cpus for instance
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(1).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(1).
     type: int
   memory:
     description:
       - memory size in MB for instance
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(512).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(512).
     type: int
   swap:
     description:
       - swap memory size in MB for instance
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(0).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(0).
     type: int
   netif:
     description:
@@ -86,7 +91,7 @@ options:
   onboot:
     description:
       - specifies whether a VM will be started during system bootup
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(false).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(false).
     type: bool
   storage:
     description:
@@ -96,7 +101,7 @@ options:
   cpuunits:
     description:
       - CPU weight for a VM
-      - This option has no default unless I(proxmox_default_behavior) is set to C(compatiblity); then the default is C(1000).
+      - This option has no default unless O(proxmox_default_behavior) is set to V(compatiblity); then the default is V(1000).
     type: int
   nameserver:
     description:
@@ -109,7 +114,7 @@ options:
   tags:
     description:
       - List of tags to apply to the container.
-      - Tags must start with C([a-z0-9_]) followed by zero or more of the following characters C([a-z0-9_-+.]).
+      - Tags must start with V([a-z0-9_]) followed by zero or more of the following characters V([a-z0-9_-+.]).
       - Tags are only available in Proxmox 7+.
     type: list
     elements: str
@@ -121,10 +126,10 @@ options:
     default: 30
   force:
     description:
-      - forcing operations
-      - can be used only with states C(present), C(stopped), C(restarted)
-      - with C(state=present) force option allow to overwrite existing container
-      - with states C(stopped) , C(restarted) allow to force stop instance
+      - Forcing operations.
+      - Can be used only with states V(present), V(stopped), V(restarted).
+      - with O(state=present) force option allow to overwrite existing container.
+      - with states V(stopped), V(restarted) allow to force stop instance.
     type: bool
     default: false
   purge:
@@ -132,7 +137,7 @@ options:
       - Remove container from all related configurations.
       - For example backup jobs, replication jobs, or HA.
       - Related ACLs and Firewall entries will always be removed.
-      - Used with state C(absent).
+      - Used with O(state=absent).
     type: bool
     default: false
     version_added: 2.3.0
@@ -149,10 +154,9 @@ options:
   unprivileged:
     description:
       - Indicate if the container should be unprivileged.
-      - >
-        The default value for this parameter is C(false) but that is deprecated
-        and it will be replaced with C(true) in community.general 7.0.0.
+      - The default change to V(true) in community.general 7.0.0. It used to be V(false) before.
     type: bool
+    default: true
   description:
     description:
       - Specify the description for the container. Only used on the configuration web interface.
@@ -164,15 +168,25 @@ options:
       - Script that will be executed during various steps in the containers lifetime.
     type: str
     version_added: '0.2.0'
+  timezone:
+    description:
+      - Timezone used by the container, accepts values like V(Europe/Paris).
+      - The special value V(host) configures the same timezone used by Proxmox host.
+    type: str
+    version_added: '7.1.0'
   proxmox_default_behavior:
     description:
       - As of community.general 4.0.0, various options no longer have default values.
         These default values caused problems when users expected different behavior from Proxmox
         by default or filled options which caused problems when set.
-      - The value C(compatibility) (default before community.general 4.0.0) will ensure that the default values
-        are used when the values are not explicitly specified by the user. The new default is C(no_defaults),
+      - The value V(compatibility) (default before community.general 4.0.0) will ensure that the default values
+        are used when the values are not explicitly specified by the user. The new default is V(no_defaults),
         which makes sure these options have no defaults.
-      - This affects the I(disk), I(cores), I(cpus), I(memory), I(onboot), I(swap), I(cpuunits) options.
+      - This affects the O(disk), O(cores), O(cpus), O(memory), O(onboot), O(swap), and O(cpuunits) options.
+      - >
+        This parameter is now B(deprecated) and it will be removed in community.general 10.0.0.
+        By then, the module's behavior should be to not set default values, equivalent to V(no_defaults).
+        If a consistent set of defaults is needed, the playbook or role should be responsible for setting it.
     type: str
     default: no_defaults
     choices:
@@ -182,26 +196,29 @@ options:
   clone:
     description:
       - ID of the container to be cloned.
-      - I(description), I(hostname), and I(pool) will be copied from the cloned container if not specified.
-      - The type of clone created is defined by the I(clone_type) parameter.
+      - O(description), O(hostname), and O(pool) will be copied from the cloned container if not specified.
+      - The type of clone created is defined by the O(clone_type) parameter.
       - This operator is only supported for Proxmox clusters that use LXC containerization (PVE version >= 4).
     type: int
     version_added: 4.3.0
   clone_type:
     description:
       - Type of the clone created.
-      - C(full) creates a full clone, and I(storage) must be specified.
-      - C(linked) creates a linked clone, and the cloned container must be a template container.
-      - C(opportunistic) creates a linked clone if the cloned container is a template container, and a full clone if not.
-        I(storage) may be specified, if not it will fall back to the default.
+      - V(full) creates a full clone, and O(storage) must be specified.
+      - V(linked) creates a linked clone, and the cloned container must be a template container.
+      - V(opportunistic) creates a linked clone if the cloned container is a template container, and a full clone if not.
+        O(storage) may be specified, if not it will fall back to the default.
     type: str
     choices: ['full', 'linked', 'opportunistic']
     default: opportunistic
     version_added: 4.3.0
 author: Sergei Antipov (@UnderGreen)
+seealso:
+  - module: community.general.proxmox_vm_info
 extends_documentation_fragment:
   - community.general.proxmox.documentation
   - community.general.proxmox.selection
+  - community.general.attributes
 '''
 
 EXAMPLES = r'''
@@ -308,6 +325,18 @@ EXAMPLES = r'''
     hostname: example.org
     ostemplate: local:vztmpl/ubuntu-14.04-x86_64.tar.gz'
     cores: 2
+
+- name: Create new container with minimal options and same timezone as proxmox host
+  community.general.proxmox:
+    vmid: 100
+    node: uk-mc02
+    api_user: root@pam
+    api_password: 1q2w3e
+    api_host: node1
+    password: 123456
+    hostname: example.org
+    ostemplate: 'local:vztmpl/ubuntu-14.04-x86_64.tar.gz'
+    timezone: host
 
 - name: Create a new container with nesting enabled and allows the use of CIFS/NFS inside the container.
   community.general.proxmox:
@@ -421,27 +450,27 @@ class ProxmoxLxcAnsible(ProxmoxAnsible):
         """Check if the specified container is a template."""
         proxmox_node = self.proxmox_api.nodes(node)
         config = getattr(proxmox_node, VZ_TYPE)(vmid).config.get()
-        return config['template']
+        return config.get('template', False)
 
     def create_instance(self, vmid, node, disk, storage, cpus, memory, swap, timeout, clone, **kwargs):
 
         # Version limited features
         minimum_version = {
-            'tags': 7,
+            'tags': '6.1',
+            'timezone': '6.3'
         }
         proxmox_node = self.proxmox_api.nodes(node)
 
         # Remove all empty kwarg entries
         kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
 
-        version = self.version()
-        pve_major_version = 3 if version < LooseVersion('4.0') else version.version[0]
+        pve_version = self.version()
 
         # Fail on unsupported features
         for option, version in minimum_version.items():
-            if pve_major_version < version and option in kwargs:
-                self.module.fail_json(changed=False, msg="Feature {option} is only supported in PVE {version}+, and you're using PVE {pve_major_version}".
-                                      format(option=option, version=version, pve_major_version=pve_major_version))
+            if pve_version < LooseVersion(version) and option in kwargs:
+                self.module.fail_json(changed=False, msg="Feature {option} is only supported in PVE {version}+, and you're using PVE {pve_version}".
+                                      format(option=option, version=version, pve_version=pve_version))
 
         if VZ_TYPE == 'lxc':
             kwargs['cpulimit'] = cpus
@@ -517,7 +546,7 @@ class ProxmoxLxcAnsible(ProxmoxAnsible):
                 return True
             timeout -= 1
             if timeout == 0:
-                self.module.fail_json(msg='Reached timeout while waiting for creating VM. Last line in task before timeout: %s' %
+                self.module.fail_json(vmid=vmid, node=node, msg='Reached timeout while waiting for creating VM. Last line in task before timeout: %s' %
                                       proxmox_node.tasks(taskid).log.get()[:1])
 
             time.sleep(1)
@@ -530,7 +559,7 @@ class ProxmoxLxcAnsible(ProxmoxAnsible):
                 return True
             timeout -= 1
             if timeout == 0:
-                self.module.fail_json(msg='Reached timeout while waiting for starting VM. Last line in task before timeout: %s' %
+                self.module.fail_json(vmid=vmid, taskid=taskid, msg='Reached timeout while waiting for starting VM. Last line in task before timeout: %s' %
                                       self.proxmox_api.nodes(vm['node']).tasks(taskid).log.get()[:1])
 
             time.sleep(1)
@@ -546,7 +575,7 @@ class ProxmoxLxcAnsible(ProxmoxAnsible):
                 return True
             timeout -= 1
             if timeout == 0:
-                self.module.fail_json(msg='Reached timeout while waiting for stopping VM. Last line in task before timeout: %s' %
+                self.module.fail_json(vmid=vmid, taskid=taskid, msg='Reached timeout while waiting for stopping VM. Last line in task before timeout: %s' %
                                       self.proxmox_api.nodes(vm['node']).tasks(taskid).log.get()[:1])
 
             time.sleep(1)
@@ -559,7 +588,7 @@ class ProxmoxLxcAnsible(ProxmoxAnsible):
                 return True
             timeout -= 1
             if timeout == 0:
-                self.module.fail_json(msg='Reached timeout while waiting for unmounting VM. Last line in task before timeout: %s' %
+                self.module.fail_json(vmid=vmid, taskid=taskid, msg='Reached timeout while waiting for unmounting VM. Last line in task before timeout: %s' %
                                       self.proxmox_api.nodes(vm['node']).tasks(taskid).log.get()[:1])
 
             time.sleep(1)
@@ -594,10 +623,12 @@ def main():
         purge=dict(type='bool', default=False),
         state=dict(default='present', choices=['present', 'absent', 'stopped', 'started', 'restarted']),
         pubkey=dict(type='str'),
-        unprivileged=dict(type='bool'),
+        unprivileged=dict(type='bool', default=True),
         description=dict(type='str'),
         hookscript=dict(type='str'),
-        proxmox_default_behavior=dict(type='str', default='no_defaults', choices=['compatibility', 'no_defaults']),
+        timezone=dict(type='str'),
+        proxmox_default_behavior=dict(type='str', default='no_defaults', choices=['compatibility', 'no_defaults'],
+                                      removed_in_version='9.0.0', removed_from_collection='community.general'),
         clone=dict(type='int'),
         clone_type=dict(default='opportunistic', choices=['full', 'linked', 'opportunistic']),
         tags=dict(type='list', elements='str')
@@ -637,14 +668,6 @@ def main():
     timeout = module.params['timeout']
     clone = module.params['clone']
 
-    if module.params['unprivileged'] is None:
-        module.params['unprivileged'] = False
-        module.deprecate(
-            'The default value `false` for the parameter "unprivileged" is deprecated and it will be replaced with `true`',
-            version='7.0.0',
-            collection_name='community.general'
-        )
-
     if module.params['proxmox_default_behavior'] == 'compatibility':
         old_default_values = dict(
             disk="3",
@@ -672,20 +695,20 @@ def main():
     if state == 'present' and clone is None:
         try:
             if proxmox.get_vm(vmid, ignore_missing=True) and not module.params['force']:
-                module.exit_json(changed=False, msg="VM with vmid = %s is already exists" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM with vmid = %s is already exists" % vmid)
             # If no vmid was passed, there cannot be another VM named 'hostname'
             if (not module.params['vmid'] and
                     proxmox.get_vmid(hostname, ignore_missing=True) and
                     not module.params['force']):
                 vmid = proxmox.get_vmid(hostname)
-                module.exit_json(changed=False, msg="VM with hostname %s already exists and has ID number %s" % (hostname, vmid))
+                module.exit_json(changed=False, vmid=vmid, msg="VM with hostname %s already exists and has ID number %s" % (hostname, vmid))
             elif not proxmox.get_node(node):
-                module.fail_json(msg="node '%s' not exists in cluster" % node)
+                module.fail_json(vmid=vmid, msg="node '%s' not exists in cluster" % node)
             elif not proxmox.content_check(node, module.params['ostemplate'], template_store):
-                module.fail_json(msg="ostemplate '%s' not exists on node %s and storage %s"
+                module.fail_json(vmid=vmid, msg="ostemplate '%s' not exists on node %s and storage %s"
                                  % (module.params['ostemplate'], node, template_store))
         except Exception as e:
-            module.fail_json(msg="Pre-creation checks of {VZ_TYPE} VM {vmid} failed with exception: {e}".format(VZ_TYPE=VZ_TYPE, vmid=vmid, e=e))
+            module.fail_json(vmid=vmid, msg="Pre-creation checks of {VZ_TYPE} VM {vmid} failed with exception: {e}".format(VZ_TYPE=VZ_TYPE, vmid=vmid, e=e))
 
         try:
             proxmox.create_instance(vmid, node, disk, storage, cpus, memory, swap, timeout, clone,
@@ -707,45 +730,46 @@ def main():
                                     unprivileged=ansible_to_proxmox_bool(module.params['unprivileged']),
                                     description=module.params['description'],
                                     hookscript=module.params['hookscript'],
+                                    timezone=module.params['timezone'],
                                     tags=module.params['tags'])
 
-            module.exit_json(changed=True, msg="Deployed VM %s from template %s" % (vmid, module.params['ostemplate']))
+            module.exit_json(changed=True, vmid=vmid, msg="Deployed VM %s from template %s" % (vmid, module.params['ostemplate']))
         except Exception as e:
-            module.fail_json(msg="Creation of %s VM %s failed with exception: %s" % (VZ_TYPE, vmid, e))
+            module.fail_json(vmid=vmid, msg="Creation of %s VM %s failed with exception: %s" % (VZ_TYPE, vmid, e))
 
     # Clone a container
     elif state == 'present' and clone is not None:
         try:
             if proxmox.get_vm(vmid, ignore_missing=True) and not module.params['force']:
-                module.exit_json(changed=False, msg="VM with vmid = %s is already exists" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM with vmid = %s is already exists" % vmid)
             # If no vmid was passed, there cannot be another VM named 'hostname'
             if (not module.params['vmid'] and
                     proxmox.get_vmid(hostname, ignore_missing=True) and
                     not module.params['force']):
                 vmid = proxmox.get_vmid(hostname)
-                module.exit_json(changed=False, msg="VM with hostname %s already exists and has ID number %s" % (hostname, vmid))
+                module.exit_json(changed=False, vmid=vmid, msg="VM with hostname %s already exists and has ID number %s" % (hostname, vmid))
             if not proxmox.get_vm(clone, ignore_missing=True):
-                module.exit_json(changed=False, msg="Container to be cloned does not exist")
+                module.exit_json(changed=False, vmid=vmid, msg="Container to be cloned does not exist")
         except Exception as e:
-            module.fail_json(msg="Pre-clone checks of {VZ_TYPE} VM {vmid} failed with exception: {e}".format(VZ_TYPE=VZ_TYPE, vmid=vmid, e=e))
+            module.fail_json(vmid=vmid, msg="Pre-clone checks of {VZ_TYPE} VM {vmid} failed with exception: {e}".format(VZ_TYPE=VZ_TYPE, vmid=vmid, e=e))
 
         try:
             proxmox.create_instance(vmid, node, disk, storage, cpus, memory, swap, timeout, clone)
 
-            module.exit_json(changed=True, msg="Cloned VM %s from %s" % (vmid, clone))
+            module.exit_json(changed=True, vmid=vmid, msg="Cloned VM %s from %s" % (vmid, clone))
         except Exception as e:
-            module.fail_json(msg="Cloning %s VM %s failed with exception: %s" % (VZ_TYPE, vmid, e))
+            module.fail_json(vmid=vmid, msg="Cloning %s VM %s failed with exception: %s" % (VZ_TYPE, vmid, e))
 
     elif state == 'started':
         try:
             vm = proxmox.get_vm(vmid)
             if getattr(proxmox.proxmox_api.nodes(vm['node']), VZ_TYPE)(vmid).status.current.get()['status'] == 'running':
-                module.exit_json(changed=False, msg="VM %s is already running" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s is already running" % vmid)
 
             if proxmox.start_instance(vm, vmid, timeout):
-                module.exit_json(changed=True, msg="VM %s started" % vmid)
+                module.exit_json(changed=True, vmid=vmid, msg="VM %s started" % vmid)
         except Exception as e:
-            module.fail_json(msg="starting of VM %s failed with exception: %s" % (vmid, e))
+            module.fail_json(vmid=vmid, msg="starting of VM %s failed with exception: %s" % (vmid, e))
 
     elif state == 'stopped':
         try:
@@ -754,18 +778,18 @@ def main():
             if getattr(proxmox.proxmox_api.nodes(vm['node']), VZ_TYPE)(vmid).status.current.get()['status'] == 'mounted':
                 if module.params['force']:
                     if proxmox.umount_instance(vm, vmid, timeout):
-                        module.exit_json(changed=True, msg="VM %s is shutting down" % vmid)
+                        module.exit_json(changed=True, vmid=vmid, msg="VM %s is shutting down" % vmid)
                 else:
-                    module.exit_json(changed=False, msg=("VM %s is already shutdown, but mounted. "
-                                                         "You can use force option to umount it.") % vmid)
+                    module.exit_json(changed=False, vmid=vmid,
+                                     msg=("VM %s is already shutdown, but mounted. You can use force option to umount it.") % vmid)
 
             if getattr(proxmox.proxmox_api.nodes(vm['node']), VZ_TYPE)(vmid).status.current.get()['status'] == 'stopped':
-                module.exit_json(changed=False, msg="VM %s is already shutdown" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s is already shutdown" % vmid)
 
             if proxmox.stop_instance(vm, vmid, timeout, force=module.params['force']):
-                module.exit_json(changed=True, msg="VM %s is shutting down" % vmid)
+                module.exit_json(changed=True, vmid=vmid, msg="VM %s is shutting down" % vmid)
         except Exception as e:
-            module.fail_json(msg="stopping of VM %s failed with exception: %s" % (vmid, e))
+            module.fail_json(vmid=vmid, msg="stopping of VM %s failed with exception: %s" % (vmid, e))
 
     elif state == 'restarted':
         try:
@@ -773,28 +797,28 @@ def main():
 
             vm_status = getattr(proxmox.proxmox_api.nodes(vm['node']), VZ_TYPE)(vmid).status.current.get()['status']
             if vm_status in ['stopped', 'mounted']:
-                module.exit_json(changed=False, msg="VM %s is not running" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s is not running" % vmid)
 
             if (proxmox.stop_instance(vm, vmid, timeout, force=module.params['force']) and
                     proxmox.start_instance(vm, vmid, timeout)):
-                module.exit_json(changed=True, msg="VM %s is restarted" % vmid)
+                module.exit_json(changed=True, vmid=vmid, msg="VM %s is restarted" % vmid)
         except Exception as e:
-            module.fail_json(msg="restarting of VM %s failed with exception: %s" % (vmid, e))
+            module.fail_json(vmid=vmid, msg="restarting of VM %s failed with exception: %s" % (vmid, e))
 
     elif state == 'absent':
         if not vmid:
-            module.exit_json(changed=False, msg='VM with hostname = %s is already absent' % hostname)
+            module.exit_json(changed=False, vmid=vmid, msg='VM with hostname = %s is already absent' % hostname)
         try:
             vm = proxmox.get_vm(vmid, ignore_missing=True)
             if not vm:
-                module.exit_json(changed=False, msg="VM %s does not exist" % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s does not exist" % vmid)
 
             vm_status = getattr(proxmox.proxmox_api.nodes(vm['node']), VZ_TYPE)(vmid).status.current.get()['status']
             if vm_status == 'running':
-                module.exit_json(changed=False, msg="VM %s is running. Stop it before deletion." % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s is running. Stop it before deletion." % vmid)
 
             if vm_status == 'mounted':
-                module.exit_json(changed=False, msg="VM %s is mounted. Stop it with force option before deletion." % vmid)
+                module.exit_json(changed=False, vmid=vmid, msg="VM %s is mounted. Stop it with force option before deletion." % vmid)
 
             delete_params = {}
 
@@ -805,15 +829,15 @@ def main():
 
             while timeout:
                 if proxmox.api_task_ok(vm['node'], taskid):
-                    module.exit_json(changed=True, msg="VM %s removed" % vmid)
+                    module.exit_json(changed=True, vmid=vmid, taskid=taskid, msg="VM %s removed" % vmid)
                 timeout -= 1
                 if timeout == 0:
-                    module.fail_json(msg='Reached timeout while waiting for removing VM. Last line in task before timeout: %s'
+                    module.fail_json(vmid=vmid, taskid=taskid, msg='Reached timeout while waiting for removing VM. Last line in task before timeout: %s'
                                      % proxmox.proxmox_api.nodes(vm['node']).tasks(taskid).log.get()[:1])
 
                 time.sleep(1)
         except Exception as e:
-            module.fail_json(msg="deletion of VM %s failed with exception: %s" % (vmid, to_native(e)))
+            module.fail_json(vmid=vmid, msg="deletion of VM %s failed with exception: %s" % (vmid, to_native(e)))
 
 
 if __name__ == '__main__':
