@@ -1,12 +1,10 @@
 ---
 checksums:
-  go1.20.6.darwin-arm64.tar.gz: sha256:1163be1998835a13f00dfc869a8e3cdebf86984ad41ff2fff43e35ac2a0d8344
-  go1.20.6.linux-amd64.tar.gz: sha256:b945ae2bb5db01a0fb4786afde64e6fbab50b67f6fa0eb6cfa4924f16a7ff1eb
+  go1.21.3.darwin-arm64.tar.gz: sha256:65302a7a9f7a4834932b3a7a14cb8be51beddda757b567a2f9e0cbd0d7b5a6ab
+  go1.21.3.linux-arm64.tar.gz: sha256:1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
 
-go_version: 1.20.6
-goos: "{{ _goos_map[ansible_os_family | lower] }}"
-goarch: "{{ _goarch_map[ansible_architecture] }}"
-go_tarball: go{{ go_version }}.{{ goos }}-{{ goarch }}.tar.gz
+go_version: 1.21.3
+go_tarball: go{{ go_version }}.{{ ansible_os_family | lower }}-{{ _goarch_map[ansible_architecture] }}.tar.gz
 go_url: https://go.dev/dl/{{ go_tarball }}
 go_checksum: "{{ checksums[go_tarball] }}"
 go_install_dir: /opt
