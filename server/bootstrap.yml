@@ -1,7 +1,7 @@
 ---
 # minimum config needed to run the rest of ansible normally. (i.e setup sudo, users, etc)
 - hosts: all
-  remote_user: root
+  become_method: su
   roles:
     - sudo
     - users

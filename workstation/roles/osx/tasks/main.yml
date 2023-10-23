@@ -10,9 +10,16 @@
     value: false
     state: present
 
+- name: Remove old packages
+  community.general.homebrew:
+    state: absent
+    name:
+      - powerline-go  # replaced by oh-my-posh
+
 - name: Install packages
   community.general.homebrew:
     name:
+      - awscli
       - bat
       - black
       - broot
@@ -20,6 +27,7 @@
       - coreutils
       - duf
       - exa
+      - eza
       - fd
       - gh
       - gnu-tar
@@ -32,6 +40,7 @@
       - mtr
       - ncdu
       - nmap
+      - postgresql@13
       - powerline-go
       - procs
       - scc
@@ -44,38 +53,62 @@
       - zstd
       # languages
       - golangci-lint
+      - gofumpt
+      - node
+      - pipx
       - rustup
       - zig
-      - node
       # hashicrap^H^H^H^Hstack
       - consul
       - nomad
       - vault
+      # bazel
+      - bazelisk
+      - buildifier
+      - buildozer
+
+
+- name: Remove no longer used applications
+  community.general.homebrew_cask:
+    state: absent
+    name:
+      - superslicer            # replaced by orcaslicer
+      - prusaslicer            # replaced by orcaslicer
+      - softfever-bambu-studio # replaced by orcaslicer
+      - shottr                 # i don't OCR like @coxley
+      - parallels              # Too much $$
+      - protonmail-bridge      # use fastmail now
 
 - name: Install applications
   community.general.homebrew_cask:
     name:
       - alt-tab
       - autodesk-fusion360
+      - bambu-studio
       - bitwarden
       - discord
+      - docker
       - firefox
+      - geekbench
       - google-drive
       - httpie
+      - istat-menus
       - iterm2
       - karabiner-elements
       - logseq
-      - parallels
-      - protonmail-bridge
-      - prusaslicer
+      - menuwhere
+      - orcaslicer
       - raycast
       - rectangle
-      - shottr
       - slack
       - spotify
       - steam
-      - superslicer
+      - unnaturalscrollwheels  # mouse go up, trackpad go down
+      - utm
       - whatsapp
+      - wireshark
       - zoom
       # fonts
       - homebrew/cask-fonts/font-meslo-for-powerline
+      - font-blex-mono-nerd-font
+

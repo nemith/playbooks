@@ -4,6 +4,6 @@
   tasks:
     - name: upgrade packages
       become: true
-      ansible.builtin.dnf:
+      ansible.builtin.apt:
         name: "*"
         state: latest

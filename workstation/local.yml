@@ -22,7 +22,7 @@
     - ansible
     - git
     - go
-    - neovim
+    #- neovim
     - vscode
     - wezterm
     - zsh

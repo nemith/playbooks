@@ -21,9 +21,8 @@
     - ip_forward
     - nftables
     - bird
-#
-#- name: kube setup
-#  hosts: kube
-#  roles:
-#    - k3s
-#
+
+- name: kube setup
+  hosts: kube
+  roles:
+    - k3s

@@ -10,21 +10,6 @@
     mode: 0755
   notify: Restart k3s
 
-- name: Add k3s rpm repo (for selinux)
-  become: true
-  ansible.builtin.yum_repository:
-    name: rancher-k3s-common-{{ k3s_rpm_channel }}
-    description: Rancher K3 Common ({{ k3s_rpm_channel }})
-    baseurl: "{{ k3s_rpm_baseurl }}"
-    gpgkey: "{{ k3s_rpm_gpgkey }}"
-
-- name: Install k3s-selinux package
-  become: true
-  ansible.builtin.dnf:
-    name: k3s-selinux
-    state: present
-  notify: Restart k3s
-
 - name: Setup symlinks
   become: true
   ansible.builtin.file:

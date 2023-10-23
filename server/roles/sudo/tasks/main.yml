@@ -2,6 +2,7 @@
 - name: Install sudo
   ansible.builtin.apt:
     name: sudo
+  become: true
 
 - name: Configure suoders
   ansible.builtin.copy:
