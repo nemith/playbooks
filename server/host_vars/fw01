@@ -1,69 +1,71 @@
 hostname: fw01.purgatory.lan
 networkd:
   links:
-    - match: {path: pci-0000:00:1f.6}
+    - match: {path: pci-0000:02:00.0}
       link:
-        name: lan0
-        # These are causing kernel panics on at least the onboard lan port
-        tso: false
-        tso6: false
-        gso: false
+        name: eth0
       priority: 10
-    - match: {path: pci-0000:01:00.0}
+    - match: {path: pci-0000:03:00.0}
       link:
-        name: wan0
-        tso: false
-        tso6: false
-        gso: false
+        name: eth1
       priority: 10
-    - match: {path: pci-0000:01:00.1}
+    - match: {path: pci-0000:05:00.0}
       link:
-        name: wan1
-        tso: false
-        tso6: false
-        gso: false
+        name: eth2
+      priority: 10
+    - match: {path: pci-0000:06:00.0}
+      link:
+        name: eth3
+      priority: 10
+    - match: {path: pci-0000:04:00.0}
+      link:
+        name: sfp0
+      priority: 10
+    - match: {path: pci-0000:04:00.1}
+      link:
+        name: sfp1
       priority: 10
 
   netdevs:
     - netdev:
-        name: lan0.2001
+        name: sfp0.2001
         kind: vlan
       vlan:
         id: 2001
 
     - netdev:
-        name: lan0.2004
+        name: sfp0.2004
         kind: vlan
       vlan:
         id: 2004
 
     - netdev:
-        name: lan0.2012
+        name: sfp0.2012
         kind: vlan
       vlan:
         id: 2012
 
     - netdev:
-        name: lan0.2014
+        name: sfp0.2014
         kind: vlan
       vlan:
         id: 2014
 
     - netdev:
-        name: lan0.2254
+        name: sfp0.2254
         kind: vlan
       vlan:
         id: 2254
 
   networks:
-    - match: {name: wan0}
+    - match: {name: eth0}
       network:
         dhcp: yes
         ipv6_accept_ra: yes
       dhcpv6:
         prefix_delegation_hint: ::/60
 
-    - match: {name: lan0}
+    - match: {name: sfp0}
       network:
         addresses:
           - 192.168.0.1/24
@@ -75,15 +77,15 @@ networkd:
         configure_without_carrier: yes
         ipv6_send_ra: yes
         vlans:
-          - lan0.2001
-          - lan0.2004
-          - lan0.2012
-          - lan0.2014
-          - lan0.2254
+          - sfp0.2001
+          - sfp0.2004
+          - sfp0.2012
+          - sfp0.2014
+          - sfp0.2254
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}::/64"
 
-    - match: {name: lan0.2001}
+    - match: {name: sfp0.2001}
       network:
         addresses:
           - 192.168.1.1/24
@@ -96,7 +98,7 @@ networkd:
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:1::/64"
 
-    - match: {name: lan0.2004}
+    - match: {name: sfp0.2004}
       network:
         addresses:
           - 192.168.4.1/24
@@ -109,7 +111,7 @@ networkd:
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:4::/64"
 
-    - match: {name: lan0.2012}
+    - match: {name: sfp0.2012}
       network:
         addresses:
           - 192.168.12.1/24
@@ -122,7 +124,7 @@ networkd:
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:c::/64"
 
-    - match: {name: lan0.2014}
+    - match: {name: sfp0.2014}
       network:
         addresses:
           - 192.168.14.1/24
@@ -135,7 +137,7 @@ networkd:
       ipv6_prefixes:
         - prefix: "{{ ula_prefix }}:e::/64"
 
-    - match: {name: lan0.2254}
+    - match: {name: sfp0.2254}
       network:
         addresses:
           - 192.168.254.1/24

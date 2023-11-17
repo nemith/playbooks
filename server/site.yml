@@ -15,12 +15,12 @@
 - name: firewall setup
   hosts: fw
   roles:
-    - nextdns
-    - dnsmasq
-    - mdns-reflector
     - ip_forward
     - nftables
+    - dnsmasq
+    - nextdns
     - bird
+    - mdns-reflector
 
 - name: kube setup
   hosts: kube

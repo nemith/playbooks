@@ -1,7 +1,7 @@
 ---
 hosts:
-  - {ip: 192.168.0.1,        names: [fw01, wan0-fw01]}
-  - {ip: fdda:56e3:932d::1,  names: [fw01, wan0-fw01]}
+  - {ip: 192.168.0.1,        names: [fw01, fw01-eth0]}
+  - {ip: fdda:56e3:932d::1,  names: [fw01, fw01-eth0]}
   - {ip: 192.168.0.16,       names: [sw01]}
   - {ip: fdda:56e3:932d::10, names: [sw01]}
   - {ip: 192.168.0.17,       names: ["sw02"]}
@@ -16,31 +16,31 @@ hosts:
 
 #  - {ip: fdda:56e3:932d::18, names: [ap01]}
 
-  - {ip: 192.168.1.1,         names: [lan0-2001-fw01]}
-  - {ip: fdda:56e3:932d:1::1, names: [lan0-2001-fw01]}
+  - {ip: 192.168.1.1,         names: [fw01-sfp0-2001]}
+  - {ip: fdda:56e3:932d:1::1, names: [fw01-sfp0-2001]}
   - {ip: 192.168.1.18,        names: [homeassistant, hass]}
 
   # servers
-  - {ip: 192.168.4.1,          names: [lan0-2004-fw01]}
-  - {ip: fdda:56e3:932d:4::1,  names: [lan0-2004-fw01]}
+  - {ip: 192.168.4.1,          names: [fw01-sfp0-2004]}
+  - {ip: fdda:56e3:932d:4::1,  names: [fw01-sfp0-2004]}
   - {ip: 192.168.4.32,         names: [kube01]}
   - {ip: fdda:56e3:932d:4::20, names: [kube01]}
 
-chrony: 
+chrony:
   servers:
-    - hostname: time1.facebook.com 
+    - hostname: time1.facebook.com
       iburst: yes
       prefered: yes
-    - hostname: time2.facebook.com 
+    - hostname: time2.facebook.com
       iburst: yes
       prefered: yes
-    - hostname: time3.facebook.com 
+    - hostname: time3.facebook.com
       iburst: yes
       prefered: yes
-    - hostname: time4.facebook.com 
+    - hostname: time4.facebook.com
       iburst: yes
       prefered: yes
-    - hostname: time5.facebook.com 
+    - hostname: time5.facebook.com
       iburst: yes
       prefered: yes
   pools:
