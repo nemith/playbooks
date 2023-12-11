@@ -11,6 +11,11 @@
     - fedora
     - gnome
 
+- name: Debian setup
+  hosts: debian
+  roles:
+    - debian
+
 - name: OSX setup
   hosts: osx
   roles:
@@ -23,6 +28,6 @@
     - git
     - go
     #- neovim
-    - vscode
-    - wezterm
+    # - vscode
+   # - wezterm
     - zsh

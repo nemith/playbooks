@@ -10,6 +10,7 @@ _default_group_map:
 main_user_unixname: bbennett
 main_user_home: "{{ home_root_dir }}/{{ main_user_unixname }}"
 main_user_group: "{{ _default_group_map[ansible_distribution | lower] | default(_default_group_map['_default']) }}"
+admin_group: staff
 
 
 git_credential_helper: libsecret

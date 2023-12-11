@@ -6,7 +6,7 @@
     checksum: "{{ go_checksum }}"
     dest: /var/cache/tarballs/{{ go_tarball }}
     owner: root
-    group: wheel
+    group: root
     mode: '0644'
   register: go_download
 

@@ -2,7 +2,7 @@
 	name = Brandon Bennett
 	email = brandon@brbe.me
 [credential]
-	helper = {{ git_credential_helper }}
+	helper = "{{ git_credential_helper | regex_replace(' ', '\\\\\\\\ ')}}"
 [init]
 	defaultBranch = main
 [alias]

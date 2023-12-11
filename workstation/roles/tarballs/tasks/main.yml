@@ -5,7 +5,7 @@
     path: /var/cache/tarballs
     state: directory
     owner: root
-    group: wheel # todo: this needs to be specific to the distro/os
+    group: "{{ admin_group }}"
     mode: "0755"
 
 - name: Cleanup tarball directory

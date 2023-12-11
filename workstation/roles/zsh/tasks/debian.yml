@@ -1,0 +1,6 @@
+---
+- name: Install packages (debian)
+  become: true
+  ansible.builtin.apt:
+    name:
+      - zsh

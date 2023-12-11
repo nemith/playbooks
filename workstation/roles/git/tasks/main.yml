@@ -2,6 +2,29 @@
 - name: Install Packages
   ansible.builtin.include_tasks: "{{ ansible_distribution | lower }}.yml"
 
+- name: Determine git credential helper
+  block:
+    - name: Set for libsecret (Linux)
+      ansible.builtin.set_fact:
+        git_credential_helper: libsecret
+      when: ansible_os_family == "Linux"
+
+    - name: Set credential helper to osxkeychain (Darwin)
+      ansible.builtin.set_fact:
+        git_credential_helper: osxkeychain
+      when: ansible_distribution == "MacOSX"
+
+    - name: Check for wsl credential manager (WSL)
+      ansible.builtin.stat:
+        path: "{{ wsl_credential_manager_path }}"
+      register: wsl_credhelper
+
+    # See: https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-git
+    - name: Set credential helper to system git (WSL)
+      ansible.builtin.set_fact:
+        git_credential_helper: "{{ wsl_credential_manager_path }}"
+      when: wsl_credhelper.stat.exists
+
 - name: Configure git
   ansible.builtin.template:
     src: gitconfig.j2
