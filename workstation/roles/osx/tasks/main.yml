@@ -15,6 +15,7 @@
     state: absent
     name:
       - powerline-go  # replaced by oh-my-posh
+      - exa           # no longer supported
 
 - name: Install packages
   community.general.homebrew:
@@ -26,7 +27,6 @@
       - colordiff
       - coreutils
       - duf
-      - exa
       - eza
       - fd
       - gh

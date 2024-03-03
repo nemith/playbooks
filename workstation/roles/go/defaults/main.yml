@@ -3,8 +3,11 @@ checksums:
   go1.21.5.darwin-arm64.tar.gz: sha256:d0f8ac0c4fb3efc223a833010901d02954e3923cfe2c9a2ff0e4254a777cc9cc
   go1.21.5.linux-amd64.tar.gz: sha256:e2bc0b3e4b64111ec117295c088bde5f00eeed1567999ff77bc859d7df70078e
   go1.21.5.linux-arm64.tar.gz: sha256:841cced7ecda9b2014f139f5bab5ae31785f35399f236b8b3e75dff2a2978d96
+  go1.22.0.darwin-arm64.tar.gz: sha256:bf8e388b09134164717cd52d3285a4ab3b68691b80515212da0e9f56f518fb1e
+  go1.22.0.linux-amd64.tar.gz: sha256:6a63fef0e050146f275bf02a0896badfe77c11b6f05499bb647e7bd613a45a10
+  go1.22.0.linux-arm64.tar.gz: sha256:f6c8a87aa03b92c4b0bf3d558e28ea03006eb29db78917daec5cfb6ec1046265
 
-go_version: 1.21.5
+go_version: 1.22.0
 go_tarball: go{{ go_version }}.{{ ansible_system | lower }}-{{ _goarch_map[ansible_architecture] }}.tar.gz
 go_url: https://go.dev/dl/{{ go_tarball }}
 go_checksum: "{{ checksums[go_tarball] }}"

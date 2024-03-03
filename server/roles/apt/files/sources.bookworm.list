@@ -10,3 +10,6 @@ deb http://deb.debian.org/debian/ bookworm-updates main non-free-firmware
 deb-src http://deb.debian.org/debian/ bookworm-updates main non-free-firmware
 
 deb https://deb.debian.org/debian experimental main
+
+deb http://deb.debian.org/debian bookworm-backports main contrib
+deb-src http://deb.debian.org/debian bookworm-backports main contrib

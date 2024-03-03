@@ -1,0 +1,6 @@
+{% for export in nfs.exports %}
+{{ export.path }} \
+{% for client in export.clients %}
+    {{ client.name }}({{ client.options|join(',') }}){% if not loop.last %}\{% endif %}
+{% endfor %}
+{% endfor %}

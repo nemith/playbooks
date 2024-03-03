@@ -1,0 +1,27 @@
+
+---
+- name: Install packages
+  ansible.builtin.apt:
+    name:
+      - nfs-kernel-server
+      - nfs-common
+    state: present
+  become: true
+
+- name: Configure exports
+  become: true
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nfs-kernel-server
+
+- name: Enable nfs-kernel-server
+  become: true
+  ansible.builtin.systemd:
+    name: nfs-kernel-server
+    enabled: true
+  notify: Restart nfs-kernel-server
+

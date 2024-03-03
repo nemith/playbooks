@@ -7,12 +7,6 @@ hosts:
   - {ip: 192.168.0.17,       names: ["sw02"]}
   - {ip: fdda:56e3:932d::11, names: [sw02]}
   - {ip: 192.168.0.24,       names: [ap01]}
-  - {ip: 192.168.0.64,       names: [kube01-idrac]}
-  - {ip: fdda:56e3:932d::40, names: [kube02-idrac]}
-  - {ip: 192.168.0.65,       names: [kube02-idrac]}
-  - {ip: fdda:56e3:932d::41, names: [kube02-idrac]}
-  - {ip: 192.168.0.66,       names: [kube03-idrac]}
-  - {ip: fdda:56e3:932d::42, names: [kube03-idrac]}
 
 #  - {ip: fdda:56e3:932d::18, names: [ap01]}
 
@@ -25,6 +19,8 @@ hosts:
   - {ip: fdda:56e3:932d:4::1,  names: [fw01-sfp0-2004]}
   - {ip: 192.168.4.32,         names: [kube01]}
   - {ip: fdda:56e3:932d:4::20, names: [kube01]}
+  - {ip: 192.168.4.64,         names: [tank01]}
+  - {ip: fdda:56e3:932d:4::40, names: [tank01]}
 
 chrony:
   servers:

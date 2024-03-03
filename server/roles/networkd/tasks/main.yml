@@ -1,4 +1,11 @@
 ---
+- name: Install packages
+  ansible.builtin.apt:
+    name:
+      - networkd-dispatcher
+    state: present
+  become: true
+
 - name: Remove old config
   ansible.builtin.file:
     path: /etc/network/interfaces

@@ -1,0 +1,19 @@
+---
+- name: Configure apt to use backports for zfs
+  ansible.builtin.copy:
+    src: apt-pref-90_zfs
+    dest: /etc/apt/preferences.d/90_zfs
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Install packages
+  ansible.builtin.apt:
+    name:
+      - dpkg-dev
+      - linux-headers-generic
+      - linux-image-generic
+      - zfs-dkms
+      - zfsutils-linux
+  become: true

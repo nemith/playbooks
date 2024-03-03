@@ -2,10 +2,10 @@
 - name: core setup
   hosts: all
   roles:
-    - sudo # sudo needs to be first
+    - sudo
+    - users
     - apt
     - hostname
-    - users
     - ixgbe
     - networkd
     - chrony
@@ -26,3 +26,11 @@
   hosts: kube
   roles:
     - k3s
+
+- name: tank setup
+  hosts: tank
+  roles:
+    - zfs
+    - nfs
+    - samba
+

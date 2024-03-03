@@ -11,11 +11,6 @@
     - fedora
     - gnome
 
-- name: Debian setup
-  hosts: debian
-  roles:
-    - debian
-
 - name: OSX setup
   hosts: osx
   roles:

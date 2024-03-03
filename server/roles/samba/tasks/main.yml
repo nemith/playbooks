@@ -1,0 +1,25 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    name:
+      - samba
+      - samba-client
+  become: true
+
+- name: Configure samba sever
+  become: true
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/bin/testparm -s %s
+  notify: Restart samba
+
+- name: Enable samaba
+  become: true
+  ansible.builtin.systemd:
+    name: samba
+    enabled: true
+  notify: Restart k3s

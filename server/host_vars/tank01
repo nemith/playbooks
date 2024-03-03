@@ -1,0 +1,33 @@
+hostname: tank01.purgatory.lan
+networkd:
+  networks:
+    - match: {name: enp2s0f0}
+      network:
+        addresses:
+          - 192.168.4.64/24
+          - "{{ ula_prefix }}:4::40/64"
+        dns: "192.168.1.1"
+        domains: [purgatory.lan]
+        lldp: yes
+        emit_lldp: yes
+      route:
+        gateway: 192.168.4.1
+
+samba:
+  shares:
+    - name: media
+      path: /tank/media
+      params:
+        "read only": "no"
+        "guest ok": "no"
+
+nfs:
+  exports:
+    - path: /tank/media
+      clients:
+        - name: 192.168.0.0/16
+          options:
+            - rw
+            - sync
+            - no_subtree_check
+            - no_root_squash
