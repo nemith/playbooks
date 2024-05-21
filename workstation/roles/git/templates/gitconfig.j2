@@ -1,6 +1,6 @@
 [user]
 	name = Brandon Bennett
-	email = brandon@brbe.me
+	email = brandonbennett@roblox.com
 [credential]
 	helper = "{{ git_credential_helper | regex_replace(' ', '\\\\\\\\ ')}}"
 [init]
@@ -20,3 +20,9 @@
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
+[pretty]
+	changelog = %C(yellow)%as%Creset %Cgreen%h%Creset %C(cyan)%<(15,trunc)%aN%Creset %s
+[format]
+	pretty = changelog
+[log]
+	abbrevCommit = true
