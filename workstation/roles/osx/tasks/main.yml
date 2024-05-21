@@ -78,6 +78,7 @@
       - shottr                 # i don't OCR like @coxley
       - parallels              # Too much $$
       - protonmail-bridge      # use fastmail now
+      - iterm2                 # https://gitlab.com/gnachman/iterm2/-/issues/11470
 
 - name: Install applications
   community.general.homebrew_cask:
@@ -109,6 +110,6 @@
       - wireshark
       - zoom
       # fonts
-      - homebrew/cask-fonts/font-meslo-for-powerline
+      - font-meslo-for-powerline
       - font-blex-mono-nerd-font
 
