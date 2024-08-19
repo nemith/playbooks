@@ -1,0 +1,17 @@
+---
+- name: Install tuned packages
+  kewlfft.aur.aur:
+    name:
+      - tuned
+      - tuned-ppd
+    state: present
+
+- name: Enable tuned Services
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - tuned.service
+    - tuned-ppd.service

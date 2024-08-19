@@ -3,8 +3,46 @@
   become: true
   community.general.pacman:
     name:
-      - nvidia
+      - nvidia-open
       - nvidia-settings
       - nvidia-prime
       - nvidia-utils
       - lib32-nvidia-utils
+
+- name: Update nvidia kernel options
+  become: true
+  ansible.builtin.copy:
+    src: modprobe-nvidia.conf
+    dest: /etc/modprobe.d/nvidia.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Regenerate initrd
+
+- name: Enable Nvidia Services
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - nvidia-hibernate.service
+    - nvidia-resume.service
+    - nvidia-suspend.service
+
+- name: Ensure pacman hooks directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/pacman.d/hooks
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Enable pacman hook for initrd
+  become: true
+  ansible.builtin.copy:
+    src: pacman-nvidia.hook
+    dest: /etc/pacman.d/hooks/nvidia.hook
+    owner: root
+    group: root
+    mode: 0644

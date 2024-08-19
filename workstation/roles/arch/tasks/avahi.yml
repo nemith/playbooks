@@ -1,0 +1,25 @@
+---
+- name: Install avahi packages
+  become: true
+  community.general.pacman:
+    name: 
+      - nss-mdns
+
+- name: Enable avahi Service
+  become: true
+  ansible.builtin.systemd:
+    name: avahi-daemon.service
+    enabled: true
+    state: started
+  # restart cups daemon to enable mdns service discovery
+  notify: Restart cups.service
+
+- name: Update nsswitch.conf
+  become: true
+  ansible.builtin.copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify: Restart cups.service

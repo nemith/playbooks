@@ -6,6 +6,14 @@
       - nodejs
       - rustup
       - zig
+      - go
+      - github-cli
+    state: present
+
+- name: Install development packages (aur)
+  kewlfft.aur.aur:
+    name:
+      - gleam-bin
     state: present
 
 - name: Set rustup default toolchain

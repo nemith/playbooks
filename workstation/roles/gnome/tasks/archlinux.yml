@@ -4,13 +4,20 @@
   community.general.pacman:
     name:
       - gdm
+      - geary # email
       - gimp # image editor
       - gnome
       - gnome-firmware # frontend for fwupd
       - gnome-todo
       - gnome-tweaks
+      - gvfs-afc
+      - gvfs-dnssd
+      - gvfs-mtp
+      - gvfs-nfs
+      - gvfs-smb
+      - gvfs-wsdd
       - python-psutil # needed for dconf module below
-      - touchegg # for guestures on X11
+      - seahorse
       - ttf-fira-code
     state: present
 
@@ -18,10 +25,4 @@
   become: true
   ansible.builtin.systemd:
     name: gdm.service
-    enabled: true
-
-- name: Enable touchegg
-  become: true
-  ansible.builtin.systemd:
-    name: touchegg.service
     enabled: true

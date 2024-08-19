@@ -10,8 +10,18 @@
     name: bluetooth.service
     state: restarted
 
+- name: Restart cups.service
+  become: true
+  ansible.builtin.systemd:
+    name: cups.service
+    state: restarted
+
 - name: Restart systemd-timesyncd.service
   become: true
   ansible.builtin.systemd:
     name: systemd-timesyncd.service
     state: restarted
+
+- name: Regenerate initrd
+  become: true
+  ansible.builtin.command: /usr/bin/mkinitcpio -P

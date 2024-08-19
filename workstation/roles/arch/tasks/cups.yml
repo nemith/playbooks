@@ -1,0 +1,14 @@
+---
+- name: Install cups packages
+  become: true
+  community.general.pacman:
+    name: 
+      - cups
+      - cups-pdf
+
+- name: Enable cups Services
+  become: true
+  ansible.builtin.systemd:
+    name: cups
+    enabled: true
+    state: started

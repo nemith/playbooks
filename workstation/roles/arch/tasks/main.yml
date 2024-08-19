@@ -16,29 +16,42 @@
     name:
       # tools
       - acpi
+      - base-devel
       - bind # for dig
       - dmidecode
       - fwupd
       - git
       - htop
-      - ncdu
       - man
       - most
+      - ncdu
+      - neofetch
       - pkgfile
       - plocate
+      - ranger
+      - ripgrep
       - rsync
       - socat
       - strace
-      - base-devel
       - wget
-      - ranger
-      - neofetch
+      - kubectl
+      - tree
+      - bat
+      - broot
+      - mtr
+      - colordiff
+      - duf
+      - fd
+      - iperf3
+      - nmap
+      - procs
+      - sqlite
+      - tldr
 
       # applications
       - discord
       - firefox
       - libreoffice 
-      - spotify-launcher
       - steam
       - wezterm
 
@@ -68,8 +81,8 @@
     name:
       - mangohud
       - lib32-mangohud
-      - sapling-scm
       - slack-desktop
+      - librewolf-bin
     state: present
 
 - name: Enable fstrim.service
@@ -84,13 +97,19 @@
 - name: Configure bluetooth
   ansible.builtin.import_tasks: bluetooth.yml
 
+- name: Configure Avahi
+  ansible.builtin.import_tasks: avahi.yml
+
+- name: Configure CUPS
+  ansible.builtin.import_tasks: cups.yml
+
+- name: Configure tuned
+  ansible.builtin.import_tasks: tuned.yml
+
 - name: Configure Development Environment
   ansible.builtin.import_tasks: devel.yml
-
-- name: Configure Asus G14
-  ansible.builtin.import_tasks: asus_g14.yml
-  when: asus_g14 is defined
 
 - name: Configure NVIDIA
   ansible.builtin.import_tasks: nvidia.yml
   when: nvidia is defined
+

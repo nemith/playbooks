@@ -1,28 +1,20 @@
----
-- name: Arch setup
-  hosts: arch
-  roles:
-    - arch
-    - gnome
-
-- name: Fedora setup
-  hosts: fedora
-  roles:
-    - fedora
-    - gnome
-
-- name: OSX setup
-  hosts: osx
-  roles:
-    - osx
-
-- name: Common workstation
+- name: OS Setup
   hosts: all
   roles:
+    - role: arch
+      when: ansible_distribution == "Archlinux"
+    - role: fedora
+      when: ansible_distribution == "Fedora"
+    - name: osx
+      when: ansible_distribution == "MacOSX"
+
+- name: Workstation setup
+  hosts: workstation
+  roles:
+    - role: gnome
+      when: ansible_system == "Linux"
     - ansible
     - git
-    - go
-    #- neovim
-    # - vscode
-   # - wezterm
+    # - neovim
+    # - wezterm
     - zsh
