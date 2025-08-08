@@ -89,7 +89,7 @@ Enabled:   %s
         Enable the specified IDs.
 
         'repo_ids' can be either a string or a list of strings representing
-        an ID (wilcard included).
+        an ID (wildcard included).
 
         Returns the same object, so calls to this can be chained.
         """
@@ -104,7 +104,7 @@ Enabled:   %s
         Disable the specified IDs.
 
         'repo_ids' can be either a string or a list of strings representing
-        an ID (wilcard included).
+        an ID (wildcard included).
 
         Returns the same object, so calls to this can be chained.
         """
@@ -623,39 +623,6 @@ TEST_CASES = [
         },
         {
             'id': 'test_disable_single',
-            'run_command.calls': [
-                (
-                    [
-                        '/testbin/subscription-manager',
-                        'repos',
-                        '--list',
-                    ],
-                    SUBMAN_KWARGS,
-                    (0, REPOS_LIST_OUTPUT, '')
-                ),
-                (
-                    [
-                        '/testbin/subscription-manager',
-                        'repos',
-                        '--disable',
-                        'awesomeos-99000',
-                    ],
-                    SUBMAN_KWARGS,
-                    (0, '', '')
-                ),
-            ],
-            'changed': True,
-            'repositories': REPOS.copy().disable('awesomeos-99000'),
-        }
-    ],
-    # disable an enabled repository (using state=absent)
-    [
-        {
-            'name': 'awesomeos-99000',
-            'state': 'absent',
-        },
-        {
-            'id': 'test_disable_single_using_absent',
             'run_command.calls': [
                 (
                     [

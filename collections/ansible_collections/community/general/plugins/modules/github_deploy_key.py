@@ -9,15 +9,14 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: github_deploy_key
 author: "Ali (@bincyber)"
 short_description: Manages deploy keys for GitHub repositories
 description:
-  - "Adds or removes deploy keys for GitHub repositories. Supports authentication using username and password,
-  username and password and 2-factor authentication code (OTP), OAuth2 token, or personal access token. Admin
-  rights on the repository are required."
+  - Adds or removes deploy keys for GitHub repositories. Supports authentication using username and password, username and
+    password and 2-factor authentication code (OTP), OAuth2 token, or personal access token. Admin rights on the repository
+    are required.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -28,7 +27,7 @@ attributes:
 options:
   github_url:
     description:
-      - The base URL of the GitHub API
+      - The base URL of the GitHub API.
     required: false
     type: str
     version_added: '0.2.0'
@@ -37,19 +36,19 @@ options:
     description:
       - The name of the individual account or organization that owns the GitHub repository.
     required: true
-    aliases: [ 'account', 'organization' ]
+    aliases: ['account', 'organization']
     type: str
   repo:
     description:
       - The name of the GitHub repository.
     required: true
-    aliases: [ 'repository' ]
+    aliases: ['repository']
     type: str
   name:
     description:
       - The name for the deploy key.
     required: true
-    aliases: [ 'title', 'label' ]
+    aliases: ['title', 'label']
     type: str
   key:
     description:
@@ -58,14 +57,15 @@ options:
     type: str
   read_only:
     description:
-      - If V(true), the deploy key will only be able to read repository contents. Otherwise, the deploy key will be able to read and write.
+      - If V(true), the deploy key is only able to read repository contents. Otherwise, the deploy key is able to read and
+        write.
     type: bool
     default: true
   state:
     description:
       - The state of the deploy key.
     default: "present"
-    choices: [ "present", "absent" ]
+    choices: ["present", "absent"]
     type: str
   force:
     description:
@@ -74,11 +74,12 @@ options:
     default: false
   username:
     description:
-      - The username to authenticate with. Should not be set when using personal access token
+      - The username to authenticate with. Should not be set when using personal access token.
     type: str
   password:
     description:
-      - The password to authenticate with. Alternatively, a personal access token can be used instead of O(username) and O(password) combination.
+      - The password to authenticate with. Alternatively, a personal access token can be used instead of O(username) and O(password)
+        combination.
     type: str
   token:
     description:
@@ -89,10 +90,10 @@ options:
       - The 6 digit One Time Password for 2-Factor Authentication. Required together with O(username) and O(password).
     type: int
 notes:
-   - "Refer to GitHub's API documentation here: https://developer.github.com/v3/repos/keys/."
-'''
+  - "Refer to GitHub's API documentation here: https://developer.github.com/v3/repos/keys/."
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Add a new read-only deploy key to a GitHub repository using basic authentication
   community.general.github_deploy_key:
     owner: "johndoe"
@@ -152,33 +153,33 @@ EXAMPLES = '''
     read_only: true
     username: "janedoe"
     password: "supersecretpassword"
-'''
+"""
 
-RETURN = '''
+RETURN = r"""
 msg:
-    description: the status message describing what occurred
-    returned: always
-    type: str
-    sample: "Deploy key added successfully"
+  description: The status message describing what occurred.
+  returned: always
+  type: str
+  sample: "Deploy key added successfully"
 
 http_status_code:
-    description: the HTTP status code returned by the GitHub API
-    returned: failed
-    type: int
-    sample: 400
+  description: The HTTP status code returned by the GitHub API.
+  returned: failed
+  type: int
+  sample: 400
 
 error:
-    description: the error message returned by the GitHub API
-    returned: failed
-    type: str
-    sample: "key is already in use"
+  description: The error message returned by the GitHub API.
+  returned: failed
+  type: str
+  sample: "key is already in use"
 
 id:
-    description: the key identifier assigned by GitHub for the deploy key
-    returned: changed
-    type: int
-    sample: 24381901
-'''
+  description: The key identifier assigned by GitHub for the deploy key.
+  returned: changed
+  type: int
+  sample: 24381901
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
@@ -227,7 +228,7 @@ class GithubDeployKey(object):
                 yield self.module.from_json(resp.read())
 
                 links = {}
-                for x, y in findall(r'<([^>]+)>;\s*rel="(\w+)"', info["link"]):
+                for x, y in findall(r'<([^>]+)>;\s*rel="(\w+)"', info.get("link", '')):
                     links[y] = x
 
                 url = links.get('next')
@@ -258,7 +259,12 @@ class GithubDeployKey(object):
             key_id = response_body["id"]
             self.module.exit_json(changed=True, msg="Deploy key successfully added", id=key_id)
         elif status_code == 422:
-            self.module.exit_json(changed=False, msg="Deploy key already exists")
+            # there might be multiple reasons for a 422
+            # so we must check if the reason is that the key already exists
+            if self.get_existing_key():
+                self.module.exit_json(changed=False, msg="Deploy key already exists")
+            else:
+                self.handle_error(method="POST", info=info)
         else:
             self.handle_error(method="POST", info=info)
 
@@ -295,18 +301,18 @@ class GithubDeployKey(object):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            github_url=dict(required=False, type='str', default="https://api.github.com"),
+            github_url=dict(type='str', default="https://api.github.com"),
             owner=dict(required=True, type='str', aliases=['account', 'organization']),
             repo=dict(required=True, type='str', aliases=['repository']),
             name=dict(required=True, type='str', aliases=['title', 'label']),
             key=dict(required=True, type='str', no_log=False),
-            read_only=dict(required=False, type='bool', default=True),
+            read_only=dict(type='bool', default=True),
             state=dict(default='present', choices=['present', 'absent']),
-            force=dict(required=False, type='bool', default=False),
-            username=dict(required=False, type='str'),
-            password=dict(required=False, type='str', no_log=True),
-            otp=dict(required=False, type='int', no_log=True),
-            token=dict(required=False, type='str', no_log=True)
+            force=dict(type='bool', default=False),
+            username=dict(type='str'),
+            password=dict(type='str', no_log=True),
+            otp=dict(type='int', no_log=True),
+            token=dict(type='str', no_log=True)
         ),
         mutually_exclusive=[
             ['password', 'token']

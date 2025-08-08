@@ -10,13 +10,17 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 author: Kairo Araujo (@kairoaraujo)
 module: mksysb
 short_description: Generates AIX mksysb rootvg backups
 description:
   - This module manages a basic AIX mksysb (image) of rootvg.
+seealso:
+  - name: C(mksysb) command manual page
+    description: Manual page for the command.
+    link: https://www.ibm.com/docs/en/aix/7.3?topic=m-mksysb-command
+
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -58,7 +62,7 @@ options:
   name:
     type: str
     description:
-      - Backup name
+      - Backup name.
     required: true
   new_image_data:
     description:
@@ -67,41 +71,36 @@ options:
     default: true
   software_packing:
     description:
-      - Exclude files from packing option listed in
-        C(/etc/exclude_packing.rootvg).
+      - Exclude files from packing option listed in C(/etc/exclude_packing.rootvg).
     type: bool
     default: false
   storage_path:
     type: str
     description:
-      - Storage path where the mksysb will stored.
+      - Storage path where the mksysb backup is stored.
     required: true
   use_snapshot:
     description:
       - Creates backup using snapshots.
     type: bool
     default: false
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Running a backup image mksysb
   community.general.mksysb:
     name: myserver
     storage_path: /repository/images
     exclude_files: true
     exclude_wpar_files: true
-'''
+"""
 
-RETURN = '''
-changed:
-  description: Return changed for mksysb actions as true or false.
-  returned: always
-  type: bool
+RETURN = r"""
 msg:
   description: Return message regarding the action.
   returned: always
   type: str
-'''
+"""
 
 import os
 

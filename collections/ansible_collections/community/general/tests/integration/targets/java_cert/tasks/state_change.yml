@@ -147,7 +147,7 @@
     that:
       - result_x509_changed is failed
 
-- name:  import initial test certificate from file path
+- name: Import initial test certificate from file path
   community.general.java_cert:
     cert_alias: test_cert
     cert_path: "{{ test_cert_path }}"
@@ -181,7 +181,7 @@
       - result_x509_changed is changed
 
 - name: |
-    We also want to make sure that the status doesnt change if we import the same cert
+    We also want to make sure that the status does not change if we import the same cert
   community.general.java_cert:
     cert_alias: test_cert
     cert_path: "{{ test_cert2_path }}"

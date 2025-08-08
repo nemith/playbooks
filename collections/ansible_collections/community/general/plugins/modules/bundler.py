@@ -9,12 +9,11 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: bundler
 short_description: Manage Ruby Gem dependencies with Bundler
 description:
-  - Manage installation and Gem version dependencies for Ruby using the Bundler gem
+  - Manage installation and Gem version dependencies for Ruby using the Bundler gem.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -26,80 +25,72 @@ options:
   executable:
     type: str
     description:
-      - The path to the bundler executable
+      - The path to the bundler executable.
   state:
     type: str
     description:
-      - The desired state of the Gem bundle. V(latest) updates gems to the most recent, acceptable version
+      - The desired state of the Gem bundle. V(latest) updates gems to the most recent, acceptable version.
     choices: [present, latest]
     default: present
   chdir:
     type: path
     description:
-      - The directory to execute the bundler commands from. This directory
-        needs to contain a valid Gemfile or .bundle/ directory
-      - If not specified, it will default to the temporary working directory
+      - The directory to execute the bundler commands from. This directory needs to contain a valid Gemfile or .bundle/ directory.
+      - If not specified, it defaults to the temporary working directory.
   exclude_groups:
     type: list
     elements: str
     description:
-      - A list of Gemfile groups to exclude during operations. This only
-        applies when O(state=present). Bundler considers this
-        a 'remembered' property for the Gemfile and will automatically exclude
-        groups in future operations even if O(exclude_groups) is not set
+      - A list of Gemfile groups to exclude during operations. This only applies when O(state=present). Bundler considers
+        this a 'remembered' property for the Gemfile and automatically excludes groups in future operations even if O(exclude_groups)
+        is not set.
   clean:
     description:
-      - Only applies if O(state=present). If set removes any gems on the
-        target host that are not in the gemfile
+      - Only applies if O(state=present). If set removes any gems on the target host that are not in the gemfile.
     type: bool
     default: false
   gemfile:
     type: path
     description:
       - Only applies if O(state=present). The path to the gemfile to use to install gems.
-      - If not specified it will default to the Gemfile in current directory
+      - If not specified it defaults to the Gemfile in current directory.
   local:
     description:
-      - If set only installs gems from the cache on the target host
+      - If set only installs gems from the cache on the target host.
     type: bool
     default: false
   deployment_mode:
     description:
-      - Only applies if O(state=present). If set it will install gems in
-        ./vendor/bundle instead of the default location. Requires a Gemfile.lock
-        file to have been created prior
+      - Only applies if O(state=present). If set it installs gems in C(./vendor/bundle) instead of the default location. Requires
+        a C(Gemfile.lock) file to have been created prior.
     type: bool
     default: false
   user_install:
     description:
-      - Only applies if O(state=present). Installs gems in the local user's cache or for all users
+      - Only applies if O(state=present). Installs gems in the local user's cache or for all users.
     type: bool
     default: true
   gem_path:
     type: path
     description:
-      - Only applies if O(state=present). Specifies the directory to
-        install the gems into. If O(chdir) is set then this path is relative to
-        O(chdir)
-      - If not specified the default RubyGems gem paths will be used.
+      - Only applies if O(state=present). Specifies the directory to install the gems into. If O(chdir) is set then this path
+        is relative to O(chdir).
+      - If not specified the default RubyGems gem paths are used.
   binstub_directory:
     type: path
     description:
-      - Only applies if O(state=present). Specifies the directory to
-        install any gem bins files to. When executed the bin files will run
-        within the context of the Gemfile and fail if any required gem
-        dependencies are not installed. If O(chdir) is set then this path is
-        relative to O(chdir)
+      - Only applies if O(state=present). Specifies the directory to install any gem bins files to. When executed the bin
+        files run within the context of the Gemfile and fail if any required gem dependencies are not installed. If O(chdir)
+        is set then this path is relative to O(chdir).
   extra_args:
     type: str
     description:
-      - A space separated string of additional commands that can be applied to
-        the Bundler command. Refer to the Bundler documentation for more
-        information
+      - A space separated string of additional commands that can be applied to the Bundler command. Refer to the Bundler documentation
+        for more information.
 author: "Tim Hoiberg (@thoiberg)"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Install gems from a Gemfile in the current directory
   community.general.bundler:
     state: present
@@ -124,7 +115,7 @@ EXAMPLES = '''
   community.general.bundler:
     state: latest
     chdir: ~/rails_project
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -140,18 +131,18 @@ def get_bundler_executable(module):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            executable=dict(default=None, required=False),
-            state=dict(default='present', required=False, choices=['present', 'latest']),
-            chdir=dict(default=None, required=False, type='path'),
-            exclude_groups=dict(default=None, required=False, type='list', elements='str'),
-            clean=dict(default=False, required=False, type='bool'),
-            gemfile=dict(default=None, required=False, type='path'),
-            local=dict(default=False, required=False, type='bool'),
-            deployment_mode=dict(default=False, required=False, type='bool'),
-            user_install=dict(default=True, required=False, type='bool'),
-            gem_path=dict(default=None, required=False, type='path'),
-            binstub_directory=dict(default=None, required=False, type='path'),
-            extra_args=dict(default=None, required=False),
+            executable=dict(),
+            state=dict(default='present', choices=['present', 'latest']),
+            chdir=dict(type='path'),
+            exclude_groups=dict(type='list', elements='str'),
+            clean=dict(default=False, type='bool'),
+            gemfile=dict(type='path'),
+            local=dict(default=False, type='bool'),
+            deployment_mode=dict(default=False, type='bool'),
+            user_install=dict(default=True, type='bool'),
+            gem_path=dict(type='path'),
+            binstub_directory=dict(type='path'),
+            extra_args=dict(),
         ),
         supports_check_mode=True
     )

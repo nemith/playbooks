@@ -12,13 +12,13 @@ hosts:
 
   - {ip: 192.168.1.1,         names: [fw01-sfp0-2001]}
   - {ip: fdda:56e3:932d:1::1, names: [fw01-sfp0-2001]}
-  - {ip: 192.168.1.18,        names: [homeassistant, hass]}
+#  - {ip: 192.168.1.18,        names: [homeassistant, hass]}
 
   # servers
   - {ip: 192.168.4.1,          names: [fw01-sfp0-2004]}
   - {ip: fdda:56e3:932d:4::1,  names: [fw01-sfp0-2004]}
-  - {ip: 192.168.4.32,         names: [kube01]}
-  - {ip: fdda:56e3:932d:4::20, names: [kube01]}
+#  - {ip: 192.168.4.32,         names: [kube01]}
+#  - {ip: fdda:56e3:932d:4::20, names: [kube01]}
   - {ip: 192.168.4.64,         names: [tank01]}
   - {ip: fdda:56e3:932d:4::40, names: [tank01]}
 

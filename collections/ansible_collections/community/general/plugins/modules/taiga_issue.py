@@ -9,8 +9,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: taiga_issue
 short_description: Creates/deletes an issue in a Taiga Project Management Platform
 description:
@@ -89,10 +88,11 @@ options:
 author: Alejandro Guirao (@lekum)
 requirements: [python-taiga]
 notes:
-- The authentication is achieved either by the environment variable TAIGA_TOKEN or by the pair of environment variables TAIGA_USERNAME and TAIGA_PASSWORD
-'''
+  - The authentication is achieved either by the environment variable E(TAIGA_TOKEN) or by the pair of environment variables
+    E(TAIGA_USERNAME) and E(TAIGA_PASSWORD).
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create an issue in the my hosted Taiga environment and attach an error log
   community.general.taiga_issue:
     taiga_host: https://mytaigahost.example.com
@@ -117,9 +117,9 @@ EXAMPLES = '''
     subject: An error has been found
     issue_type: Bug
     state: absent
-'''
+"""
 
-RETURN = '''# '''
+RETURN = """#"""
 import traceback
 
 from os import getenv
@@ -255,18 +255,18 @@ def manage_issue(taiga_host, project_name, issue_subject, issue_priority,
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            taiga_host=dict(type='str', required=False, default="https://api.taiga.io"),
+            taiga_host=dict(type='str', default="https://api.taiga.io"),
             project=dict(type='str', required=True),
             subject=dict(type='str', required=True),
             issue_type=dict(type='str', required=True),
-            priority=dict(type='str', required=False, default="Normal"),
-            status=dict(type='str', required=False, default="New"),
-            severity=dict(type='str', required=False, default="Normal"),
-            description=dict(type='str', required=False, default=""),
-            attachment=dict(type='path', required=False, default=None),
-            attachment_description=dict(type='str', required=False, default=""),
-            tags=dict(required=False, default=[], type='list', elements='str'),
-            state=dict(type='str', required=False, choices=['present', 'absent'], default='present'),
+            priority=dict(type='str', default="Normal"),
+            status=dict(type='str', default="New"),
+            severity=dict(type='str', default="Normal"),
+            description=dict(type='str', default=""),
+            attachment=dict(type='path'),
+            attachment_description=dict(type='str', default=""),
+            tags=dict(default=[], type='list', elements='str'),
+            state=dict(type='str', choices=['present', 'absent'], default='present'),
         ),
         supports_check_mode=True
     )

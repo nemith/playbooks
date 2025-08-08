@@ -10,20 +10,19 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 module: gitlab_instance_variable
 short_description: Creates, updates, or deletes GitLab instance variables
 version_added: 7.1.0
 description:
   - Creates a instance variable if it does not exist.
-  - When a instance variable does exist, its value will be updated if the values are different.
+  - When a instance variable does exist, its value is updated if the values are different.
   - Support for instance variables requires GitLab >= 13.0.
-  - Variables which are not mentioned in the modules options, but are present on the GitLab instance,
-    will either stay (O(purge=false)) or will be deleted (O(purge=true)).
+  - Variables which are not mentioned in the modules options, but are present on the GitLab instance, either stay (O(purge=false))
+    or are deleted (O(purge=true)).
 author:
   - Benedikt Braunger (@benibr)
 requirements:
-  - python >= 2.7
   - python-gitlab python module
 extends_documentation_fragment:
   - community.general.auth_basic
@@ -67,24 +66,31 @@ options:
         type: str
       masked:
         description:
-          - Wether variable value is masked or not.
+          - Whether variable value is masked or not.
         type: bool
         default: false
       protected:
         description:
-          - Wether variable value is protected or not.
+          - Whether variable value is protected or not.
         type: bool
         default: false
+      raw:
+        description:
+          - Whether variable value is raw or not.
+          - Support for raw values requires GitLab >= 15.7.
+        type: bool
+        default: false
+        version_added: 10.2.0
       variable_type:
         description:
-          - Wether a variable is an environment variable (V(env_var)) or a file (V(file)).
+          - Whether a variable is an environment variable (V(env_var)) or a file (V(file)).
         type: str
-        choices: [ "env_var", "file" ]
+        choices: ["env_var", "file"]
         default: env_var
-'''
+"""
 
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Set or update some CI/CD variables
   community.general.gitlab_instance_variable:
     api_url: https://gitlab.com
@@ -106,9 +112,9 @@ EXAMPLES = r'''
     state: absent
     variables:
       - name: ACCESS_KEY_ID
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 instance_variable:
   description: Four lists of the variablenames which were added, updated, removed or exist.
   returned: always
@@ -118,28 +124,29 @@ instance_variable:
       description: A list of variables which were created.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     untouched:
       description: A list of variables which exist.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     removed:
       description: A list of variables which were deleted.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     updated:
       description: A list pre-existing variables whose values have been set.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
-'''
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.api import basic_auth_argument_spec
 from ansible_collections.community.general.plugins.module_utils.gitlab import (
-    auth_argument_spec, gitlab_authentication, ensure_gitlab_package, filter_returned_variables
+    auth_argument_spec, gitlab_authentication, filter_returned_variables,
+    list_all_kwargs
 )
 
 
@@ -150,14 +157,7 @@ class GitlabInstanceVariables(object):
         self._module = module
 
     def list_all_instance_variables(self):
-        page_nb = 1
-        variables = []
-        gl_varibales_page = self.instance.variables.list(page=page_nb)
-        while len(gl_varibales_page) > 0:
-            variables += gl_varibales_page
-            page_nb += 1
-            gl_varibales_page = self.instance.variables.list(page=page_nb)
-        return variables
+        return list(self.instance.variables.list(**list_all_kwargs))
 
     def create_variable(self, var_obj):
         if self._module.check_mode:
@@ -167,6 +167,7 @@ class GitlabInstanceVariables(object):
             "value": var_obj.get('value'),
             "masked": var_obj.get('masked'),
             "protected": var_obj.get('protected'),
+            "raw": var_obj.get('raw'),
             "variable_type": var_obj.get('variable_type'),
         }
 
@@ -234,6 +235,8 @@ def native_python_main(this_gitlab, purge, requested_variables, state, module):
             item['protected'] = False
         if item.get('masked') is None:
             item['masked'] = False
+        if item.get('raw') is None:
+            item['raw'] = False
         if item.get('variable_type') is None:
             item['variable_type'] = 'env_var'
 
@@ -298,12 +301,13 @@ def main():
     argument_spec = basic_auth_argument_spec()
     argument_spec.update(auth_argument_spec())
     argument_spec.update(
-        purge=dict(type='bool', required=False, default=False),
-        variables=dict(type='list', elements='dict', required=False, default=list(), options=dict(
+        purge=dict(type='bool', default=False),
+        variables=dict(type='list', elements='dict', default=list(), options=dict(
             name=dict(type='str', required=True),
             value=dict(type='str', no_log=True),
             masked=dict(type='bool', default=False),
             protected=dict(type='bool', default=False),
+            raw=dict(type='bool', default=False),
             variable_type=dict(type='str', default='env_var', choices=["env_var", "file"])
         )),
         state=dict(type='str', default="present", choices=["absent", "present"]),
@@ -326,7 +330,9 @@ def main():
         ],
         supports_check_mode=True
     )
-    ensure_gitlab_package(module)
+
+    # check prerequisites and connect to gitlab server
+    gitlab_instance = gitlab_authentication(module)
 
     purge = module.params['purge']
     state = module.params['state']
@@ -336,8 +342,6 @@ def main():
     if state == 'present':
         if any(x['value'] is None for x in variables):
             module.fail_json(msg='value parameter is required in state present')
-
-    gitlab_instance = gitlab_authentication(module)
 
     this_gitlab = GitlabInstanceVariables(module=module, gitlab_instance=gitlab_instance)
 

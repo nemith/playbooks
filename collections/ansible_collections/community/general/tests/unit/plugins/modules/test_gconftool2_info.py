@@ -8,9 +8,7 @@ __metaclass__ = type
 
 
 from ansible_collections.community.general.plugins.modules import gconftool2_info
-from .helper import Helper
+from .uthelper import UTHelper, RunCommandMock
 
 
-helper = Helper.from_file(gconftool2_info.main, "tests/unit/plugins/modules/test_gconftool2_info.yaml")
-patch_bin = helper.cmd_fixture
-test_module = helper.test_module
+UTHelper.from_module(gconftool2_info, __name__, mocks=[RunCommandMock])

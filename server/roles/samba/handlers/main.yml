@@ -4,3 +4,9 @@
   ansible.builtin.service:
     name: samba
     state: restarted
+
+- name: Restart wsdd2
+  become: true
+  ansible.builtin.service:
+    name: wsdd2
+    state: restarted

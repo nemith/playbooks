@@ -9,19 +9,18 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 module: gitlab_group_variable
 short_description: Creates, updates, or deletes GitLab groups variables
 version_added: 1.2.0
 description:
   - Creates a group variable if it does not exist.
-  - When a group variable does exist, its value will be updated when the values are different.
-  - Variables which are untouched in the playbook, but are not untouched in the GitLab group,
-    they stay untouched (O(purge=false)) or will be deleted (O(purge=true)).
+  - When a group variable does exist, its value is updated when the values are different.
+  - Variables which are untouched in the playbook, but are not untouched in the GitLab group, they stay untouched (O(purge=false))
+    or are deleted (O(purge=true)).
 author:
   - Florent Madiot (@scodeman)
 requirements:
-  - python >= 2.7
   - python-gitlab python module
 extends_documentation_fragment:
   - community.general.auth_basic
@@ -53,9 +52,9 @@ options:
     type: bool
   vars:
     description:
-      - When the list element is a simple key-value pair, masked, raw and protected will be set to false.
-      - When the list element is a dict with the keys C(value), C(masked), C(raw) and C(protected), the user can
-        have full control about whether a value should be masked, raw, protected or both.
+      - When the list element is a simple key-value pair, masked, raw and protected are set to V(false).
+      - When the list element is a dict with the keys C(value), C(masked), C(raw) and C(protected), the user can have full
+        control about whether a value should be masked, raw, protected or both.
       - Support for group variables requires GitLab >= 9.5.
       - Support for environment_scope requires GitLab Premium >= 13.11.
       - Support for protected values requires GitLab >= 9.3.
@@ -63,15 +62,15 @@ options:
       - Support for raw values requires GitLab >= 15.7.
       - A C(value) must be a string or a number.
       - Field C(variable_type) must be a string with either V(env_var), which is the default, or V(file).
-      - When a value is masked, it must be in Base64 and have a length of at least 8 characters.
-        See GitLab documentation on acceptable values for a masked variable (U(https://docs.gitlab.com/ce/ci/variables/#masked-variables)).
+      - When a value is masked, it must be in Base64 and have a length of at least 8 characters. See GitLab documentation
+        on acceptable values for a masked variable (U(https://docs.gitlab.com/ce/ci/variables/#masked-variables)).
     default: {}
     type: dict
   variables:
     version_added: 4.5.0
     description:
       - A list of dictionaries that represents CI/CD variables.
-      - This modules works internal with this sructure, even if the older O(vars) parameter is used.
+      - This modules works internal with this structure, even if the older O(vars) parameter is used.
     default: []
     type: list
     elements: dict
@@ -88,36 +87,36 @@ options:
         type: str
       masked:
         description:
-          - Wether variable value is masked or not.
+          - Whether variable value is masked or not.
         type: bool
         default: false
       protected:
         description:
-          - Wether variable value is protected or not.
+          - Whether variable value is protected or not.
         type: bool
         default: false
       raw:
         description:
-          - Wether variable value is raw or not.
+          - Whether variable value is raw or not.
           - Support for raw values requires GitLab >= 15.7.
         type: bool
         default: false
         version_added: '7.4.0'
       variable_type:
         description:
-          - Wether a variable is an environment variable (V(env_var)) or a file (V(file)).
+          - Whether a variable is an environment variable (V(env_var)) or a file (V(file)).
         type: str
-        choices: [ "env_var", "file" ]
+        choices: ["env_var", "file"]
         default: env_var
       environment_scope:
         description:
           - The scope for the variable.
         type: str
         default: '*'
-'''
+"""
 
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Set or update some CI/CD variables
   community.general.gitlab_group_variable:
     api_url: https://gitlab.com
@@ -174,9 +173,9 @@ EXAMPLES = r'''
     state: absent
     vars:
       ACCESS_KEY_ID: abc123
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 group_variable:
   description: Four lists of the variablenames which were added, updated, removed or exist.
   returned: always
@@ -186,28 +185,29 @@ group_variable:
       description: A list of variables which were created.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     untouched:
       description: A list of variables which exist.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     removed:
       description: A list of variables which were deleted.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
     updated:
       description: A list of variables whose values were changed.
       returned: always
       type: list
-      sample: ['ACCESS_KEY_ID', 'SECRET_ACCESS_KEY']
-'''
+      sample: ["ACCESS_KEY_ID", "SECRET_ACCESS_KEY"]
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.api import basic_auth_argument_spec
 from ansible_collections.community.general.plugins.module_utils.gitlab import (
-    auth_argument_spec, gitlab_authentication, ensure_gitlab_package, filter_returned_variables, vars_to_variables
+    auth_argument_spec, gitlab_authentication, filter_returned_variables, vars_to_variables,
+    list_all_kwargs
 )
 
 
@@ -222,14 +222,7 @@ class GitlabGroupVariables(object):
         return self.repo.groups.get(group_name)
 
     def list_all_group_variables(self):
-        page_nb = 1
-        variables = []
-        vars_page = self.group.variables.list(page=page_nb)
-        while len(vars_page) > 0:
-            variables += vars_page
-            page_nb += 1
-            vars_page = self.group.variables.list(page=page_nb)
-        return variables
+        return list(self.group.variables.list(**list_all_kwargs))
 
     def create_variable(self, var_obj):
         if self._module.check_mode:
@@ -379,11 +372,11 @@ def main():
     argument_spec.update(auth_argument_spec())
     argument_spec.update(
         group=dict(type='str', required=True),
-        purge=dict(type='bool', required=False, default=False),
-        vars=dict(type='dict', required=False, default=dict(), no_log=True),
+        purge=dict(type='bool', default=False),
+        vars=dict(type='dict', default=dict(), no_log=True),
         # please mind whenever changing the variables dict to also change module_utils/gitlab.py's
         # KNOWN dict in filter_returned_variables or bad evil will happen
-        variables=dict(type='list', elements='dict', required=False, default=list(), options=dict(
+        variables=dict(type='list', elements='dict', default=list(), options=dict(
             name=dict(type='str', required=True),
             value=dict(type='str', no_log=True),
             masked=dict(type='bool', default=False),
@@ -413,7 +406,9 @@ def main():
         ],
         supports_check_mode=True
     )
-    ensure_gitlab_package(module)
+
+    # check prerequisites and connect to gitlab server
+    gitlab_instance = gitlab_authentication(module)
 
     purge = module.params['purge']
     var_list = module.params['vars']
@@ -427,8 +422,6 @@ def main():
     if state == 'present':
         if any(x['value'] is None for x in variables):
             module.fail_json(msg='value parameter is required in state present')
-
-    gitlab_instance = gitlab_authentication(module)
 
     this_gitlab = GitlabGroupVariables(module=module, gitlab_instance=gitlab_instance)
 

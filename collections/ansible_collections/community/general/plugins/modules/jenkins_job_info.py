@@ -9,13 +9,11 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: jenkins_job_info
 short_description: Get information about Jenkins jobs
 description:
   - This module can be used to query information about which Jenkins jobs which already exists.
-  - This module was called C(jenkins_job_facts) before Ansible 2.9. The usage did not change.
 requirements:
   - "python-jenkins >= 0.4.12"
 extends_documentation_fragment:
@@ -52,18 +50,18 @@ options:
   user:
     type: str
     description:
-       - User to authenticate with the Jenkins server.
+      - User to authenticate with the Jenkins server.
   validate_certs:
     description:
-       - If set to V(false), the SSL certificates will not be validated.
-       - This should only set to V(false) used on personally controlled sites using self-signed certificates.
+      - If set to V(false), the SSL certificates are not validated.
+      - This should only set to V(false) used on personally controlled sites using self-signed certificates.
     default: true
     type: bool
 author:
   - "Chris St. Pierre (@stpierre)"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 # Get all Jenkins jobs anonymously
 - community.general.jenkins_job_info:
     user: admin
@@ -122,26 +120,24 @@ EXAMPLES = '''
     user: admin
     token: 126df5c60d66c66e3b75b11104a16a8a
     url: https://jenkins.example.com
-    validate_certs: false
   register: my_jenkins_job_info
-'''
+"""
 
-RETURN = '''
----
+RETURN = r"""
 jobs:
-  description: All jobs found matching the specified criteria
+  description: All jobs found matching the specified criteria.
   returned: success
   type: list
   sample:
     [
-        {
-            "name": "test-job",
-            "fullname": "test-folder/test-job",
-            "url": "http://localhost:8080/job/test-job/",
-            "color": "blue"
-        },
+      {
+        "name": "test-job",
+        "fullname": "test-folder/test-job",
+        "url": "http://localhost:8080/job/test-job/",
+        "color": "blue"
+      }
     ]
-'''
+"""
 
 import ssl
 import fnmatch
@@ -214,8 +210,8 @@ def get_jobs(module):
             jobs = all_jobs
         # python-jenkins includes the internal Jenkins class used for each job
         # in its return value; we strip that out because the leading underscore
-        # (and the fact that it's not documented in the python-jenkins docs)
-        # indicates that it's not part of the dependable public interface.
+        # (and the fact that it is not documented in the python-jenkins docs)
+        # indicates that it is not part of the dependable public interface.
         for job in jobs:
             if "_class" in job:
                 del job["_class"]

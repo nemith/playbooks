@@ -9,66 +9,64 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: apache2_module
 author:
-    - Christian Berendt (@berendt)
-    - Ralf Hertel (@n0trax)
-    - Robin Roth (@robinro)
+  - Christian Berendt (@berendt)
+  - Ralf Hertel (@n0trax)
+  - Robin Roth (@robinro)
 short_description: Enables/disables a module of the Apache2 webserver
 description:
-   - Enables or disables a specified module of the Apache2 webserver.
+  - Enables or disables a specified module of the Apache2 webserver.
 extends_documentation_fragment:
-   - community.general.attributes
+  - community.general.attributes
 attributes:
-   check_mode:
-     support: full
-   diff_mode:
-     support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-   name:
-     type: str
-     description:
-        - Name of the module to enable/disable as given to C(a2enmod/a2dismod).
-     required: true
-   identifier:
-     type: str
-     description:
-         - Identifier of the module as listed by C(apache2ctl -M).
-           This is optional and usually determined automatically by the common convention of
-           appending V(_module) to O(name) as well as custom exception for popular modules.
-     required: false
-   force:
-     description:
-        - Force disabling of default modules and override Debian warnings.
-     required: false
-     type: bool
-     default: false
-   state:
-     type: str
-     description:
-        - Desired state of the module.
-     choices: ['present', 'absent']
-     default: present
-   ignore_configcheck:
-     description:
-        - Ignore configuration checks about inconsistent module configuration. Especially for mpm_* modules.
-     type: bool
-     default: false
-   warn_mpm_absent:
-     description:
-        - Control the behavior of the warning process for MPM modules.
-     type: bool
-     default: true
-     version_added: 6.3.0
-requirements: ["a2enmod","a2dismod"]
+  name:
+    type: str
+    description:
+      - Name of the module to enable/disable as given to C(a2enmod)/C(a2dismod).
+    required: true
+  identifier:
+    type: str
+    description:
+      - Identifier of the module as listed by C(apache2ctl -M). This is optional and usually determined automatically by the
+        common convention of appending V(_module) to O(name) as well as custom exception for popular modules.
+    required: false
+  force:
+    description:
+      - Force disabling of default modules and override Debian warnings.
+    required: false
+    type: bool
+    default: false
+  state:
+    type: str
+    description:
+      - Desired state of the module.
+    choices: ['present', 'absent']
+    default: present
+  ignore_configcheck:
+    description:
+      - Ignore configuration checks about inconsistent module configuration. Especially for mpm_* modules.
+    type: bool
+    default: false
+  warn_mpm_absent:
+    description:
+      - Control the behavior of the warning process for MPM modules.
+    type: bool
+    default: true
+    version_added: 6.3.0
+requirements: ["a2enmod", "a2dismod"]
 notes:
-  - This does not work on RedHat-based distributions. It does work on Debian- and SuSE-based distributions.
-    Whether it works on others depend on whether the C(a2enmod) and C(a2dismod) tools are available or not.
-'''
+  - This does not work on RedHat-based distributions. It does work on Debian- and SuSE-based distributions. Whether it works
+    on others depend on whether the C(a2enmod) and C(a2dismod) tools are available or not.
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Enable the Apache2 module wsgi
   community.general.apache2_module:
     state: present
@@ -98,40 +96,24 @@ EXAMPLES = '''
     warn_mpm_absent: false
     ignore_configcheck: true
   loop:
-  - module: mpm_event
-    state: absent
-  - module: mpm_prefork
-    state: present
+    - module: mpm_event
+      state: absent
+    - module: mpm_prefork
+      state: present
 
 - name: Enable dump_io module, which is identified as dumpio_module inside apache2
   community.general.apache2_module:
     state: present
     name: dump_io
     identifier: dumpio_module
-'''
+"""
 
-RETURN = '''
+RETURN = r"""
 result:
-    description: message about action taken
-    returned: always
-    type: str
-warnings:
-    description: list of warning messages
-    returned: when needed
-    type: list
-rc:
-    description: return code of underlying command
-    returned: failed
-    type: int
-stdout:
-    description: stdout of underlying command
-    returned: failed
-    type: str
-stderr:
-    description: stderr of underlying command
-    returned: failed
-    type: str
-'''
+  description: Message about action taken.
+  returned: always
+  type: str
+"""
 
 import re
 
@@ -166,12 +148,12 @@ def _module_is_enabled(module):
         if module.params['ignore_configcheck']:
             if 'AH00534' in stderr and 'mpm_' in module.params['name']:
                 if module.params['warn_mpm_absent']:
-                    module.warnings.append(
+                    module.warn(
                         "No MPM module loaded! apache2 reload AND other module actions"
                         " will fail if no MPM module is loaded immediately."
                     )
             else:
-                module.warnings.append(error_msg)
+                module.warn(error_msg)
             return False
         else:
             module.fail_json(msg=error_msg)
@@ -196,6 +178,7 @@ def create_apache_identifier(name):
 
     # re expressions to extract subparts of names
     re_workarounds = [
+        ('php8', re.compile(r'^(php)[\d\.]+')),
         ('php', re.compile(r'^(php\d)\.')),
     ]
 
@@ -225,9 +208,7 @@ def _set_state(module, state):
 
     if _module_is_enabled(module) != want_enabled:
         if module.check_mode:
-            module.exit_json(changed=True,
-                             result=success_msg,
-                             warnings=module.warnings)
+            module.exit_json(changed=True, result=success_msg)
 
         a2mod_binary_path = module.get_bin_path(a2mod_binary)
         if a2mod_binary_path is None:
@@ -242,9 +223,7 @@ def _set_state(module, state):
         result, stdout, stderr = module.run_command(a2mod_binary_cmd + [name])
 
         if _module_is_enabled(module) == want_enabled:
-            module.exit_json(changed=True,
-                             result=success_msg,
-                             warnings=module.warnings)
+            module.exit_json(changed=True, result=success_msg)
         else:
             msg = (
                 'Failed to set module {name} to {state}:\n'
@@ -262,9 +241,7 @@ def _set_state(module, state):
                              stdout=stdout,
                              stderr=stderr)
     else:
-        module.exit_json(changed=False,
-                         result=success_msg,
-                         warnings=module.warnings)
+        module.exit_json(changed=False, result=success_msg)
 
 
 def main():
@@ -279,8 +256,6 @@ def main():
         ),
         supports_check_mode=True,
     )
-
-    module.warnings = []
 
     name = module.params['name']
     if name == 'cgi' and _run_threaded(module):

@@ -9,8 +9,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: gitlab_project_members
 short_description: Manage project members on GitLab Server
 version_added: 2.2.0
@@ -49,8 +48,9 @@ options:
     description:
       - The access level for the user.
       - Required if O(state=present), user state is set to present.
+      - V(owner) was added in community.general 10.6.0.
     type: str
-    choices: ['guest', 'reporter', 'developer', 'maintainer']
+    choices: ['guest', 'reporter', 'developer', 'maintainer', 'owner']
   gitlab_users_access:
     description:
       - Provide a list of user to access level mappings.
@@ -68,8 +68,9 @@ options:
         description:
           - The access level for the user.
           - Required if O(state=present), user state is set to present.
+          - V(owner) was added in community.general 10.6.0.
         type: str
-        choices: ['guest', 'reporter', 'developer', 'maintainer']
+        choices: ['guest', 'reporter', 'developer', 'maintainer', 'owner']
         required: true
     version_added: 3.7.0
   state:
@@ -82,16 +83,17 @@ options:
     type: str
   purge_users:
     description:
-      - Adds/remove users of the given access_level to match the given O(gitlab_user)/O(gitlab_users_access) list.
-        If omitted do not purge orphaned members.
+      - Adds/remove users of the given access_level to match the given O(gitlab_user)/O(gitlab_users_access) list. If omitted
+        do not purge orphaned members.
       - Is only used when O(state=present).
+      - V(owner) was added in community.general 10.6.0.
     type: list
     elements: str
-    choices: ['guest', 'reporter', 'developer', 'maintainer']
+    choices: ['guest', 'reporter', 'developer', 'maintainer', 'owner']
     version_added: 3.7.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Add a user to a GitLab Project
   community.general.gitlab_project_members:
     api_url: 'https://gitlab.example.com'
@@ -106,7 +108,6 @@ EXAMPLES = r'''
   community.general.gitlab_project_members:
     api_url: 'https://gitlab.example.com'
     api_token: 'Your-Private-Token'
-    validate_certs: false
     project: projectname
     gitlab_user: username
     state: absent
@@ -155,15 +156,15 @@ EXAMPLES = r'''
       - name: user2
         access_level: maintainer
     state: absent
-'''
+"""
 
-RETURN = r''' # '''
+RETURN = r""" # """
 
 from ansible.module_utils.api import basic_auth_argument_spec
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.community.general.plugins.module_utils.gitlab import (
-    auth_argument_spec, gitlab_authentication, gitlab, ensure_gitlab_package
+    auth_argument_spec, gitlab_authentication, gitlab
 )
 
 
@@ -241,16 +242,16 @@ def main():
         project=dict(type='str', required=True),
         gitlab_user=dict(type='list', elements='str'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
-        access_level=dict(type='str', choices=['guest', 'reporter', 'developer', 'maintainer']),
+        access_level=dict(type='str', choices=['guest', 'reporter', 'developer', 'maintainer', 'owner']),
         purge_users=dict(type='list', elements='str', choices=[
-                         'guest', 'reporter', 'developer', 'maintainer']),
+                         'guest', 'reporter', 'developer', 'maintainer', 'owner']),
         gitlab_users_access=dict(
             type='list',
             elements='dict',
             options=dict(
                 name=dict(type='str', required=True),
                 access_level=dict(type='str', choices=[
-                                  'guest', 'reporter', 'developer', 'maintainer'], required=True),
+                                  'guest', 'reporter', 'developer', 'maintainer', 'owner'], required=True),
             )
         ),
     ))
@@ -279,13 +280,16 @@ def main():
         ],
         supports_check_mode=True,
     )
-    ensure_gitlab_package(module)
+
+    # check prerequisites and connect to gitlab server
+    gl = gitlab_authentication(module)
 
     access_level_int = {
-        'guest': gitlab.GUEST_ACCESS,
-        'reporter': gitlab.REPORTER_ACCESS,
-        'developer': gitlab.DEVELOPER_ACCESS,
-        'maintainer': gitlab.MAINTAINER_ACCESS,
+        'guest': gitlab.const.GUEST_ACCESS,
+        'reporter': gitlab.const.REPORTER_ACCESS,
+        'developer': gitlab.const.DEVELOPER_ACCESS,
+        'maintainer': gitlab.const.MAINTAINER_ACCESS,
+        'owner': gitlab.const.OWNER_ACCESS,
     }
 
     gitlab_project = module.params['project']
@@ -295,9 +299,6 @@ def main():
 
     if purge_users:
         purge_users = [access_level_int[level] for level in purge_users]
-
-    # connect to gitlab server
-    gl = gitlab_authentication(module)
 
     project = GitLabProjectMembers(module, gl)
 

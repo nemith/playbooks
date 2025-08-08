@@ -8,12 +8,11 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: cloud_init_data_facts
 short_description: Retrieve facts of cloud-init
 description:
-  - Gathers facts by reading the status.json and result.json of cloud-init.
+  - Gathers facts by reading the C(status.json) and C(result.json) of cloud-init.
 author: René Moser (@resmo)
 extends_documentation_fragment:
   - community.general.attributes
@@ -22,14 +21,14 @@ extends_documentation_fragment:
 options:
   filter:
     description:
-      - Filter facts
+      - Filter facts.
     type: str
-    choices: [ status, result ]
+    choices: [status, result]
 notes:
   - See http://cloudinit.readthedocs.io/ for more information about cloud-init.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Gather all facts of cloud init
   community.general.cloud_init_data_facts:
   register: result
@@ -44,47 +43,49 @@ EXAMPLES = '''
   until: "res.cloud_init_data_facts.status.v1.stage is defined and not res.cloud_init_data_facts.status.v1.stage"
   retries: 50
   delay: 5
-'''
+"""
 
-RETURN = '''
----
+RETURN = r"""
 cloud_init_data_facts:
   description: Facts of result and status.
   returned: success
   type: dict
-  sample: '{
-    "status": {
+  sample:
+    {
+      "status": {
         "v1": {
-            "datasource": "DataSourceCloudStack",
-            "errors": []
-        },
-    "result": {
-        "v1": {
-            "datasource": "DataSourceCloudStack",
-            "init": {
-                "errors": [],
-                "finished": 1522066377.0185432,
-                "start": 1522066375.2648022
-            },
-            "init-local": {
-                "errors": [],
-                "finished": 1522066373.70919,
-                "start": 1522066373.4726632
-            },
-            "modules-config": {
-                "errors": [],
-                "finished": 1522066380.9097016,
-                "start": 1522066379.0011985
-            },
-            "modules-final": {
-                "errors": [],
-                "finished": 1522066383.56594,
-                "start": 1522066382.3449218
-            },
-            "stage": null
+          "datasource": "DataSourceCloudStack",
+          "errors": []
         }
-    }'
-'''
+      },
+      "result": {
+        "v1": {
+          "datasource": "DataSourceCloudStack",
+          "init": {
+            "errors": [],
+            "finished": 1522066377.0185432,
+            "start": 1522066375.2648022
+          },
+          "init-local": {
+            "errors": [],
+            "finished": 1522066373.70919,
+            "start": 1522066373.4726632
+          },
+          "modules-config": {
+            "errors": [],
+            "finished": 1522066380.9097016,
+            "start": 1522066379.0011985
+          },
+          "modules-final": {
+            "errors": [],
+            "finished": 1522066383.56594,
+            "start": 1522066382.3449218
+          },
+          "stage": null
+        }
+      }
+    }
+"""
 
 import os
 
@@ -107,9 +108,8 @@ def gather_cloud_init_data_facts(module):
             json_file = os.path.join(CLOUD_INIT_PATH, i + '.json')
 
             if os.path.exists(json_file):
-                f = open(json_file, 'rb')
-                contents = to_text(f.read(), errors='surrogate_or_strict')
-                f.close()
+                with open(json_file, 'rb') as f:
+                    contents = to_text(f.read(), errors='surrogate_or_strict')
 
                 if contents:
                     res['cloud_init_data_facts'][i] = module.from_json(contents)

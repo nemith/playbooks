@@ -9,8 +9,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
-
+DOCUMENTATION = r"""
 module: manageiq_tags
 
 short_description: Management of resource tags in ManageIQ
@@ -21,7 +20,6 @@ extends_documentation_fragment:
 author: Daniel Korn (@dkorn)
 description:
   - The manageiq_tags module supports adding, updating and deleting tags in ManageIQ.
-
 attributes:
   check_mode:
     support: none
@@ -32,13 +30,9 @@ options:
   state:
     type: str
     description:
-      - V(absent) - tags should not exist.
+      - V(absent) - tags should not exist,
       - V(present) - tags should exist.
-      - >
-        V(list) - list current tags.
-        This state is deprecated and will be removed 8.0.0.
-        Please use the module M(community.general.manageiq_tags_info) instead.
-    choices: ['absent', 'present', 'list']
+    choices: ['absent', 'present']
     default: 'present'
   tags:
     type: list
@@ -51,52 +45,64 @@ options:
     description:
       - The relevant resource type in manageiq.
     required: true
-    choices: ['provider', 'host', 'vm', 'blueprint', 'category', 'cluster',
-        'data store', 'group', 'resource pool', 'service', 'service template',
-        'template', 'tenant', 'user']
+    choices:
+      - provider
+      - host
+      - vm
+      - blueprint
+      - category
+      - cluster
+      - data store
+      - group
+      - resource pool
+      - service
+      - service template
+      - template
+      - tenant
+      - user
   resource_name:
     type: str
     description:
-      - The name of the resource at which tags will be controlled.
+      - The name of the resource at which tags are be controlled.
       - Must be specified if O(resource_id) is not set. Both options are mutually exclusive.
   resource_id:
     description:
-      - The ID of the resource at which tags will be controlled.
+      - The ID of the resource at which tags are controlled.
       - Must be specified if O(resource_name) is not set. Both options are mutually exclusive.
     type: int
     version_added: 2.2.0
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create new tags for a provider in ManageIQ.
   community.general.manageiq_tags:
     resource_name: 'EngLab'
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false
+      validate_certs: false # only do this when connecting to localhost!
 
 - name: Create new tags for a provider in ManageIQ.
   community.general.manageiq_tags:
     resource_id: 23000000790497
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false
+      validate_certs: false # only do this when connecting to localhost!
 
 - name: Remove tags for a provider in ManageIQ.
   community.general.manageiq_tags:
@@ -104,19 +110,19 @@ EXAMPLES = '''
     resource_name: 'EngLab'
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false
-'''
+      validate_certs: false # only do this when connecting to localhost!
+"""
 
-RETURN = '''
-'''
+RETURN = r"""
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.manageiq import (
@@ -125,15 +131,15 @@ from ansible_collections.community.general.plugins.module_utils.manageiq import 
 
 
 def main():
-    actions = {'present': 'assign', 'absent': 'unassign', 'list': 'list'}
+    actions = {'present': 'assign', 'absent': 'unassign'}
     argument_spec = dict(
         tags=dict(type='list', elements='dict'),
         resource_id=dict(type='int'),
         resource_name=dict(type='str'),
         resource_type=dict(required=True, type='str',
                            choices=list(manageiq_entities().keys())),
-        state=dict(required=False, type='str',
-                   choices=['present', 'absent', 'list'], default='present'),
+        state=dict(type='str',
+                   choices=['present', 'absent'], default='present'),
     )
     # add the manageiq connection arguments to the arguments
     argument_spec.update(manageiq_argument_spec())
@@ -154,13 +160,6 @@ def main():
     resource_name = module.params['resource_name']
     state = module.params['state']
 
-    if state == "list":
-        module.deprecate(
-            'The value "list" for "state" is deprecated. Please use community.general.manageiq_tags_info instead.',
-            version='8.0.0',
-            collection_name='community.general'
-        )
-
     # get the action and resource type
     action = actions[state]
     resource_type = manageiq_entities()[resource_type_key]
@@ -173,13 +172,8 @@ def main():
 
     manageiq_tags = ManageIQTags(manageiq, resource_type, resource_id)
 
-    if action == 'list':
-        # return a list of current tags for this object
-        current_tags = manageiq_tags.query_resource_tags()
-        res_args = dict(changed=False, tags=current_tags)
-    else:
-        # assign or unassign the tags
-        res_args = manageiq_tags.assign_or_unassign_tags(tags, action)
+    # assign or unassign the tags
+    res_args = manageiq_tags.assign_or_unassign_tags(tags, action)
 
     module.exit_json(**res_args)
 

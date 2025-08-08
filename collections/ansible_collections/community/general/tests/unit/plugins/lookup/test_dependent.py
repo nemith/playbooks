@@ -9,18 +9,17 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
+from ansible.template import Templar
+
 from ansible_collections.community.internal_test_tools.tests.unit.compat.unittest import TestCase
-from ansible_collections.community.internal_test_tools.tests.unit.compat.mock import (
-    MagicMock,
-)
+from ansible_collections.community.internal_test_tools.tests.unit.utils.trust import make_trusted
 
 from ansible.plugins.loader import lookup_loader
 
 
 class TestLookupModule(TestCase):
     def setUp(self):
-        templar = MagicMock()
-        templar._loader = None
+        templar = Templar(loader=None)
         self.lookup = lookup_loader.get("community.general.dependent", templar=templar)
 
     def test_empty(self):
@@ -30,9 +29,9 @@ class TestLookupModule(TestCase):
         self.assertListEqual(
             self.lookup.run(
                 [
-                    {'a': '[1, 2]'},
-                    {'b': '[item.a + 3, item.a + 6]'},
-                    {'c': '[item.a + item.b * 10]'},
+                    {'a': make_trusted('[1, 2]')},
+                    {'b': make_trusted('[item.a + 3, item.a + 6]')},
+                    {'c': make_trusted('[item.a + item.b * 10]')},
                 ],
                 {},
             ),

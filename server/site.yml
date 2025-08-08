@@ -18,7 +18,7 @@
     - ip_forward
     - nftables
     - dnsmasq
-    - nextdns
+    - dnss
     - bird
     - mdns-reflector
 

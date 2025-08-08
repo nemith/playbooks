@@ -1,6 +1,8 @@
 users:
   - unixname: bbennett
-    ssh_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJcTaOfvmCSpVhukFMUr//EiG614vOQRJrk1iMXXhHqg brandon@brbe.me
+    ssh_keys: 
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJcTaOfvmCSpVhukFMUr//EiG614vOQRJrk1iMXXhHqg brandon@brbe.me
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGH0j7YxBCIQOlu0jVMYFEyOeKWqMV/SAjIILQC4GKI bbennett@coreweave.com
 
 ula_prefix: fdda:56e3:932d 
 

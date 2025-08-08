@@ -14,9 +14,7 @@ __metaclass__ = type
 
 
 from ansible_collections.community.general.plugins.modules import xfconf
-from .helper import Helper
+from .uthelper import UTHelper, RunCommandMock
 
 
-helper = Helper.from_file(xfconf.main, "tests/unit/plugins/modules/test_xfconf.yaml")
-patch_bin = helper.cmd_fixture
-test_module = helper.test_module
+UTHelper.from_module(xfconf, __name__, mocks=[RunCommandMock])

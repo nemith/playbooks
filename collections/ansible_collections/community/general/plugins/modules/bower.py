@@ -9,12 +9,11 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: bower
-short_description: Manage bower packages with bower
+short_description: Manage bower packages with C(bower)
 description:
-  - Manage bower packages with bower
+  - Manage bower packages with C(bower).
 author: "Michael Warkentin (@mwarkentin)"
 extends_documentation_fragment:
   - community.general.attributes
@@ -27,39 +26,39 @@ options:
   name:
     type: str
     description:
-      - The name of a bower package to install
+      - The name of a bower package to install.
   offline:
     description:
-      - Install packages from local cache, if the packages were installed before
+      - Install packages from local cache, if the packages were installed before.
     type: bool
     default: false
   production:
     description:
-      - Install with --production flag
+      - Install with C(--production) flag.
     type: bool
     default: false
   path:
     type: path
     description:
-      - The base path where to install the bower packages
+      - The base path where to install the bower packages.
     required: true
   relative_execpath:
     type: path
     description:
-      - Relative path to bower executable from install path
+      - Relative path to bower executable from install path.
   state:
     type: str
     description:
-      - The state of the bower package
+      - The state of the bower package.
     default: present
-    choices: [ "present", "absent", "latest" ]
+    choices: ["present", "absent", "latest"]
   version:
     type: str
     description:
-      - The version to be installed
-'''
+      - The version to be installed.
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Install "bootstrap" bower package.
   community.general.bower:
     name: bootstrap
@@ -91,7 +90,8 @@ EXAMPLES = '''
 - community.general.bower:
     path: /app/location
     relative_execpath: node_modules/.bin
-'''
+"""
+
 import json
 import os
 
@@ -187,13 +187,13 @@ class Bower(object):
 
 def main():
     arg_spec = dict(
-        name=dict(default=None),
+        name=dict(),
         offline=dict(default=False, type='bool'),
         production=dict(default=False, type='bool'),
         path=dict(required=True, type='path'),
-        relative_execpath=dict(default=None, required=False, type='path'),
+        relative_execpath=dict(type='path'),
         state=dict(default='present', choices=['present', 'absent', 'latest', ]),
-        version=dict(default=None),
+        version=dict(),
     )
     module = AnsibleModule(
         argument_spec=arg_spec

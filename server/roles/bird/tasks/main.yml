@@ -2,5 +2,5 @@
 - name: Install bird
   become: true
   ansible.builtin.apt:
-    name: bird
+    name: bird3
     state: present

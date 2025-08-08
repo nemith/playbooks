@@ -1,8 +1,9 @@
 [global]
+    netbios name = {{ netbios_name | upper }}
+    workgroup = PURGATORY
+    server role = standalone server
     log file = /var/log/samba/%m
     log level = 1
-    server role = standalone server
-    worksgroup = PURGATORY
 
 {% for share in samba.shares %}
 [{{ share.name }}]

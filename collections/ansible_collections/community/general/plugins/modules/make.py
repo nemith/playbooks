@@ -8,8 +8,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: make
 short_description: Run targets in a Makefile
 requirements:
@@ -49,7 +48,7 @@ options:
   params:
     description:
       - Any extra parameters to pass to make.
-      - If the value is empty, only the key will be used. For example, V(FOO:) will produce V(FOO), not V(FOO=).
+      - If the value is empty, only the key is used. For example, V(FOO:) produces V(FOO), not V(FOO=).
     type: dict
   target:
     description:
@@ -65,9 +64,9 @@ options:
     type: list
     elements: str
     version_added: 7.2.0
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Build the default target
   community.general.make:
     chdir: /home/ubuntu/cool-project
@@ -103,9 +102,9 @@ EXAMPLES = r'''
       # The following adds TARGET=arm64 TARGET_ARCH=aarch64 to the command line:
       TARGET: arm64
       TARGET_ARCH: aarch64
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 chdir:
   description:
     - The value of the module parameter O(chdir).
@@ -143,7 +142,7 @@ targets:
   type: str
   returned: success
   version_added: 7.2.0
-'''
+"""
 
 from ansible.module_utils.six import iteritems
 from ansible.module_utils.six.moves import shlex_quote

@@ -4,6 +4,7 @@
     name:
       - samba
       - samba-client
+      - wsdd2
   become: true
 
 - name: Configure samba sever
@@ -15,11 +16,23 @@
     group: root
     mode: "0644"
     validate: /usr/bin/testparm -s %s
-  notify: Restart samba
+  vars:
+    netbios_name: "{{ ansible_hostname }}"
+  notify: 
+   - Restart samba
+   - Restart wsdd2
+  
 
 - name: Enable samaba
   become: true
   ansible.builtin.systemd:
     name: samba
     enabled: true
-  notify: Restart k3s
+  notify: Restart samba
+
+- name: Enable wsdd2
+  become: true
+  ansible.builtin.systemd:
+    name: wsdd2
+    enabled: true
+  notify: Restart wsdd2

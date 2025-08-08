@@ -10,12 +10,11 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: dnsimple
 short_description: Interface with dnsimple.com (a DNS hosting service)
 description:
-   - "Manages domains and records via the DNSimple API, see the docs: U(http://developer.dnsimple.com/)."
+  - 'Manages domains and records using the DNSimple API, see the docs: U(http://developer.dnsimple.com/).'
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -26,9 +25,9 @@ attributes:
 options:
   account_email:
     description:
-      - Account email. If omitted, the environment variables E(DNSIMPLE_EMAIL) and E(DNSIMPLE_API_TOKEN) will be looked for.
-      - "If those aren't found, a C(.dnsimple) file will be looked for, see: U(https://github.com/mikemaccana/dnsimple-python#getting-started)."
-      - "C(.dnsimple) config files are only supported in dnsimple-python<2.0.0"
+      - Account email. If omitted, the environment variables E(DNSIMPLE_EMAIL) and E(DNSIMPLE_API_TOKEN) are looked for.
+      - 'If those variables are not found, a C(.dnsimple) file is looked for, see: U(https://github.com/mikemaccana/dnsimple-python#getting-started).'
+      - C(.dnsimple) config files are only supported in dnsimple-python<2.0.0.
     type: str
   account_api_token:
     description:
@@ -36,13 +35,13 @@ options:
     type: str
   domain:
     description:
-      - Domain to work with. Can be the domain name (e.g. "mydomain.com") or the numeric ID of the domain in DNSimple.
-      - If omitted, a list of domains will be returned.
-      - If domain is present but the domain doesn't exist, it will be created.
+      - Domain to work with. Can be the domain name (for example V(mydomain.com)) or the numeric ID of the domain in DNSimple.
+      - If omitted, a list of domains is returned.
+      - If domain is present but the domain does not exist, it is created.
     type: str
   record:
     description:
-      - Record to add, if blank a record for the domain will be created, supports the wildcard (*).
+      - Record to add, if blank a record for the domain is created, supports the wildcard (*).
     type: str
   record_ids:
     description:
@@ -52,7 +51,23 @@ options:
   type:
     description:
       - The type of DNS record to create.
-    choices: [ 'A', 'ALIAS', 'CNAME', 'MX', 'SPF', 'URL', 'TXT', 'NS', 'SRV', 'NAPTR', 'PTR', 'AAAA', 'SSHFP', 'HINFO', 'POOL', 'CAA' ]
+    choices:
+      - A
+      - ALIAS
+      - CNAME
+      - MX
+      - SPF
+      - URL
+      - TXT
+      - NS
+      - SRV
+      - NAPTR
+      - PTR
+      - AAAA
+      - SSHFP
+      - HINFO
+      - POOL
+      - CAA
     type: str
   ttl:
     description:
@@ -70,8 +85,8 @@ options:
     type: int
   state:
     description:
-      - whether the record should exist or not.
-    choices: [ 'present', 'absent' ]
+      - Whether the record should exist or not.
+    choices: ['present', 'absent']
     default: present
     type: str
   solo:
@@ -91,9 +106,9 @@ options:
 requirements:
   - "dnsimple >= 2.0.0"
 author: "Alex Coomans (@drcapulet)"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Authenticate using email and API token and fetch all domains
   community.general.dnsimple:
     account_email: test@example.com
@@ -149,9 +164,9 @@ EXAMPLES = '''
     value: example.com
     state: absent
   delegate_to: localhost
-'''
+"""
 
-RETURN = r"""# """
+RETURN = r"""#"""
 
 import traceback
 import re
@@ -178,7 +193,7 @@ class DNSimpleV2():
             client = Client(sandbox=self.sandbox, email=self.account_email, access_token=self.account_api_token, user_agent="ansible/community.general")
         else:
             msg = "Option account_email or account_api_token not provided. " \
-                  "Dnsimple authentiction with a .dnsimple config file is not " \
+                  "Dnsimple authentication with a .dnsimple config file is not " \
                   "supported with dnsimple-python>=2.0.0"
             raise DNSimpleException(msg)
         client.identity.whoami()
@@ -225,24 +240,24 @@ class DNSimpleV2():
         self.client.domains.delete_domain(self.account.id, domain)
 
     def get_records(self, zone, dnsimple_filter=None):
-        """return dns ressource records which match a specified filter"""
+        """return dns resource records which match a specified filter"""
         records_list = self._get_paginated_result(self.client.zones.list_records,
                                                   account_id=self.account.id,
                                                   zone=zone, filter=dnsimple_filter)
         return [d.__dict__ for d in records_list]
 
     def delete_record(self, domain, rid):
-        """delete a single dns ressource record"""
+        """delete a single dns resource record"""
         self.client.zones.delete_record(self.account.id, domain, rid)
 
     def update_record(self, domain, rid, ttl=None, priority=None):
-        """update a single dns ressource record"""
+        """update a single dns resource record"""
         zr = ZoneRecordUpdateInput(ttl=ttl, priority=priority)
         result = self.client.zones.update_record(self.account.id, str(domain), str(rid), zr).data.__dict__
         return result
 
     def create_record(self, domain, name, record_type, content, ttl=None, priority=None):
-        """create a single dns ressource record"""
+        """create a single dns resource record"""
         zr = ZoneRecordInput(name=name, type=record_type, content=content, ttl=ttl, priority=priority)
         return self.client.zones.create_record(self.account.id, str(domain), zr).data.__dict__
 

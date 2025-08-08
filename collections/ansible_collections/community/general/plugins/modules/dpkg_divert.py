@@ -9,24 +9,20 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: dpkg_divert
 short_description: Override a debian package's version of a file
 version_added: '0.2.0'
 author:
   - quidame (@quidame)
 description:
-  - A diversion is for C(dpkg) the knowledge that only a given package
-    (or the local administrator) is allowed to install a file at a given
-    location. Other packages shipping their own version of this file will
-    be forced to O(divert) it, that is to install it at another location. It
-    allows one to keep changes in a file provided by a debian package by
-    preventing its overwrite at package upgrade.
-  - This module manages diversions of debian packages files using the
-    C(dpkg-divert) commandline tool. It can either create or remove a
-    diversion for a given file, but also update an existing diversion
-    to modify its O(holder) and/or its O(divert) location.
+  - A diversion is for C(dpkg) the knowledge that only a given package (or the local administrator) is allowed to install
+    a file at a given location. Other packages shipping their own version of this file are forced to O(divert) it, that is
+    to install it at another location. It allows one to keep changes in a file provided by a debian package by preventing
+    it being overwritten on package upgrade.
+  - This module manages diversions of debian packages files using the C(dpkg-divert) commandline tool. It can either create
+    or remove a diversion for a given file, but also update an existing diversion to modify its O(holder) and/or its O(divert)
+    location.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -37,60 +33,52 @@ attributes:
 options:
   path:
     description:
-      - The original and absolute path of the file to be diverted or
-        undiverted. This path is unique, i.e. it is not possible to get
-        two diversions for the same O(path).
+      - The original and absolute path of the file to be diverted or undiverted. This path is unique, in other words it is
+        not possible to get two diversions for the same O(path).
     required: true
     type: path
   state:
     description:
-      - When O(state=absent), remove the diversion of the specified
-        O(path); when O(state=present), create the diversion if it does
-        not exist, or update its package O(holder) or O(divert) location,
-        if it already exists.
+      - When O(state=absent), remove the diversion of the specified O(path); when O(state=present), create the diversion if
+        it does not exist, or update its package O(holder) or O(divert) location, if it already exists.
     type: str
     default: present
     choices: [absent, present]
   holder:
     description:
-      - The name of the package whose copy of file is not diverted, also
-        known as the diversion holder or the package the diversion belongs
-        to.
-      - The actual package does not have to be installed or even to exist
-        for its name to be valid. If not specified, the diversion is hold
-        by 'LOCAL', that is reserved by/for dpkg for local diversions.
+      - The name of the package whose copy of file is not diverted, also known as the diversion holder or the package the
+        diversion belongs to.
+      - The actual package does not have to be installed or even to exist for its name to be valid. If not specified, the
+        diversion is hold by 'LOCAL', that is reserved by/for dpkg for local diversions.
       - This parameter is ignored when O(state=absent).
     type: str
   divert:
     description:
-      - The location where the versions of file will be diverted.
+      - The location where the versions of file are diverted.
       - Default is to add suffix C(.distrib) to the file path.
       - This parameter is ignored when O(state=absent).
     type: path
   rename:
     description:
-      - Actually move the file aside (when O(state=present)) or back (when
-        O(state=absent)), but only when changing the state of the diversion.
-        This parameter has no effect when attempting to add a diversion that
-        already exists or when removing an unexisting one.
-      - Unless O(force=true), renaming fails if the destination file already
-        exists (this lock being a dpkg-divert feature, and bypassing it being
-        a module feature).
+      - Actually move the file aside (when O(state=present)) or back (when O(state=absent)), but only when changing the state
+        of the diversion. This parameter has no effect when attempting to add a diversion that already exists or when removing
+        an unexisting one.
+      - Unless O(force=true), renaming fails if the destination file already exists (this lock being a dpkg-divert feature,
+        and bypassing it being a module feature).
     type: bool
     default: false
   force:
     description:
-      - When O(rename=true) and O(force=true), renaming is performed even if
-        the target of the renaming exists, i.e. the existing contents of the
-        file at this location will be lost.
+      - When O(rename=true) and O(force=true), renaming is performed even if the target of the renaming exists, in other words
+        the existing contents of the file at this location are lost.
       - This parameter is ignored when O(rename=false).
     type: bool
     default: false
 requirements:
   - dpkg-divert >= 1.15.0 (Debian family)
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Divert /usr/bin/busybox to /usr/bin/busybox.distrib and keep file in place
   community.general.dpkg_divert:
     path: /usr/bin/busybox
@@ -112,9 +100,9 @@ EXAMPLES = r'''
     state: absent
     rename: true
     force: true
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 commands:
   description: The dpkg-divert commands ran internally by the module.
   type: list
@@ -151,7 +139,7 @@ diversion:
       "path": "/etc/foobarrc",
       "state": "present"
     }
-'''
+"""
 
 
 import re
@@ -178,11 +166,11 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             path=dict(required=True, type='path'),
-            state=dict(required=False, type='str', default='present', choices=['absent', 'present']),
-            holder=dict(required=False, type='str'),
-            divert=dict(required=False, type='path'),
-            rename=dict(required=False, type='bool', default=False),
-            force=dict(required=False, type='bool', default=False),
+            state=dict(type='str', default='present', choices=['absent', 'present']),
+            holder=dict(type='str'),
+            divert=dict(type='path'),
+            rename=dict(type='bool', default=False),
+            force=dict(type='bool', default=False),
         ),
         supports_check_mode=True,
     )

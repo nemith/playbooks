@@ -13,15 +13,14 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 DOCUMENTATION = r"""
----
 module: keyring
 version_added: 5.2.0
 author:
   - Alexander Hussey (@ahussey-redhat)
 short_description: Set or delete a passphrase using the Operating System's native keyring
 description: >-
-  This module uses the L(keyring Python library, https://pypi.org/project/keyring/)
-  to set or delete passphrases for a given service and username from the OS' native keyring.
+  This module uses the L(keyring Python library, https://pypi.org/project/keyring/) to set or delete passphrases for a given
+  service and username from the OS' native keyring.
 requirements:
   - keyring (Python library)
   - gnome-keyring (application - required for headless Gnome keyring access)
@@ -207,10 +206,10 @@ def run_module():
         username=dict(type="str", required=True),
         keyring_password=dict(type="str", required=True, no_log=True),
         user_password=dict(
-            type="str", required=False, no_log=True, aliases=["password"]
+            type="str", no_log=True, aliases=["password"]
         ),
         state=dict(
-            type="str", required=False, default="present", choices=["absent", "present"]
+            type="str", default="present", choices=["absent", "present"]
         ),
     )
 

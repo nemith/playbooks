@@ -9,51 +9,48 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: kernel_blacklist
 author:
-    - Matthias Vogelgesang (@matze)
+  - Matthias Vogelgesang (@matze)
 short_description: Blacklist kernel modules
 description:
-    - Add or remove kernel modules from blacklist.
+  - Add or remove kernel modules from blacklist.
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: full
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 options:
-    name:
-        type: str
-        description:
-            - Name of kernel module to black- or whitelist.
-        required: true
-    state:
-        type: str
-        description:
-            - Whether the module should be present in the blacklist or absent.
-        choices: [ absent, present ]
-        default: present
-    blacklist_file:
-        type: str
-        description:
-            - If specified, use this blacklist file instead of
-              C(/etc/modprobe.d/blacklist-ansible.conf).
-        default: /etc/modprobe.d/blacklist-ansible.conf
-'''
+  name:
+    type: str
+    description:
+      - Name of kernel module to black- or whitelist.
+    required: true
+  state:
+    type: str
+    description:
+      - Whether the module should be present in the blacklist or absent.
+    choices: [absent, present]
+    default: present
+  blacklist_file:
+    type: str
+    description:
+      - If specified, use this blacklist file instead of C(/etc/modprobe.d/blacklist-ansible.conf).
+    default: /etc/modprobe.d/blacklist-ansible.conf
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Blacklist the nouveau driver module
   community.general.kernel_blacklist:
     name: nouveau
     state: present
-'''
+"""
 
 import os
 import re
-import tempfile
 
 from ansible_collections.community.general.plugins.module_utils.module_helper import StateModuleHelper
 
@@ -106,16 +103,10 @@ class Blacklist(StateModuleHelper):
 
     def __quit_module__(self):
         if self.has_changed() and not self.module.check_mode:
-            dummy, tmpfile = tempfile.mkstemp()
-            try:
-                os.remove(tmpfile)
-                self.module.preserved_copy(self.vars.filename, tmpfile)  # ensure right perms/ownership
-                with open(tmpfile, 'w') as fd:
-                    fd.writelines(["{0}\n".format(x) for x in self.vars.lines])
-                self.module.atomic_move(tmpfile, self.vars.filename)
-            finally:
-                if os.path.exists(tmpfile):
-                    os.remove(tmpfile)
+            bkp = self.module.backup_local(self.vars.filename)
+            with open(self.vars.filename, "w") as fd:
+                fd.writelines(["{0}\n".format(x) for x in self.vars.lines])
+            self.module.add_cleanup_file(bkp)
 
 
 def main():

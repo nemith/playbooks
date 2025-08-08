@@ -1,7 +1,7 @@
 hostname: tank01.purgatory.lan
 networkd:
   networks:
-    - match: {name: enp2s0f0}
+    - match: {name: enp101s0}
       network:
         addresses:
           - 192.168.4.64/24

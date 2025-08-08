@@ -9,18 +9,16 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: riak
 short_description: This module handles some common Riak operations
 description:
-    - This module can be used to join nodes to a cluster, check
-      the status of the cluster.
+  - This module can be used to join nodes to a cluster, check the status of the cluster.
 author:
-    - "James Martin (@jsmartin)"
-    - "Drew Kerrigan (@drewkerrigan)"
+  - "James Martin (@jsmartin)"
+  - "Drew Kerrigan (@drewkerrigan)"
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
   check_mode:
     support: none
@@ -34,17 +32,17 @@ options:
     type: str
   config_dir:
     description:
-      - The path to the riak configuration directory
+      - The path to the riak configuration directory.
     default: /etc/riak
     type: path
   http_conn:
     description:
-      - The ip address and port that is listening for Riak HTTP queries
+      - The IP address and port that is listening for Riak HTTP queries.
     default: 127.0.0.1:8098
     type: str
   target_node:
     description:
-      - The target node for certain operations (join, ping)
+      - The target node for certain operations (join, ping).
     default: riak@127.0.0.1
     type: str
   wait_for_handoffs:
@@ -64,13 +62,13 @@ options:
     type: str
   validate_certs:
     description:
-      - If V(false), SSL certificates will not be validated. This should only be used
-        on personally controlled sites using self-signed certificates.
+      - If V(false), SSL certificates are not validated. This should only be used on personally controlled sites using self-signed
+        certificates.
     type: bool
     default: true
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: "Join's a Riak node to another node"
   community.general.riak:
     command: join
@@ -83,7 +81,7 @@ EXAMPLES = '''
 - name: Wait for riak_kv service to startup
   community.general.riak:
     wait_for_service: kv
-'''
+"""
 
 import json
 import time
@@ -93,7 +91,7 @@ from ansible.module_utils.urls import fetch_url
 
 
 def ring_check(module, riak_admin_bin):
-    cmd = '%s ringready' % riak_admin_bin
+    cmd = riak_admin_bin + ['ringready']
     rc, out, err = module.run_command(cmd)
     if rc == 0 and 'TRUE All nodes agree on the ring' in out:
         return True
@@ -105,15 +103,13 @@ def main():
 
     module = AnsibleModule(
         argument_spec=dict(
-            command=dict(required=False, default=None, choices=[
-                'ping', 'kv_test', 'join', 'plan', 'commit']),
+            command=dict(choices=['ping', 'kv_test', 'join', 'plan', 'commit']),
             config_dir=dict(default='/etc/riak', type='path'),
-            http_conn=dict(required=False, default='127.0.0.1:8098'),
-            target_node=dict(default='riak@127.0.0.1', required=False),
+            http_conn=dict(default='127.0.0.1:8098'),
+            target_node=dict(default='riak@127.0.0.1'),
             wait_for_handoffs=dict(default=0, type='int'),
             wait_for_ring=dict(default=0, type='int'),
-            wait_for_service=dict(
-                required=False, default=None, choices=['kv']),
+            wait_for_service=dict(choices=['kv']),
             validate_certs=dict(default=True, type='bool'))
     )
 
@@ -127,6 +123,7 @@ def main():
     # make sure riak commands are on the path
     riak_bin = module.get_bin_path('riak')
     riak_admin_bin = module.get_bin_path('riak-admin')
+    riak_admin_bin = [riak_admin_bin] if riak_admin_bin is not None else [riak_bin, 'admin']
 
     timeout = time.time() + 120
     while True:
@@ -164,7 +161,7 @@ def main():
             module.fail_json(msg=out)
 
     elif command == 'kv_test':
-        cmd = '%s test' % riak_admin_bin
+        cmd = riak_admin_bin + ['test']
         rc, out, err = module.run_command(cmd)
         if rc == 0:
             result['kv_test'] = out
@@ -175,7 +172,7 @@ def main():
         if nodes.count(node_name) == 1 and len(nodes) > 1:
             result['join'] = 'Node is already in cluster or staged to be in cluster.'
         else:
-            cmd = '%s cluster join %s' % (riak_admin_bin, target_node)
+            cmd = riak_admin_bin + ['cluster', 'join', target_node]
             rc, out, err = module.run_command(cmd)
             if rc == 0:
                 result['join'] = out
@@ -184,7 +181,7 @@ def main():
                 module.fail_json(msg=out)
 
     elif command == 'plan':
-        cmd = '%s cluster plan' % riak_admin_bin
+        cmd = riak_admin_bin + ['cluster', 'plan']
         rc, out, err = module.run_command(cmd)
         if rc == 0:
             result['plan'] = out
@@ -194,7 +191,7 @@ def main():
             module.fail_json(msg=out)
 
     elif command == 'commit':
-        cmd = '%s cluster commit' % riak_admin_bin
+        cmd = riak_admin_bin + ['cluster', 'commit']
         rc, out, err = module.run_command(cmd)
         if rc == 0:
             result['commit'] = out
@@ -206,7 +203,7 @@ def main():
     if wait_for_handoffs:
         timeout = time.time() + wait_for_handoffs
         while True:
-            cmd = '%s transfers' % riak_admin_bin
+            cmd = riak_admin_bin + ['transfers']
             rc, out, err = module.run_command(cmd)
             if 'No transfers active' in out:
                 result['handoffs'] = 'No transfers active.'
@@ -216,7 +213,7 @@ def main():
                 module.fail_json(msg='Timeout waiting for handoffs.')
 
     if wait_for_service:
-        cmd = [riak_admin_bin, 'wait_for_service', 'riak_%s' % wait_for_service, node_name]
+        cmd = riak_admin_bin + ['wait_for_service', 'riak_%s' % wait_for_service, node_name]
         rc, out, err = module.run_command(cmd)
         result['service'] = out
 

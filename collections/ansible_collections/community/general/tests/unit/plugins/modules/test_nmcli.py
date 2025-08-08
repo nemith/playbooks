@@ -118,6 +118,12 @@ TESTCASE_CONNECTION = [
         'state': 'absent',
         '_ansible_check_mode': True,
     },
+    {
+        'type': 'loopback',
+        'conn_name': 'non_existent_nw_device',
+        'state': 'absent',
+        '_ansible_check_mode': True,
+    },
 ]
 
 TESTCASE_GENERIC = [
@@ -349,6 +355,28 @@ ipv6.routes:                            { ip = fd2e:446f:d85d:5::/64, nh = 2001:
 ipv6.route-metric:                      -1
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
+"""
+
+TESTCASE_ETHERNET_ADD_SRIOV_VFS = [
+    {
+        'type': 'ethernet',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'ethernet_non_existant',
+        'sriov': {
+            'total-vfs': 16,
+            'vfs': '0 spoof-check=true vlans=100',
+        },
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_ETHERNET_ADD_SRIOV_VFS_SHOW_OUTPUT = """\
+connection.id:                          non_existent_nw_device
+connection.interface-name:              ethernet_non_existant
+connection.autoconnect:                 yes
+sriov.total-vfs:                        16
+sriov.vfs:                              0 spoof-check=true vlans=100
 """
 
 TESTCASE_ETHERNET_ADD_IPV6_INT_WITH_ROUTE_AND_METRIC = [
@@ -944,6 +972,28 @@ TESTCASE_ETHERNET_STATIC = [
     }
 ]
 
+TESTCASE_LOOPBACK = [
+    {
+        'type': 'loopback',
+        'conn_name': 'lo',
+        'ifname': 'lo',
+        'ip4': '127.0.0.1/8',
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_LOOPBACK_MODIFY = [
+    {
+        'type': 'loopback',
+        'conn_name': 'lo',
+        'ifname': 'lo',
+        'ip4': ['127.0.0.1/8', '127.0.0.2/8'],
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
 TESTCASE_ETHERNET_STATIC_SHOW_OUTPUT = """\
 connection.id:                          non_existent_nw_device
 connection.interface-name:              ethernet_non_existant
@@ -958,6 +1008,21 @@ ipv4.never-default:                     no
 ipv4.may-fail:                          yes
 ipv4.dns:                               1.1.1.1,8.8.8.8
 ipv6.method:                            auto
+ipv6.ignore-auto-dns:                   no
+ipv6.ignore-auto-routes:                no
+"""
+
+TESTCASE_LOOPBACK_SHOW_OUTPUT = """\
+connection.id:                          lo
+connection.interface-name:              lo
+connection.autoconnect:                 yes
+ipv4.method:                            manual
+ipv4.addresses:                         127.0.0.1/8
+ipv4.ignore-auto-dns:                   no
+ipv4.ignore-auto-routes:                no
+ipv4.never-default:                     no
+ipv4.may-fail:                          yes
+ipv6.method:                            manual
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
 """
@@ -1445,7 +1510,8 @@ ipv4.may-fail:                          yes
 ipv6.method:                            auto
 ipv6.ignore-auto-dns:                   no
 ipv6.ignore-auto-routes:                no
-infiniband.transport-mode               datagram
+infiniband.mtu:                         auto
+infiniband.transport-mode:              datagram
 """
 
 TESTCASE_INFINIBAND_STATIC_MODIFY_TRANSPORT_MODE = [
@@ -1502,6 +1568,37 @@ macvlan.parent:                         non_existent_parent
 macvlan.mode:                           2 (bridge)
 macvlan.promiscuous:                    yes
 macvlan.tap:                            no
+"""
+
+TESTCASE_VRF = [
+    {
+        'type': 'vrf',
+        'conn_name': 'non_existent_nw_device',
+        'ifname': 'vrf_not_exists',
+        'ip4': '10.10.10.10/24',
+        'gw4': '10.10.10.1',
+        'table': 10,
+        'state': 'present',
+        '_ansible_check_mode': False,
+    }
+]
+
+TESTCASE_VRF_SHOW_OUTPUT = """\
+connection.id:                          non_existent_nw_device
+connection.interface-name:              vrf_not_exists
+connection.autoconnect:                 yes
+ipv4.method:                            manual
+ipv4.addresses:                         10.10.10.10/24
+ipv4.gateway:                           10.10.10.1
+ipv4.ignore-auto-dns:                   no
+ipv4.ignore-auto-routes:                no
+ipv4.never-default:                     no
+ipv4.may-fail:                          yes
+ipv6.method:                            auto
+ipv6.ignore-auto-dns:                   no
+ipv6.ignore-auto-routes:                no
+table:                                  10
+802-3-ethernet.mtu:                     auto
 """
 
 
@@ -1763,6 +1860,12 @@ def mocked_ethernet_connection_with_ipv6_static_address_multiple_static_routes_c
 
 
 @pytest.fixture
+def mocked_ethernet_connection_with_sriov_vfs_create(mocker):
+    mocker_set(mocker,
+               execute_return=(0, TESTCASE_ETHERNET_ADD_SRIOV_VFS_SHOW_OUTPUT, ""))
+
+
+@pytest.fixture
 def mocked_ethernet_connection_with_ipv6_static_address_static_route_with_metric_create(mocker):
     mocker_set(mocker,
                execute_return=None,
@@ -1943,6 +2046,31 @@ def mocked_generic_connection_diff_check(mocker):
     mocker_set(mocker,
                connection_exists=True,
                execute_return=(0, TESTCASE_GENERIC_SHOW_OUTPUT, ""))
+
+
+@pytest.fixture
+def mocked_loopback_connection_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_LOOPBACK_SHOW_OUTPUT, ""))
+
+
+@pytest.fixture
+def mocked_loopback_connection_modify(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=None,
+               execute_side_effect=(
+                   (0, TESTCASE_LOOPBACK_SHOW_OUTPUT, ""),
+                   (0, "", ""),
+               ))
+
+
+@pytest.fixture
+def mocked_vrf_connection_unchanged(mocker):
+    mocker_set(mocker,
+               connection_exists=True,
+               execute_return=(0, TESTCASE_VRF_SHOW_OUTPUT, ""))
 
 
 @pytest.mark.parametrize('patch_ansible_module', TESTCASE_BOND, indirect=['patch_ansible_module'])
@@ -3250,6 +3378,41 @@ def test_ethernet_connection_static_ipv6_address_multiple_static_routes_with_met
     assert results['changed']
 
 
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_ETHERNET_ADD_SRIOV_VFS, indirect=['patch_ansible_module'])
+def test_ethernet_connection_sriov_vfs_create(
+        mocked_ethernet_connection_with_sriov_vfs_create, capfd):
+    """
+    Test : Create ethernet connection with SR-IOV VFs
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    add_args, add_kw = arg_list[0]
+
+    assert add_args[0][0] == '/usr/bin/nmcli'
+    assert add_args[0][1] == 'con'
+    assert add_args[0][2] == 'add'
+    assert add_args[0][3] == 'type'
+    assert add_args[0][4] == 'ethernet'
+    assert add_args[0][5] == 'con-name'
+    assert add_args[0][6] == 'non_existent_nw_device'
+
+    add_args_text = list(map(to_text, add_args[0]))
+
+    for param in ['connection.interface-name', 'ethernet_non_existant',
+                  'con-name', 'non_existent_nw_device',
+                  'sriov.total-vfs', '16',
+                  'sriov.vfs', '0 spoof-check=true vlans=100']:
+        assert param in add_args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
 @pytest.mark.parametrize('patch_ansible_module', TESTCASE_ETHERNET_ADD_IPV6_INT_WITH_ROUTE_AND_METRIC, indirect=['patch_ansible_module'])
 def test_ethernet_connection_static_ipv6_address_static_route_with_metric_create(
         mocked_ethernet_connection_with_ipv6_static_address_static_route_with_metric_create, capfd):
@@ -4187,8 +4350,11 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
         argument_spec=dict(
             ignore_unsupported_suboptions=dict(type='bool', default=False),
             autoconnect=dict(type='bool', default=True),
+            autoconnect_priority=dict(type='int'),
+            autoconnect_retries=dict(type='int'),
             state=dict(type='str', required=True, choices=['absent', 'present']),
             conn_name=dict(type='str', required=True),
+            conn_reload=dict(type='bool', required=False, default=False),
             master=dict(type='str'),
             slave_type=dict(type=str, choices=['bond', 'bridge', 'team']),
             ifname=dict(type='str'),
@@ -4271,6 +4437,7 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             downdelay=dict(type='int'),
             updelay=dict(type='int'),
             xmit_hash_policy=dict(type='str'),
+            fail_over_mac=dict(type='str', choices=['none', 'active', 'follow']),
             arp_interval=dict(type='int'),
             arp_ip_target=dict(type='str'),
             primary=dict(type='str'),
@@ -4320,7 +4487,10 @@ def test_bond_connection_unchanged(mocked_generic_connection_diff_check, capfd):
             macvlan=dict(type='dict'),
             wireguard=dict(type='dict'),
             vpn=dict(type='dict'),
+            sriov=dict(type='dict'),
+            # infiniband specific vars
             transport_mode=dict(type='str', choices=['datagram', 'connected']),
+            infiniband_mac=dict(type='str'),
         ),
         mutually_exclusive=[['never_default4', 'gw4'],
                             ['routes4_extended', 'routes4'],
@@ -4703,6 +4873,151 @@ def mocked_create_slave_type_team_unchanged(mocker):
 def test_slave_type_team_unchanged(mocked_create_slave_type_team_unchanged, capfd):
     """
     Test : Existent slave for bridge unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_LOOPBACK, indirect=['patch_ansible_module'])
+def test_create_loopback(mocked_generic_connection_create, capfd):
+    """
+    Test : Create loopback connection
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    add_args, add_kw = arg_list[0]
+
+    assert add_args[0][0] == '/usr/bin/nmcli'
+    assert add_args[0][1] == 'con'
+    assert add_args[0][2] == 'add'
+    assert add_args[0][3] == 'type'
+    assert add_args[0][4] == 'loopback'
+    assert add_args[0][5] == 'con-name'
+    assert add_args[0][6] == 'lo'
+
+    add_args_text = list(map(to_text, add_args[0]))
+    for param in ['connection.interface-name', 'lo',
+                  'ipv4.addresses', '127.0.0.1/8']:
+        assert param in add_args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_LOOPBACK, indirect=['patch_ansible_module'])
+def test_unchanged_loopback(mocked_loopback_connection_unchanged, capfd):
+    """
+    Test : loopback connection unchanged
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert not results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_LOOPBACK_MODIFY, indirect=['patch_ansible_module'])
+def test_add_second_ip4_address_to_loopback_connection(mocked_loopback_connection_modify, capfd):
+    """
+    Test : Modify loopback connection
+    """
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 2
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[1]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'modify'
+    assert args[0][3] == 'lo'
+
+    for param in ['ipv4.addresses', '127.0.0.1/8,127.0.0.2/8']:
+        assert param in args[0]
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_VRF, indirect=['patch_ansible_module'])
+def test_create_vrf_con(mocked_generic_connection_create, capfd):
+    """
+    Test if VRF created
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'add'
+    assert args[0][3] == 'type'
+    assert args[0][4] == 'vrf'
+    assert args[0][5] == 'con-name'
+    assert args[0][6] == 'non_existent_nw_device'
+
+    args_text = list(map(to_text, args[0]))
+    for param in ['ipv4.addresses', '10.10.10.10/24', 'ipv4.gateway', '10.10.10.1', 'table', '10']:
+        assert param in args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_VRF, indirect=['patch_ansible_module'])
+def test_mod_vrf_conn(mocked_generic_connection_modify, capfd):
+    """
+    Test if VRF modified
+    """
+
+    with pytest.raises(SystemExit):
+        nmcli.main()
+
+    assert nmcli.Nmcli.execute_command.call_count == 1
+    arg_list = nmcli.Nmcli.execute_command.call_args_list
+    args, kwargs = arg_list[0]
+
+    assert args[0][0] == '/usr/bin/nmcli'
+    assert args[0][1] == 'con'
+    assert args[0][2] == 'modify'
+    assert args[0][3] == 'non_existent_nw_device'
+
+    args_text = list(map(to_text, args[0]))
+    for param in ['ipv4.addresses', '10.10.10.10/24', 'ipv4.gateway', '10.10.10.1', 'table', '10']:
+        assert param in args_text
+
+    out, err = capfd.readouterr()
+    results = json.loads(out)
+    assert not results.get('failed')
+    assert results['changed']
+
+
+@pytest.mark.parametrize('patch_ansible_module', TESTCASE_VRF, indirect=['patch_ansible_module'])
+def test_vrf_connection_unchanged(mocked_vrf_connection_unchanged, capfd):
+    """
+    Test : VRF connection unchanged
     """
     with pytest.raises(SystemExit):
         nmcli.main()

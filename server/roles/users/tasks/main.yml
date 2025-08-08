@@ -5,13 +5,13 @@
     state: present
   become: true
 
-- name: Add authorized key
+- name: Add authorized keys
   ansible.posix.authorized_key:
-    user: "{{ item.unixname }}"
-    key: "{{ item.ssh_key }}"
+    user: "{{ item.0.unixname }}"
+    key: "{{ item.1 }}"
     state: present
   become: true
-  loop: "{{ users }}"
+  loop: "{{ users | subelements('ssh_keys') }}"
 
 - name: Add user
   ansible.builtin.user:

@@ -17,8 +17,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: cronvar
 short_description: Manage variables in crontabs
 description:
@@ -44,19 +43,18 @@ options:
     type: str
   insertafter:
     description:
-      - If specified, the variable will be inserted after the variable specified.
+      - If specified, the variable is inserted after the variable specified.
       - Used with O(state=present).
     type: str
   insertbefore:
     description:
-      - Used with O(state=present). If specified, the variable will be inserted
-        just before the variable specified.
+      - Used with O(state=present). If specified, the variable is inserted just before the variable specified.
     type: str
   state:
     description:
       - Whether to ensure that the variable is present or absent.
     type: str
-    choices: [ absent, present ]
+    choices: [absent, present]
     default: present
   user:
     description:
@@ -71,18 +69,17 @@ options:
     type: str
   backup:
     description:
-      - If set, create a backup of the crontab before it is modified.
-        The location of the backup is returned in the C(backup) variable by this module.
-      # TODO: C() above should be RV(), but return values have not been documented!
+      - If set, create a backup of the crontab before it is modified. The location of the backup is returned in the C(backup)
+        variable by this module.
     type: bool
     default: false
 requirements:
   - cron
 author:
-- Doug Luce (@dougluce)
-'''
+  - Doug Luce (@dougluce)
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Ensure entry like "EMAIL=doug@ansibmod.con.com" exists
   community.general.cronvar:
     name: EMAIL
@@ -99,7 +96,7 @@ EXAMPLES = r'''
     value: /var/log/yum-autoupdate.log
     user: root
     cron_file: ansible_yum-autoupdate
-'''
+"""
 
 import os
 import platform
@@ -138,6 +135,9 @@ class CronVar(object):
                 self.cron_file = cron_file
             else:
                 self.cron_file = os.path.join('/etc/cron.d', cron_file)
+            parent_dir = os.path.dirname(self.cron_file)
+            if parent_dir and not os.path.isdir(parent_dir):
+                module.fail_json(msg="Parent directory '{}' does not exist for cron_file: '{}'".format(parent_dir, cron_file))
         else:
             self.cron_file = None
 
@@ -149,9 +149,8 @@ class CronVar(object):
         if self.cron_file:
             # read the cronfile
             try:
-                f = open(self.cron_file, 'r')
-                self.lines = f.read().splitlines()
-                f.close()
+                with open(self.cron_file, 'r') as f:
+                    self.lines = f.read().splitlines()
             except IOError:
                 # cron file does not exist
                 return
@@ -183,6 +182,7 @@ class CronVar(object):
             fileh = open(backup_file, 'w')
         elif self.cron_file:
             fileh = open(self.cron_file, 'w')
+            path = None
         else:
             filed, path = tempfile.mkstemp(prefix='crontab')
             fileh = os.fdopen(filed, 'w')
@@ -396,6 +396,8 @@ def main():
     old_value = cronvar.find_variable(name)
 
     if ensure_present:
+        if value == "" and old_value != "":
+            value = '""'
         if old_value is None:
             cronvar.add_variable(name, value, insertbefore, insertafter)
             changed = True

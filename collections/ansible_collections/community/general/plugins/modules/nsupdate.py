@@ -14,90 +14,87 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: nsupdate
 
 short_description: Manage DNS records
 description:
-    - Create, update and remove DNS records using DDNS updates
+  - Create, update and remove DNS records using DDNS updates.
 requirements:
   - dnspython
 author: "Loic Blot (@nerzhul)"
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-    state:
-        description:
-            - Manage DNS record.
-        choices: ['present', 'absent']
-        default: 'present'
-        type: str
-    server:
-        description:
-            - Apply DNS modification on this server, specified by IPv4 or IPv6 address.
-        required: true
-        type: str
-    port:
-        description:
-            - Use this TCP port when connecting to O(server).
-        default: 53
-        type: int
-    key_name:
-        description:
-            - Use TSIG key name to authenticate against DNS O(server)
-        type: str
-    key_secret:
-        description:
-            - Use TSIG key secret, associated with O(key_name), to authenticate against O(server)
-        type: str
-    key_algorithm:
-        description:
-            - Specify key algorithm used by O(key_secret).
-        choices: ['HMAC-MD5.SIG-ALG.REG.INT', 'hmac-md5', 'hmac-sha1', 'hmac-sha224', 'hmac-sha256', 'hmac-sha384',
-                  'hmac-sha512']
-        default: 'hmac-md5'
-        type: str
-    zone:
-        description:
-            - DNS record will be modified on this O(zone).
-            - When omitted DNS will be queried to attempt finding the correct zone.
-            - Starting with Ansible 2.7 this parameter is optional.
-        type: str
-    record:
-        description:
-            - Sets the DNS record to modify. When zone is omitted this has to be absolute (ending with a dot).
-        required: true
-        type: str
-    type:
-        description:
-            - Sets the record type.
-        default: 'A'
-        type: str
-    ttl:
-        description:
-            - Sets the record TTL.
-        default: 3600
-        type: int
-    value:
-        description:
-            - Sets the record value.
-        type: list
-        elements: str
-    protocol:
-        description:
-            - Sets the transport protocol (TCP or UDP). TCP is the recommended and a more robust option.
-        default: 'tcp'
-        choices: ['tcp', 'udp']
-        type: str
-'''
+  state:
+    description:
+      - Manage DNS record.
+    choices: ['present', 'absent']
+    default: 'present'
+    type: str
+  server:
+    description:
+      - Apply DNS modification on this server, specified by IPv4 or IPv6 address.
+    required: true
+    type: str
+  port:
+    description:
+      - Use this TCP port when connecting to O(server).
+    default: 53
+    type: int
+  key_name:
+    description:
+      - Use TSIG key name to authenticate against DNS O(server).
+    type: str
+  key_secret:
+    description:
+      - Use TSIG key secret, associated with O(key_name), to authenticate against O(server).
+    type: str
+  key_algorithm:
+    description:
+      - Specify key algorithm used by O(key_secret).
+    choices: ['HMAC-MD5.SIG-ALG.REG.INT', 'hmac-md5', 'hmac-sha1', 'hmac-sha224', 'hmac-sha256', 'hmac-sha384', 'hmac-sha512']
+    default: 'hmac-md5'
+    type: str
+  zone:
+    description:
+      - DNS record is modified on this O(zone).
+      - When omitted, DNS is queried to attempt finding the correct zone.
+    type: str
+  record:
+    description:
+      - Sets the DNS record to modify. When zone is omitted this has to be absolute (ending with a dot).
+    required: true
+    type: str
+  type:
+    description:
+      - Sets the record type.
+    default: 'A'
+    type: str
+  ttl:
+    description:
+      - Sets the record TTL.
+    default: 3600
+    type: int
+  value:
+    description:
+      - Sets the record value.
+    type: list
+    elements: str
+  protocol:
+    description:
+      - Sets the transport protocol (TCP or UDP). TCP is the recommended and a more robust option.
+    default: 'tcp'
+    choices: ['tcp', 'udp']
+    type: str
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Add or modify ansible.example.org A to 192.168.1.1"
   community.general.nsupdate:
     key_name: "nsupdate"
@@ -144,49 +141,45 @@ EXAMPLES = '''
     record: "1.1.168.192.in-addr.arpa."
     type: "PTR"
     state: absent
-'''
+"""
 
-RETURN = '''
-changed:
-    description: If module has modified record
-    returned: success
-    type: str
+RETURN = r"""
 record:
-    description: DNS record
-    returned: success
-    type: str
-    sample: 'ansible'
+  description: DNS record.
+  returned: success
+  type: str
+  sample: 'ansible'
 ttl:
-    description: DNS record TTL
-    returned: success
-    type: int
-    sample: 86400
+  description: DNS record TTL.
+  returned: success
+  type: int
+  sample: 86400
 type:
-    description: DNS record type
-    returned: success
-    type: str
-    sample: 'CNAME'
+  description: DNS record type.
+  returned: success
+  type: str
+  sample: 'CNAME'
 value:
-    description: DNS record value(s)
-    returned: success
-    type: list
-    sample: '192.168.1.1'
+  description: DNS record value(s).
+  returned: success
+  type: list
+  sample: '192.168.1.1'
 zone:
-    description: DNS record zone
-    returned: success
-    type: str
-    sample: 'example.org.'
+  description: DNS record zone.
+  returned: success
+  type: str
+  sample: 'example.org.'
 dns_rc:
-    description: dnspython return code
-    returned: always
-    type: int
-    sample: 4
+  description: C(dnspython) return code.
+  returned: always
+  type: int
+  sample: 4
 dns_rc_str:
-    description: dnspython return code (string representation)
-    returned: always
-    type: str
-    sample: 'REFUSED'
-'''
+  description: C(dnspython) return code (string representation).
+  returned: always
+  type: str
+  sample: 'REFUSED'
+"""
 
 import traceback
 
@@ -371,7 +364,8 @@ class RecordManager(object):
             except (socket_error, dns.exception.Timeout) as e:
                 self.module.fail_json(msg='DNS server error: (%s): %s' % (e.__class__.__name__, to_native(e)))
 
-            entries_to_remove = [n.to_text() for n in lookup.answer[0].items if n.to_text() not in self.value]
+            lookup_result = lookup.answer[0] if lookup.answer else lookup.authority[0]
+            entries_to_remove = [n.to_text() for n in lookup_result.items if n.to_text() not in self.value]
         else:
             update.delete(self.module.params['record'], self.module.params['type'])
 
@@ -478,18 +472,18 @@ def main():
 
     module = AnsibleModule(
         argument_spec=dict(
-            state=dict(required=False, default='present', choices=['present', 'absent'], type='str'),
+            state=dict(default='present', choices=['present', 'absent'], type='str'),
             server=dict(required=True, type='str'),
-            port=dict(required=False, default=53, type='int'),
-            key_name=dict(required=False, type='str'),
-            key_secret=dict(required=False, type='str', no_log=True),
-            key_algorithm=dict(required=False, default='hmac-md5', choices=tsig_algs, type='str'),
-            zone=dict(required=False, default=None, type='str'),
+            port=dict(default=53, type='int'),
+            key_name=dict(type='str'),
+            key_secret=dict(type='str', no_log=True),
+            key_algorithm=dict(default='hmac-md5', choices=tsig_algs, type='str'),
+            zone=dict(type='str'),
             record=dict(required=True, type='str'),
-            type=dict(required=False, default='A', type='str'),
-            ttl=dict(required=False, default=3600, type='int'),
-            value=dict(required=False, default=None, type='list', elements='str'),
-            protocol=dict(required=False, default='tcp', choices=['tcp', 'udp'], type='str')
+            type=dict(default='A', type='str'),
+            ttl=dict(default=3600, type='int'),
+            value=dict(type='list', elements='str'),
+            protocol=dict(default='tcp', choices=['tcp', 'udp'], type='str')
         ),
         supports_check_mode=True
     )

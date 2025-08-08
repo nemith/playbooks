@@ -8,8 +8,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: nomad_job
 author: FERREIRA Christophe (@chris93111)
 version_added: "1.3.0"
@@ -17,56 +16,64 @@ short_description: Launch a Nomad Job
 description:
   - Launch a Nomad job.
   - Stop a Nomad job.
-  - Force start a Nomad job
+  - Force start a Nomad job.
 requirements:
   - python-nomad
 extends_documentation_fragment:
   - community.general.nomad
   - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-    name:
-      description:
-        - Name of job for delete, stop and start job without source.
-        - Name of job for delete, stop and start job without source.
-        - Either this or O(content) must be specified.
-      type: str
-    state:
-      description:
-        - Deploy or remove job.
-      choices: ["present", "absent"]
-      required: true
-      type: str
-    force_start:
-      description:
-        - Force job to started.
-      type: bool
-      default: false
-    content:
-      description:
-        - Content of Nomad job.
-        - Either this or O(name) must be specified.
-      type: str
-    content_format:
-      description:
-        - Type of content of Nomad job.
-      choices: ["hcl", "json"]
-      default: hcl
-      type: str
+  name:
+    description:
+      - Name of job for delete, stop and start job without source.
+      - Name of job for delete, stop and start job without source.
+      - Either this or O(content) must be specified.
+    type: str
+  state:
+    description:
+      - Deploy or remove job.
+    choices: ["present", "absent"]
+    required: true
+    type: str
+  force_start:
+    description:
+      - Force job to started.
+    type: bool
+    default: false
+  content:
+    description:
+      - Content of Nomad job.
+      - Either this or O(name) must be specified.
+    type: str
+  content_format:
+    description:
+      - Type of content of Nomad job.
+    choices: ["hcl", "json"]
+    default: hcl
+    type: str
 seealso:
   - name: Nomad jobs documentation
     description: Complete documentation for Nomad API jobs.
     link: https://www.nomadproject.io/api-docs/jobs/
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create job
   community.general.nomad_job:
     host: localhost
+    state: present
+    content: "{{ lookup('ansible.builtin.file', 'job.hcl') }}"
+    timeout: 120
+
+- name: Connect with port to create job
+  community.general.nomad_job:
+    host: localhost
+    port: 4645
     state: present
     content: "{{ lookup('ansible.builtin.file', 'job.hcl') }}"
     timeout: 120
@@ -84,7 +91,7 @@ EXAMPLES = '''
     name: api
     timeout: 120
     force_start: true
-'''
+"""
 
 import json
 
@@ -103,6 +110,7 @@ def run():
     module = AnsibleModule(
         argument_spec=dict(
             host=dict(required=True, type='str'),
+            port=dict(type='int', default=4646),
             state=dict(required=True, choices=['present', 'absent']),
             use_ssl=dict(type='bool', default=True),
             timeout=dict(type='int', default=5),
@@ -132,6 +140,7 @@ def run():
 
     nomad_client = nomad.Nomad(
         host=module.params.get('host'),
+        port=module.params.get('port'),
         secure=module.params.get('use_ssl'),
         timeout=module.params.get('timeout'),
         verify=module.params.get('validate_certs'),

@@ -12,21 +12,19 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = '''
+DOCUMENTATION = r"""
 module: gitlab_merge_request
 short_description: Create, update, or delete GitLab merge requests
 version_added: 7.1.0
 description:
   - Creates a merge request if it does not exist.
-  - When a single merge request does exist, it will be updated if the provided parameters are different.
-  - When a single merge request does exist and O(state=absent), the merge request will be deleted.
+  - When a single merge request does exist, it is updated if the provided parameters are different.
+  - When a single merge request does exist and O(state=absent), the merge request is deleted.
   - When multiple merge requests are detected, the task fails.
-  - Existing merge requests are matched based on O(title), O(source_branch), O(target_branch),
-    and O(state_filter) filters.
+  - Existing merge requests are matched based on O(title), O(source_branch), O(target_branch), and O(state_filter) filters.
 author:
   - zvaraondrej (@zvaraondrej)
 requirements:
-  - Python >= 2.7
   - python-gitlab >= 2.3.0
 extends_documentation_fragment:
   - community.general.auth_basic
@@ -70,7 +68,7 @@ options:
   description:
     description:
       - A description for the merge request.
-      - Gets overriden by a content of file specified at O(description_path), if found.
+      - Gets overridden by a content of file specified at O(description_path), if found.
     type: str
   description_path:
     description:
@@ -103,10 +101,10 @@ options:
       - Comma separated list of reviewers usernames omitting V(@) character.
       - Set to empty string to unassign all reviewers.
     type: str
-'''
+"""
 
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create Merge Request from branch1 to branch2
   community.general.gitlab_merge_request:
     api_url: https://gitlab.com
@@ -118,7 +116,7 @@ EXAMPLES = '''
     description: "Demo MR description"
     labels: "Ansible,Demo"
     state_filter: "opened"
-    remove_source_branch: True
+    remove_source_branch: true
     state: present
 
 - name: Delete Merge Request from branch1 to branch2
@@ -131,9 +129,9 @@ EXAMPLES = '''
     title: "Ansible demo MR"
     state_filter: "opened"
     state: absent
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 msg:
   description: Success or failure message.
   returned: always
@@ -144,7 +142,7 @@ mr:
   description: API object.
   returned: success
   type: dict
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.api import basic_auth_argument_spec
@@ -152,7 +150,7 @@ from ansible.module_utils.common.text.converters import to_native, to_text
 
 from ansible_collections.community.general.plugins.module_utils.version import LooseVersion
 from ansible_collections.community.general.plugins.module_utils.gitlab import (
-    auth_argument_spec, gitlab_authentication, gitlab, ensure_gitlab_package, find_project
+    auth_argument_spec, gitlab_authentication, gitlab, find_project
 )
 
 
@@ -264,15 +262,15 @@ class GitlabMergeRequest(object):
                     key = 'force_remove_source_branch'
 
                 if key == 'assignee_ids':
-                    if options[key] != sorted([user["id"] for user in getattr(mr, 'assignees')]):
+                    if value != sorted([user["id"] for user in getattr(mr, 'assignees')]):
                         return True
 
                 elif key == 'reviewer_ids':
-                    if options[key] != sorted([user["id"] for user in getattr(mr, 'reviewers')]):
+                    if value != sorted([user["id"] for user in getattr(mr, 'reviewers')]):
                         return True
 
                 elif key == 'labels':
-                    if options[key] != sorted(getattr(mr, key)):
+                    if value != sorted(getattr(mr, key)):
                         return True
 
                 elif getattr(mr, key) != value:
@@ -289,13 +287,13 @@ def main():
         source_branch=dict(type='str', required=True),
         target_branch=dict(type='str', required=True),
         title=dict(type='str', required=True),
-        description=dict(type='str', required=False),
-        labels=dict(type='str', default="", required=False),
-        description_path=dict(type='path', required=False),
-        remove_source_branch=dict(type='bool', default=False, required=False),
+        description=dict(type='str'),
+        labels=dict(type='str', default=""),
+        description_path=dict(type='path'),
+        remove_source_branch=dict(type='bool', default=False),
         state_filter=dict(type='str', default="opened", choices=["opened", "closed", "locked", "merged"]),
-        assignee_ids=dict(type='str', required=False),
-        reviewer_ids=dict(type='str', required=False),
+        assignee_ids=dict(type='str'),
+        reviewer_ids=dict(type='str'),
         state=dict(type='str', default="present", choices=["absent", "present"]),
     )
 
@@ -321,7 +319,9 @@ def main():
         ],
         supports_check_mode=True
     )
-    ensure_gitlab_package(module)
+
+    # check prerequisites and connect to gitlab server
+    gitlab_instance = gitlab_authentication(module)
 
     project = module.params['project']
     source_branch = module.params['source_branch']
@@ -340,8 +340,6 @@ def main():
     if LooseVersion(gitlab_version) < LooseVersion('2.3.0'):
         module.fail_json(msg="community.general.gitlab_merge_request requires python-gitlab Python module >= 2.3.0 (installed version: [%s])."
                              " Please upgrade python-gitlab to version 2.3.0 or above." % gitlab_version)
-
-    gitlab_instance = gitlab_authentication(module)
 
     this_project = find_project(gitlab_instance, project)
     if this_project is None:

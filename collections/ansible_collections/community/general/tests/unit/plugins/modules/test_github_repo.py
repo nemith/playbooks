@@ -7,12 +7,13 @@ __metaclass__ = type
 
 import re
 import json
-import sys
+import pytest
 from httmock import with_httmock, urlmatch, response
-from ansible_collections.community.general.tests.unit.compat import unittest
+from ansible_collections.community.internal_test_tools.tests.unit.compat import unittest
 from ansible_collections.community.general.plugins.modules import github_repo
 
-GITHUB_MINIMUM_PYTHON_VERSION = (2, 7)
+
+pytest.importorskip('github')
 
 
 @urlmatch(netloc=r'.*')
@@ -167,11 +168,6 @@ def delete_repo_notfound_mock(url, request):
 
 
 class TestGithubRepo(unittest.TestCase):
-    def setUp(self):
-        if sys.version_info < GITHUB_MINIMUM_PYTHON_VERSION:
-            self.skipTest("Python %s+ is needed for PyGithub" %
-                          ",".join(map(str, GITHUB_MINIMUM_PYTHON_VERSION)))
-
     @with_httmock(get_orgs_mock)
     @with_httmock(get_repo_notfound_mock)
     @with_httmock(create_new_org_repo_mock)

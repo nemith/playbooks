@@ -10,6 +10,6 @@
     dest: /etc/sudoers
     owner: root
     group: root
-    mode: 0640
+    mode: 0440
     validate: /usr/sbin/visudo -cf %s
   become: true

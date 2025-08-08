@@ -8,12 +8,11 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: selogin
 short_description: Manages linux user to SELinux user mapping
 description:
-  - Manages linux user to SELinux user mapping
+  - Manages linux user to SELinux user mapping.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -25,24 +24,25 @@ options:
   login:
     type: str
     description:
-      - a Linux user
+      - A Linux user.
     required: true
   seuser:
     type: str
     description:
-      - SELinux user name
+      - SELinux user name.
   selevel:
     type: str
-    aliases: [ serange ]
+    aliases: [serange]
     description:
-      - MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login mapping defaults to the SELinux user record range.
+      - MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login mapping defaults to the SELinux user
+        record range.
     default: s0
   state:
     type: str
     description:
       - Desired mapping value.
     default: present
-    choices: [ 'present', 'absent' ]
+    choices: ['present', 'absent']
   reload:
     description:
       - Reload SELinux policy after commit.
@@ -50,20 +50,20 @@ options:
     default: true
   ignore_selinux_state:
     description:
-    - Run independent of selinux runtime state
+      - Run independent of selinux runtime state.
     type: bool
     default: false
 notes:
-   - The changes are persistent across reboots
-   - Not tested on any debian based system
-requirements: [ 'libselinux', 'policycoreutils' ]
+  - The changes are persistent across reboots.
+  - Not tested on any debian based system.
+requirements: ['libselinux', 'policycoreutils']
 author:
-- Dan Keder (@dankeder)
-- Petr Lautrbach (@bachradsusi)
-- James Cassell (@jamescassell)
-'''
+  - Dan Keder (@dankeder)
+  - Petr Lautrbach (@bachradsusi)
+  - James Cassell (@jamescassell)
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Modify the default user on the system to the guest_u user
   community.general.selogin:
     login: __default__
@@ -82,11 +82,11 @@ EXAMPLES = '''
     login: '%engineering'
     seuser: staff_u
     state: present
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 # Default return values
-'''
+"""
 
 
 import traceback

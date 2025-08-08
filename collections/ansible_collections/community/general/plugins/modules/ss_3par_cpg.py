@@ -9,8 +9,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 short_description: Manage HPE StoreServ 3PAR CPG
 author:
   - Farhan Nomani (@farhan7500)
@@ -39,22 +38,20 @@ options:
     type: str
   domain:
     description:
-      - Specifies the name of the domain in which the object will reside.
+      - Specifies the name of the domain in which the object resides.
     type: str
   growth_increment:
     description:
-      - Specifies the growth increment(in MiB, GiB or TiB) the amount of logical disk storage
-       created on each auto-grow operation.
+      - Specifies the growth increment(in MiB, GiB or TiB) the amount of logical disk storage created on each auto-grow operation.
     type: str
   growth_limit:
     description:
-      - Specifies that the autogrow operation is limited to the specified
-       storage amount that sets the growth limit(in MiB, GiB or TiB).
+      - Specifies that the autogrow operation is limited to the specified storage amount that sets the growth limit (in MiB,
+        GiB or TiB).
     type: str
   growth_warning:
     description:
-      - Specifies that the threshold(in MiB, GiB or TiB) of used logical disk space when exceeded
-       results in a warning alert.
+      - Specifies that the threshold (in MiB, GiB or TiB) of used logical disk space when exceeded results in a warning alert.
     type: str
   high_availability:
     choices:
@@ -62,8 +59,7 @@ options:
       - CAGE
       - MAG
     description:
-      - Specifies that the layout must support the failure of one port pair,
-       one cage, or one magazine.
+      - Specifies that the layout must support the failure of one port pair, one cage, or one magazine.
     type: str
   raid_type:
     choices:
@@ -92,13 +88,12 @@ options:
     type: bool
     default: false
 extends_documentation_fragment:
-- community.general.hpe3par
-- community.general.attributes
+  - community.general.hpe3par
+  - community.general.attributes
+"""
 
-'''
 
-
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Create CPG sample_cpg
   community.general.ss_3par_cpg:
     storage_system_ip: 10.10.10.1
@@ -124,10 +119,10 @@ EXAMPLES = r'''
     state: absent
     cpg_name: sample_cpg
     secure: false
-'''
+"""
 
-RETURN = r'''
-'''
+RETURN = r"""
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.storage.hpe3par import hpe3par

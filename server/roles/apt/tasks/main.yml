@@ -6,10 +6,18 @@
 
 - name: Configure sources
   become: true
-  ansible.builtin.copy:
-    src: sources.{{ ansible_lsb.codename }}.list
-    dest: /etc/apt/sources.list
+  ansible.builtin.template:
+    src: debian.sources.j2
+    dest: /etc/apt/sources.list.d/debian.sources
     owner: root
     group: root
     mode: "0644"
+  vars:
+    debian_codename: "{{ ansible_lsb.codename }}"
   notify: Update apt cache
+
+- name: Remove old sources.list
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/sources.list
+    state: absent

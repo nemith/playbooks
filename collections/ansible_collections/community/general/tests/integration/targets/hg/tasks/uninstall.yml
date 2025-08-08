@@ -33,18 +33,18 @@
   shell: yum -y autoremove mercurial
   when: ansible_facts.pkg_mgr == 'yum'
 
+- name: uninstall packages which were not originally installed
+  package:
+    name: mercurial
+    state: absent
+  when: ansible_facts.pkg_mgr in ['pacman', 'community.general.pacman', 'zypper', 'community.general.zypper', 'apk', 'community.general.apk']
+
 - name: uninstall packages which were not originally installed (pkgng)
   package:
     name: mercurial
     state: absent
     autoremove: true
   when: ansible_facts.pkg_mgr in ['pkgng', 'community.general.pkgng']
-
-- name: uninstall packages which were not originally installed (zypper)
-  package:
-    name: mercurial
-    state: absent
-  when: ansible_facts.pkg_mgr in ['zypper', 'community.general.zypper']
 
 - name: restore the default python
   raw: mv "{{ which_python.stdout }}.default" "{{ which_python.stdout }}"

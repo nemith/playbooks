@@ -8,97 +8,87 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = """
----
+DOCUMENTATION = r"""
 module: pritunl_user
 author: "Florian Dambrine (@Lowess)"
 version_added: 2.3.0
 short_description: Manage Pritunl Users using the Pritunl API
 description:
-    - A module to manage Pritunl users using the Pritunl API.
+  - A module to manage Pritunl users using the Pritunl API.
 extends_documentation_fragment:
-    - community.general.pritunl
-    - community.general.attributes
+  - community.general.pritunl
+  - community.general.attributes
 attributes:
-    check_mode:
-        support: none
-    diff_mode:
-        support: none
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
-    organization:
-        type: str
-        required: true
-        aliases:
-            - org
-        description:
-            - The name of the organization the user is part of.
-
-    state:
-        type: str
-        default: 'present'
-        choices:
-            - present
-            - absent
-        description:
-            - If V(present), the module adds user O(user_name) to
-              the Pritunl O(organization). If V(absent), removes the user
-              O(user_name) from the Pritunl O(organization).
-
-    user_name:
-        type: str
-        required: true
-        default: null
-        description:
-            - Name of the user to create or delete from Pritunl.
-
-    user_email:
-        type: str
-        required: false
-        default: null
-        description:
-            - Email address associated with the user O(user_name).
-
-    user_type:
-        type: str
-        required: false
-        default: client
-        choices:
-            - client
-            - server
-        description:
-            - Type of the user O(user_name).
-
-    user_groups:
-        type: list
-        elements: str
-        required: false
-        default: null
-        description:
-            - List of groups associated with the user O(user_name).
-
-    user_disabled:
-        type: bool
-        required: false
-        default: null
-        description:
-            - Enable/Disable the user O(user_name).
-
-    user_gravatar:
-        type: bool
-        required: false
-        default: null
-        description:
-            - Enable/Disable Gravatar usage for the user O(user_name).
-
-    user_mac_addresses:
-        type: list
-        elements: str
-        description:
-            - Allowed MAC addresses for the user O(user_name).
-        version_added: 5.0.0
+  organization:
+    type: str
+    required: true
+    aliases:
+      - org
+    description:
+      - The name of the organization the user is part of.
+  state:
+    type: str
+    default: 'present'
+    choices:
+      - present
+      - absent
+    description:
+      - If V(present), the module adds user O(user_name) to the Pritunl O(organization). If V(absent), removes the user O(user_name)
+        from the Pritunl O(organization).
+  user_name:
+    type: str
+    required: true
+    default:
+    description:
+      - Name of the user to create or delete from Pritunl.
+  user_email:
+    type: str
+    required: false
+    default:
+    description:
+      - Email address associated with the user O(user_name).
+  user_type:
+    type: str
+    required: false
+    default: client
+    choices:
+      - client
+      - server
+    description:
+      - Type of the user O(user_name).
+  user_groups:
+    type: list
+    elements: str
+    required: false
+    default:
+    description:
+      - List of groups associated with the user O(user_name).
+  user_disabled:
+    type: bool
+    required: false
+    default:
+    description:
+      - Enable/Disable the user O(user_name).
+  user_gravatar:
+    type: bool
+    required: false
+    default:
+    description:
+      - Enable/Disable Gravatar usage for the user O(user_name).
+  user_mac_addresses:
+    type: list
+    elements: str
+    description:
+      - Allowed MAC addresses for the user O(user_name).
+    version_added: 5.0.0
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Create the user Foo with email address foo@bar.com in MyOrg
   community.general.pritunl_user:
     state: present
@@ -123,37 +113,38 @@ EXAMPLES = """
     user_name: Foo
 """
 
-RETURN = """
+RETURN = r"""
 response:
-    description: JSON representation of Pritunl Users.
-    returned: success
-    type: dict
-    sample:
-        {
-            "audit": false,
-            "auth_type": "google",
-            "bypass_secondary": false,
-            "client_to_client": false,
-            "disabled": false,
-            "dns_mapping": null,
-            "dns_servers": null,
-            "dns_suffix": null,
-            "email": "foo@bar.com",
-            "gravatar": true,
-            "groups": [
-                "foo", "bar"
-            ],
-            "id": "5d070dafe63q3b2e6s472c3b",
-            "name": "foo@acme.com",
-            "network_links": [],
-            "organization": "58070daee6sf342e6e4s2c36",
-            "organization_name": "Acme",
-            "otp_auth": true,
-            "otp_secret": "35H5EJA3XB2$4CWG",
-            "pin": false,
-            "port_forwarding": [],
-            "servers": [],
-        }
+  description: JSON representation of Pritunl Users.
+  returned: success
+  type: dict
+  sample:
+    {
+      "audit": false,
+      "auth_type": "google",
+      "bypass_secondary": false,
+      "client_to_client": false,
+      "disabled": false,
+      "dns_mapping": null,
+      "dns_servers": null,
+      "dns_suffix": null,
+      "email": "foo@bar.com",
+      "gravatar": true,
+      "groups": [
+        "foo",
+        "bar"
+      ],
+      "id": "5d070dafe63q3b2e6s472c3b",
+      "name": "foo@acme.com",
+      "network_links": [],
+      "organization": "58070daee6sf342e6e4s2c36",
+      "organization_name": "Acme",
+      "otp_auth": true,
+      "otp_secret": "35H5EJA3XB2$4CWG",
+      "pin": false,
+      "port_forwarding": [],
+      "servers": []
+    }
 """
 
 
@@ -329,18 +320,14 @@ def main():
     argument_spec.update(
         dict(
             organization=dict(required=True, type="str", aliases=["org"]),
-            state=dict(
-                required=False, choices=["present", "absent"], default="present"
-            ),
+            state=dict(choices=["present", "absent"], default="present"),
             user_name=dict(required=True, type="str"),
-            user_type=dict(
-                required=False, choices=["client", "server"], default="client"
-            ),
-            user_email=dict(required=False, type="str", default=None),
-            user_groups=dict(required=False, type="list", elements="str", default=None),
-            user_disabled=dict(required=False, type="bool", default=None),
-            user_gravatar=dict(required=False, type="bool", default=None),
-            user_mac_addresses=dict(required=False, type="list", elements="str", default=None),
+            user_type=dict(choices=["client", "server"], default="client"),
+            user_email=dict(type="str"),
+            user_groups=dict(type="list", elements="str"),
+            user_disabled=dict(type="bool"),
+            user_gravatar=dict(type="bool"),
+            user_mac_addresses=dict(type="list", elements="str"),
         )
     )
 

@@ -10,23 +10,23 @@ __metaclass__ = type
 class ModuleDocFragment(object):
 
     # Standard files documentation fragment
-    DOCUMENTATION = r'''
+    DOCUMENTATION = r"""
 options:
   api_url:
     description:
-      - The resolvable endpoint for the API
+      - The resolvable endpoint for the API.
     type: str
   api_username:
     description:
-      - The username to use for authentication against the API
+      - The username to use for authentication against the API.
     type: str
   api_password:
     description:
-      - The password to use for authentication against the API
+      - The password to use for authentication against the API.
     type: str
   validate_certs:
     description:
-      - Whether or not to validate SSL certs when supplying a https endpoint.
+      - Whether or not to validate SSL certs when supplying a HTTPS endpoint.
     type: bool
     default: true
-'''
+"""

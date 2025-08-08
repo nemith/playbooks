@@ -9,14 +9,13 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: ipify_facts
 short_description: Retrieve the public IP of your internet gateway
 description:
   - If behind NAT and need to know the public IP of your internet gateway.
 author:
-- René Moser (@resmo)
+  - René Moser (@resmo)
 extends_documentation_fragment:
   - community.general.attributes
   - community.general.attributes.facts
@@ -25,7 +24,7 @@ options:
   api_url:
     description:
       - URL of the ipify.org API service.
-      - C(?format=json) will be appended per default.
+      - C(?format=json) is appended by default.
     type: str
     default: https://api.ipify.org/
   timeout:
@@ -35,14 +34,14 @@ options:
     default: 10
   validate_certs:
     description:
-      - When set to V(false), SSL certificates will not be validated.
+      - When set to V(false), SSL certificates are not validated.
     type: bool
     default: true
 notes:
   - Visit https://www.ipify.org to get more information.
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Gather IP facts from ipify.org
 - name: Get my public IP
   community.general.ipify_facts:
@@ -52,16 +51,15 @@ EXAMPLES = r'''
   community.general.ipify_facts:
     api_url: http://api.example.com/ipify
     timeout: 20
-'''
+"""
 
-RETURN = r'''
----
+RETURN = r"""
 ipify_public_ip:
   description: Public IP of the internet gateway.
   returned: success
   type: str
   sample: 1.2.3.4
-'''
+"""
 
 import json
 

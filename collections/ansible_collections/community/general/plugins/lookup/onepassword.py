@@ -8,68 +8,39 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-DOCUMENTATION = '''
-    name: onepassword
-    author:
-      - Scott Buchanan (@scottsb)
-      - Andrew Zenk (@azenk)
-      - Sam Doran (@samdoran)
-    requirements:
-      - C(op) 1Password command line utility. See U(https://support.1password.com/command-line/)
-    short_description: fetch field values from 1Password
-    description:
-      - P(community.general.onepassword#lookup) wraps the C(op) command line utility to fetch specific field values from 1Password.
-    options:
-      _terms:
-        description: identifier(s) (UUID, name, or subdomain; case-insensitive) of item(s) to retrieve.
-        required: true
-      field:
-        description: field to return from each matching item (case-insensitive).
-        default: 'password'
-      master_password:
-        description: The password used to unlock the specified vault.
-        aliases: ['vault_password']
-      section:
-        description: Item section containing the field to retrieve (case-insensitive). If absent will return first match from any section.
-      domain:
-        description: Domain of 1Password.
-        version_added: 3.2.0
-        default: '1password.com'
-        type: str
-      subdomain:
-        description: The 1Password subdomain to authenticate against.
-      account_id:
-        description: The account ID to target.
-        type: str
-        version_added: 7.5.0
-      username:
-        description: The username used to sign in.
-      secret_key:
-        description: The secret key used when performing an initial sign in.
-      service_account_token:
-        description:
-          - The access key for a service account.
-          - Only works with 1Password CLI version 2 or later.
-        type: str
-        version_added: 7.1.0
-      vault:
-        description: Vault containing the item to retrieve (case-insensitive). If absent will search all vaults.
-    notes:
-      - This lookup will use an existing 1Password session if one exists. If not, and you have already
-        performed an initial sign in (meaning C(~/.op/config), C(~/.config/op/config) or C(~/.config/.op/config) exists), then only the
-        C(master_password) is required. You may optionally specify O(subdomain) in this scenario, otherwise the last used subdomain will be used by C(op).
-      - This lookup can perform an initial login by providing O(subdomain), O(username), O(secret_key), and O(master_password).
-      - Can target a specific account by providing the O(account_id).
-      - Due to the B(very) sensitive nature of these credentials, it is B(highly) recommended that you only pass in the minimal credentials
-        needed at any given time. Also, store these credentials in an Ansible Vault using a key that is equal to or greater in strength
-        to the 1Password master password.
-      - This lookup stores potentially sensitive data from 1Password as Ansible facts.
-        Facts are subject to caching if enabled, which means this data could be stored in clear text
-        on disk or in a database.
-      - Tested with C(op) version 2.7.2
-'''
+DOCUMENTATION = r"""
+name: onepassword
+author:
+  - Scott Buchanan (@scottsb)
+  - Andrew Zenk (@azenk)
+  - Sam Doran (@samdoran)
+short_description: Fetch field values from 1Password
+description:
+  - P(community.general.onepassword#lookup) wraps the C(op) command line utility to fetch specific field values from 1Password.
+requirements:
+  - C(op) 1Password command line utility
+options:
+  _terms:
+    description: Identifier(s) (case-insensitive UUID or name) of item(s) to retrieve.
+    required: true
+    type: list
+    elements: string
+  account_id:
+    version_added: 7.5.0
+  domain:
+    version_added: 3.2.0
+  field:
+    description: Field to return from each matching item (case-insensitive).
+    default: 'password'
+    type: str
+  service_account_token:
+    version_added: 7.1.0
+extends_documentation_fragment:
+  - community.general.onepassword
+  - community.general.onepassword.lookup
+"""
 
-EXAMPLES = """
+EXAMPLES = r"""
 # These examples only work when already signed in to 1Password
 - name: Retrieve password for KITT when already signed in to 1Password
   ansible.builtin.debug:
@@ -85,32 +56,24 @@ EXAMPLES = """
 
 - name: Retrieve password for HAL when not signed in to 1Password
   ansible.builtin.debug:
-    var: lookup('community.general.onepassword',
-                'HAL 9000',
-                subdomain='Discovery',
-                master_password=vault_master_password)
+    var: lookup('community.general.onepassword', 'HAL 9000', subdomain='Discovery', master_password=vault_master_password)
 
 - name: Retrieve password for HAL when never signed in to 1Password
   ansible.builtin.debug:
-    var: lookup('community.general.onepassword',
-                'HAL 9000',
-                subdomain='Discovery',
-                master_password=vault_master_password,
-                username='tweety@acme.com',
-                secret_key=vault_secret_key)
+    var: >-
+      lookup('community.general.onepassword', 'HAL 9000', subdomain='Discovery', master_password=vault_master_password,
+             username='tweety@acme.com', secret_key=vault_secret_key)
 
 - name: Retrieve password from specific account
   ansible.builtin.debug:
-    var: lookup('community.general.onepassword',
-                'HAL 9000',
-                account_id='abc123')
+    var: lookup('community.general.onepassword', 'HAL 9000', account_id='abc123')
 """
 
-RETURN = """
-  _raw:
-    description: field data requested
-    type: list
-    elements: str
+RETURN = r"""
+_raw:
+  description: Field data requested.
+  type: list
+  elements: str
 """
 
 import abc
@@ -119,12 +82,20 @@ import json
 import subprocess
 
 from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleLookupError
+from ansible.errors import AnsibleLookupError, AnsibleOptionsError
 from ansible.module_utils.common.process import get_bin_path
 from ansible.module_utils.common.text.converters import to_bytes, to_text
 from ansible.module_utils.six import with_metaclass
 
 from ansible_collections.community.general.plugins.module_utils.onepassword import OnePasswordConfig
+
+
+def _lower_if_possible(value):
+    """Return the lower case version value, otherwise return the value"""
+    try:
+        return value.lower()
+    except AttributeError:
+        return value
 
 
 class OnePassCLIBase(with_metaclass(abc.ABCMeta, object)):
@@ -139,6 +110,8 @@ class OnePassCLIBase(with_metaclass(abc.ABCMeta, object)):
         master_password=None,
         service_account_token=None,
         account_id=None,
+        connect_host=None,
+        connect_token=None,
     ):
         self.subdomain = subdomain
         self.domain = domain
@@ -147,21 +120,23 @@ class OnePassCLIBase(with_metaclass(abc.ABCMeta, object)):
         self.secret_key = secret_key
         self.service_account_token = service_account_token
         self.account_id = account_id
+        self.connect_host = connect_host
+        self.connect_token = connect_token
 
         self._path = None
         self._version = None
 
     def _check_required_params(self, required_params):
-        non_empty_attrs = dict((param, getattr(self, param, None)) for param in required_params if getattr(self, param, None))
+        non_empty_attrs = {param: getattr(self, param) for param in required_params if getattr(self, param, None)}
         missing = set(required_params).difference(non_empty_attrs)
         if missing:
             prefix = "Unable to sign in to 1Password. Missing required parameter"
             plural = ""
-            suffix = ": {params}.".format(params=", ".join(missing))
+            suffix = f": {', '.join(missing)}."
             if len(missing) > 1:
                 plural = "s"
 
-            msg = "{prefix}{plural}{suffix}".format(prefix=prefix, plural=plural, suffix=suffix)
+            msg = f"{prefix}{plural}{suffix}"
             raise AnsibleLookupError(msg)
 
     @abc.abstractmethod
@@ -186,7 +161,7 @@ class OnePassCLIBase(with_metaclass(abc.ABCMeta, object)):
         rc = p.wait()
 
         if not ignore_errors and rc != expected_rc:
-            raise AnsibleLookupError(to_text(err))
+            raise AnsibleLookupError(str(err))
 
         return rc, out, err
 
@@ -227,12 +202,12 @@ class OnePassCLIBase(with_metaclass(abc.ABCMeta, object)):
         try:
             bin_path = get_bin_path(cls.bin)
         except ValueError:
-            raise AnsibleLookupError("Unable to locate '%s' command line tool" % cls.bin)
+            raise AnsibleLookupError(f"Unable to locate '{cls.bin}' command line tool")
 
         try:
             b_out = subprocess.check_output([bin_path, "--version"], stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as cpe:
-            raise AnsibleLookupError("Unable to get the op version: %s" % cpe)
+            raise AnsibleLookupError(f"Unable to get the op version: {cpe}")
 
         return to_text(b_out).strip()
 
@@ -317,7 +292,7 @@ class OnePassCLIv1(OnePassCLIBase):
         if self.account_id:
             args.extend(["--account", self.account_id])
         elif self.subdomain:
-            account = "{subdomain}.{domain}".format(subdomain=self.subdomain, domain=self.domain)
+            account = f"{self.subdomain}.{self.domain}"
             args.extend(["--account", account])
 
         rc, out, err = self._run(args, ignore_errors=True)
@@ -325,6 +300,10 @@ class OnePassCLIv1(OnePassCLIBase):
         return not bool(rc)
 
     def full_signin(self):
+        if self.connect_host or self.connect_token:
+            raise AnsibleLookupError(
+                "1Password Connect is not available with 1Password CLI version 1. Please use version 2 or later.")
+
         if self.service_account_token:
             raise AnsibleLookupError(
                 "1Password CLI version 1 does not support Service Accounts. Please use version 2 or later.")
@@ -339,7 +318,7 @@ class OnePassCLIv1(OnePassCLIBase):
 
         args = [
             "signin",
-            "{0}.{1}".format(self.subdomain, self.domain),
+            f"{self.subdomain}.{self.domain}",
             to_bytes(self.username),
             to_bytes(self.secret_key),
             "--raw",
@@ -354,7 +333,7 @@ class OnePassCLIv1(OnePassCLIBase):
             args.extend(["--account", self.account_id])
 
         if vault is not None:
-            args += ["--vault={0}".format(vault)]
+            args += [f"--vault={vault}"]
 
         if token is not None:
             args += [to_bytes("--session=") + token]
@@ -480,6 +459,7 @@ class OnePassCLIv2(OnePassCLIBase):
             }
         """
         data = json.loads(data_json)
+        field_name = _lower_if_possible(field_name)
         for field in data.get("fields", []):
             if section_title is None:
                 # If the field name exists in the section, return that value
@@ -488,28 +468,33 @@ class OnePassCLIv2(OnePassCLIBase):
 
                 # If the field name doesn't exist in the section, match on the value of "label"
                 # then "id" and return "value"
-                if field.get("label") == field_name:
+                if field.get("label", "").lower() == field_name:
                     return field.get("value", "")
 
-                if field.get("id") == field_name:
+                if field.get("id", "").lower() == field_name:
                     return field.get("value", "")
 
-            # Look at the section data and get an indentifier. The value of 'id' is either a unique ID
+            # Look at the section data and get an identifier. The value of 'id' is either a unique ID
             # or a human-readable string. If a 'label' field exists, prefer that since
             # it is the value visible in the 1Password UI when both 'id' and 'label' exist.
             section = field.get("section", {})
-            current_section_title = section.get("label", section.get("id"))
+            section_title = _lower_if_possible(section_title)
+
+            current_section_title = section.get("label", section.get("id", "")).lower()
             if section_title == current_section_title:
                 # In the correct section. Check "label" then "id" for the desired field_name
-                if field.get("label") == field_name:
+                if field.get("label", "").lower() == field_name:
                     return field.get("value", "")
 
-                if field.get("id") == field_name:
+                if field.get("id", "").lower() == field_name:
                     return field.get("value", "")
 
         return ""
 
     def assert_logged_in(self):
+        if self.connect_host and self.connect_token:
+            return True
+
         if self.service_account_token:
             args = ["whoami"]
             environment_update = {"OP_SERVICE_ACCOUNT_TOKEN": self.service_account_token}
@@ -519,7 +504,7 @@ class OnePassCLIv2(OnePassCLIBase):
 
         args = ["account", "list"]
         if self.subdomain:
-            account = "{subdomain}.{domain}".format(subdomain=self.subdomain, domain=self.domain)
+            account = f"{self.subdomain}.{self.domain}"
             args.extend(["--account", account])
 
         rc, out, err = self._run(args)
@@ -532,7 +517,7 @@ class OnePassCLIv2(OnePassCLIBase):
             if self.account_id:
                 args.extend(["--account", self.account_id])
             elif self.subdomain:
-                account = "{subdomain}.{domain}".format(subdomain=self.subdomain, domain=self.domain)
+                account = f"{self.subdomain}.{self.domain}"
                 args.extend(["--account", account])
 
             rc, out, err = self._run(args, ignore_errors=True)
@@ -552,7 +537,7 @@ class OnePassCLIv2(OnePassCLIBase):
 
         args = [
             "account", "add", "--raw",
-            "--address", "{0}.{1}".format(self.subdomain, self.domain),
+            "--address", f"{self.subdomain}.{self.domain}",
             "--email", to_bytes(self.username),
             "--signin",
         ]
@@ -560,14 +545,21 @@ class OnePassCLIv2(OnePassCLIBase):
         environment_update = {"OP_SECRET_KEY": self.secret_key}
         return self._run(args, command_input=to_bytes(self.master_password), environment_update=environment_update)
 
-    def get_raw(self, item_id, vault=None, token=None):
-        args = ["item", "get", item_id, "--format", "json"]
-
+    def _add_parameters_and_run(self, args, vault=None, token=None):
         if self.account_id:
             args.extend(["--account", self.account_id])
 
         if vault is not None:
-            args += ["--vault={0}".format(vault)]
+            args += [f"--vault={vault}"]
+
+        if self.connect_host and self.connect_token:
+            if vault is None:
+                raise AnsibleLookupError("'vault' is required with 1Password Connect")
+            environment_update = {
+                "OP_CONNECT_HOST": self.connect_host,
+                "OP_CONNECT_TOKEN": self.connect_token,
+            }
+            return self._run(args, environment_update=environment_update)
 
         if self.service_account_token:
             if vault is None:
@@ -579,6 +571,10 @@ class OnePassCLIv2(OnePassCLIBase):
             args += [to_bytes("--session=") + token]
 
         return self._run(args)
+
+    def get_raw(self, item_id, vault=None, token=None):
+        args = ["item", "get", item_id, "--format", "json"]
+        return self._add_parameters_and_run(args, vault=vault, token=token)
 
     def signin(self):
         self._check_required_params(['master_password'])
@@ -592,7 +588,7 @@ class OnePassCLIv2(OnePassCLIBase):
 
 class OnePass(object):
     def __init__(self, subdomain=None, domain="1password.com", username=None, secret_key=None, master_password=None,
-                 service_account_token=None, account_id=None):
+                 service_account_token=None, account_id=None, connect_host=None, connect_token=None, cli_class=None):
         self.subdomain = subdomain
         self.domain = domain
         self.username = username
@@ -600,23 +596,32 @@ class OnePass(object):
         self.master_password = master_password
         self.service_account_token = service_account_token
         self.account_id = account_id
+        self.connect_host = connect_host
+        self.connect_token = connect_token
 
         self.logged_in = False
         self.token = None
 
         self._config = OnePasswordConfig()
-        self._cli = self._get_cli_class()
+        self._cli = self._get_cli_class(cli_class)
 
-    def _get_cli_class(self):
+        if (self.connect_host or self.connect_token) and None in (self.connect_host, self.connect_token):
+            raise AnsibleOptionsError("connect_host and connect_token are required together")
+
+    def _get_cli_class(self, cli_class=None):
+        if cli_class is not None:
+            return cli_class(self.subdomain, self.domain, self.username, self.secret_key, self.master_password, self.service_account_token)
+
         version = OnePassCLIBase.get_current_version()
         for cls in OnePassCLIBase.__subclasses__():
             if cls.supports_version == version.split(".")[0]:
                 try:
-                    return cls(self.subdomain, self.domain, self.username, self.secret_key, self.master_password, self.service_account_token, self.account_id)
+                    return cls(self.subdomain, self.domain, self.username, self.secret_key, self.master_password, self.service_account_token,
+                               self.account_id, self.connect_host, self.connect_token)
                 except TypeError as e:
                     raise AnsibleLookupError(e)
 
-        raise AnsibleLookupError("op version %s is unsupported" % version)
+        raise AnsibleLookupError(f"op version {version} is unsupported")
 
     def set_token(self):
         if self._config.config_file_path and os.path.isfile(self._config.config_file_path):
@@ -677,8 +682,20 @@ class LookupModule(LookupBase):
         master_password = self.get_option("master_password")
         service_account_token = self.get_option("service_account_token")
         account_id = self.get_option("account_id")
+        connect_host = self.get_option("connect_host")
+        connect_token = self.get_option("connect_token")
 
-        op = OnePass(subdomain, domain, username, secret_key, master_password, service_account_token, account_id)
+        op = OnePass(
+            subdomain=subdomain,
+            domain=domain,
+            username=username,
+            secret_key=secret_key,
+            master_password=master_password,
+            service_account_token=service_account_token,
+            account_id=account_id,
+            connect_host=connect_host,
+            connect_token=connect_token,
+        )
         op.assert_logged_in()
 
         values = []

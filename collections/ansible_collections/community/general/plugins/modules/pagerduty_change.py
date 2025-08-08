@@ -8,13 +8,13 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-DOCUMENTATION = '''
+DOCUMENTATION = r"""
 module: pagerduty_change
 short_description: Track a code or infrastructure change as a PagerDuty change event
 version_added: 1.3.0
 description:
-  - This module will let you create a PagerDuty change event each time the module is run.
-  - This is not an idempotent action and a new change event will be created each time it is run.
+  - This module lets you create a PagerDuty change event each time the module is run.
+  - This is not an idempotent action and a new change event is created each time it is run.
 author:
   - Adam Vaughan (@adamvaughan)
 requirements:
@@ -31,8 +31,8 @@ attributes:
 options:
   integration_key:
     description:
-      - The integration key that identifies the service the change was made to.
-        This can be found by adding an integration to a service in PagerDuty.
+      - The integration key that identifies the service the change was made to. This can be found by adding an integration
+        to a service in PagerDuty.
     required: true
     type: str
   summary:
@@ -82,14 +82,14 @@ options:
     type: str
   validate_certs:
     description:
-      - If V(false), SSL certificates for the target URL will not be validated.
-        This should only be used on personally controlled sites using self-signed certificates.
+      - If V(false), SSL certificates for the target URL are not validated. This should only be used on personally controlled
+        sites using self-signed certificates.
     required: false
     default: true
     type: bool
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Track the deployment as a PagerDuty change event
   community.general.pagerduty_change:
     integration_key: abc123abc123abc123abc123abc123ab
@@ -106,11 +106,14 @@ EXAMPLES = '''
     environment: production
     link_url: https://github.com/ansible-collections/community.general/pull/1269
     link_text: View changes on GitHub
-'''
+"""
 
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils.basic import AnsibleModule
-from datetime import datetime
+
+from ansible_collections.community.general.plugins.module_utils.datetime import (
+    now,
+)
 
 
 def main():
@@ -118,15 +121,14 @@ def main():
         argument_spec=dict(
             integration_key=dict(required=True, type='str', no_log=True),
             summary=dict(required=True, type='str'),
-            source=dict(required=False, default='Ansible', type='str'),
-            user=dict(required=False, type='str'),
-            repo=dict(required=False, type='str'),
-            revision=dict(required=False, type='str'),
-            environment=dict(required=False, type='str'),
-            link_url=dict(required=False, type='str'),
-            link_text=dict(required=False, type='str'),
-            url=dict(required=False,
-                     default='https://events.pagerduty.com/v2/change/enqueue', type='str'),
+            source=dict(default='Ansible', type='str'),
+            user=dict(type='str'),
+            repo=dict(type='str'),
+            revision=dict(type='str'),
+            environment=dict(type='str'),
+            link_url=dict(type='str'),
+            link_text=dict(type='str'),
+            url=dict(default='https://events.pagerduty.com/v2/change/enqueue', type='str'),
             validate_certs=dict(default=True, type='bool')
         ),
         supports_check_mode=True
@@ -161,8 +163,7 @@ def main():
     if module.params['environment']:
         custom_details['environment'] = module.params['environment']
 
-    now = datetime.utcnow()
-    timestamp = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    timestamp = now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
     payload = {
         'summary': module.params['summary'],

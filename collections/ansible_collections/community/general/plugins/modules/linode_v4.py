@@ -8,20 +8,17 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: linode_v4
 short_description: Manage instances on the Linode cloud
 description: Manage instances on the Linode cloud.
 requirements:
-  - python >= 2.7
   - linode_api4 >= 2.0.0
 author:
   - Luke Murphy (@decentral1se)
 notes:
-  - No Linode resizing is currently implemented. This module will, in time,
-    replace the current Linode module which uses deprecated API bindings on the
-    Linode side.
+  - No Linode resizing is currently implemented. This module aims to replace the current Linode module which uses deprecated
+    API bindings on the Linode side.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -32,52 +29,44 @@ attributes:
 options:
   region:
     description:
-      - The region of the instance. This is a required parameter only when
-        creating Linode instances. See
-        U(https://www.linode.com/docs/api/regions/).
+      - The region of the instance. This is a required parameter only when creating Linode instances. See U(https://www.linode.com/docs/api/regions/).
     type: str
   image:
     description:
-      - The image of the instance. This is a required parameter only when
-        creating Linode instances. See
-        U(https://www.linode.com/docs/api/images/).
+      - The image of the instance. This is a required parameter only when creating Linode instances.
+      - See U(https://www.linode.com/docs/api/images/).
     type: str
   type:
     description:
-      - The type of the instance. This is a required parameter only when
-        creating Linode instances. See
-        U(https://www.linode.com/docs/api/linode-types/).
+      - The type of the instance. This is a required parameter only when creating Linode instances.
+      - See U(https://www.linode.com/docs/api/linode-types/).
     type: str
   label:
     description:
-      - The instance label. This label is used as the main determiner for
-        idempotence for the module and is therefore mandatory.
+      - The instance label. This label is used as the main determiner for idempotency for the module and is therefore mandatory.
     type: str
     required: true
   group:
     description:
-       - The group that the instance should be marked under. Please note, that
-         group labelling is deprecated but still supported. The encouraged
-         method for marking instances is to use tags.
+      - The group that the instance should be marked under. Please note, that group labelling is deprecated but still supported.
+        The encouraged method for marking instances is to use tags.
     type: str
   private_ip:
     description:
-      - If V(true), the created Linode will have private networking enabled and
-        assigned a private IPv4 address.
+      - If V(true), the created Linode instance has private networking enabled and assigned a private IPv4 address.
     type: bool
     default: false
     version_added: 3.0.0
   tags:
     description:
-      - The tags that the instance should be marked under. See
-        U(https://www.linode.com/docs/api/tags/).
+      - The tags that the instance should be marked under.
+      - See U(https://www.linode.com/docs/api/tags/).
     type: list
     elements: str
   root_pass:
     description:
-      - The password for the root user. If not specified, one will be
-        generated. This generated password will be available in the task
-        success JSON.
+      - The password for the root user. If not specified, it generates a new one. This generated password is available in
+        the task success JSON.
     type: str
   authorized_keys:
     description:
@@ -89,33 +78,31 @@ options:
       - The desired instance state.
     type: str
     choices:
-        - present
-        - absent
+      - present
+      - absent
     required: true
   access_token:
     description:
-      - The Linode API v4 access token. It may also be specified by exposing
-        the E(LINODE_ACCESS_TOKEN) environment variable. See
-        U(https://www.linode.com/docs/api#access-and-authentication).
+      - The Linode API v4 access token. It may also be specified by exposing the E(LINODE_ACCESS_TOKEN) environment variable.
+      - See U(https://www.linode.com/docs/api#access-and-authentication).
     required: true
     type: str
   stackscript_id:
     description:
       - The numeric ID of the StackScript to use when creating the instance.
-        See U(https://www.linode.com/docs/api/stackscripts/).
+      - See U(https://www.linode.com/docs/api/stackscripts/).
     type: int
     version_added: 1.3.0
   stackscript_data:
     description:
-      - An object containing arguments to any User Defined Fields present in
-        the StackScript used when creating the instance.
-        Only valid when a stackscript_id is provided.
-        See U(https://www.linode.com/docs/api/stackscripts/).
+      - An object containing arguments to any User Defined Fields present in the StackScript used when creating the instance.
+        Only valid when a O(stackscript_id) is provided.
+      - See U(https://www.linode.com/docs/api/stackscripts/).
     type: dict
     version_added: 1.3.0
-'''
+"""
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Create a new Linode.
   community.general.linode_v4:
     label: new-linode
@@ -136,50 +123,51 @@ EXAMPLES = """
     state: absent
 """
 
-RETURN = """
+RETURN = r"""
 instance:
   description: The instance description in JSON serialized form.
   returned: Always.
   type: dict
-  sample: {
-    "root_pass": "foobar",  # if auto-generated
-    "alerts": {
-      "cpu": 90,
-      "io": 10000,
-      "network_in": 10,
-      "network_out": 10,
-      "transfer_quota": 80
-    },
-    "backups": {
-      "enabled": false,
-      "schedule": {
-        "day": null,
-        "window": null
-      }
-    },
-    "created": "2018-09-26T08:12:33",
-    "group": "Foobar Group",
-    "hypervisor": "kvm",
-    "id": 10480444,
-    "image": "linode/centos7",
-    "ipv4": [
-      "130.132.285.233"
-    ],
-    "ipv6": "2a82:7e00::h03c:46ff:fe04:5cd2/64",
-    "label": "lin-foo",
-    "region": "eu-west",
-    "specs": {
-      "disk": 25600,
-      "memory": 1024,
-      "transfer": 1000,
-      "vcpus": 1
-    },
-    "status": "running",
-    "tags": [],
-    "type": "g6-nanode-1",
-    "updated": "2018-09-26T10:10:14",
-    "watchdog_enabled": true
-  }
+  sample:
+    {
+      "root_pass": "foobar",  # if auto-generated
+      "alerts": {
+        "cpu": 90,
+        "io": 10000,
+        "network_in": 10,
+        "network_out": 10,
+        "transfer_quota": 80
+      },
+      "backups": {
+        "enabled": false,
+        "schedule": {
+          "day": null,
+          "window": null
+        }
+      },
+      "created": "2018-09-26T08:12:33",
+      "group": "Foobar Group",
+      "hypervisor": "kvm",
+      "id": 10480444,
+      "image": "linode/centos7",
+      "ipv4": [
+        "130.132.285.233"
+      ],
+      "ipv6": "2a82:7e00::h03c:46ff:fe04:5cd2/64",
+      "label": "lin-foo",
+      "region": "eu-west",
+      "specs": {
+        "disk": 25600,
+        "memory": 1024,
+        "transfer": 1000,
+        "vcpus": 1
+      },
+      "status": "running",
+      "tags": [],
+      "type": "g6-nanode-1",
+      "updated": "2018-09-26T10:10:14",
+      "watchdog_enabled": true
+    }
 """
 
 import traceback

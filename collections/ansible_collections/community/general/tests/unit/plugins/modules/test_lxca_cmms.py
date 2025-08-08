@@ -8,7 +8,7 @@ __metaclass__ = type
 import json
 
 import pytest
-from ansible_collections.community.general.tests.unit.compat import mock
+from ansible_collections.community.internal_test_tools.tests.unit.compat import mock
 from ansible_collections.community.general.plugins.modules import lxca_cmms
 
 
@@ -61,8 +61,8 @@ class TestMyModule():
             command_options=dict(default='cmms', choices=['cmms', 'cmms_by_uuid',
                                                           'cmms_by_chassis_uuid']),
             auth_url=dict(required=True),
-            uuid=dict(default=None),
-            chassis=dict(default=None),
+            uuid=dict(),
+            chassis=dict(),
         )
         _setup_conn.return_value = "Fake connection"
         _execute_module.return_value = []

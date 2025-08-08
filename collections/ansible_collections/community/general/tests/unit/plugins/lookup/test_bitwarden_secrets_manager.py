@@ -8,8 +8,8 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import json
-from ansible_collections.community.general.tests.unit.compat import unittest
-from ansible_collections.community.general.tests.unit.compat.mock import patch
+from ansible_collections.community.internal_test_tools.tests.unit.compat import unittest
+from ansible_collections.community.internal_test_tools.tests.unit.compat.mock import patch
 
 from ansible.errors import AnsibleLookupError
 from ansible.plugins.loader import lookup_loader
@@ -45,6 +45,10 @@ MOCK_SECRETS = [
 class MockBitwardenSecretsManager(BitwardenSecretsManager):
 
     def _run(self, args, stdin=None):
+        # mock the --version call
+        if args[0] == "--version":
+            return "bws 1.0.0", "", 0
+
         # secret_id is the last argument passed to the bws CLI
         secret_id = args[-1]
         rc = 1
@@ -78,6 +82,6 @@ class TestLookupModule(unittest.TestCase):
 
     @patch('ansible_collections.community.general.plugins.lookup.bitwarden_secrets_manager._bitwarden_secrets_manager', new=MockBitwardenSecretsManager())
     def test_bitwarden_secrets_manager_no_match(self):
-        # Getting a nonexistant secret id throws exception
+        # Getting a nonexistent secret id throws exception
         with self.assertRaises(AnsibleLookupError):
             self.lookup.run(['nonexistant_id'], bws_access_token='123')
