@@ -1,0 +1,14 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    name:
+      - avahi-daemon
+  become: true
+
+- name: Enable avahi
+  become: true
+  ansible.builtin.systemd:
+    name: avahi-daemon
+    enabled: true
+  notify: Restart avahi
+

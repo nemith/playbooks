@@ -1,0 +1,7 @@
+MODE_FLAGS="\
+  -dns_upstream=9.9.9.9:53" \
+  -fallback_upstream=9.9.9.9:53 \
+  -enable_dns_to_https \
+  -https_upstream=https://dns.quad9.net/dns-query"
+
+MONITORING_FLAG="-monitoring_listen_addr=127.0.0.1:9981"

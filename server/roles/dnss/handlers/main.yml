@@ -1,0 +1,13 @@
+---
+- name: Restart dnss
+  become: true
+  ansible.builtin.service:
+    name: dnss
+    state: restarted
+
+- name: Restart dnns.socket
+  become: true
+  ansible.builtin.service:
+    name: dnss.socket
+    state: restarted
+  

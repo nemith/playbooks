@@ -1,0 +1,40 @@
+---
+- name: Install dnss
+  become: true
+  ansible.builtin.apt:
+    name: dnss
+
+- name: Configure dnss
+  become: true
+  ansible.builtin.copy:
+    src: default_dnss
+    dest: /etc/default/dnss
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart dnss 
+
+- name: Reconfigure the ddns socket
+  become: true
+  ansible.builtin.copy:
+    src: dnss.socket.d_override.conf
+    dest: /etc/systemd/system/dnss.socket.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart dnss.socket
+
+- name: Enable dnss.socket
+  become: true
+  ansible.builtin.systemd:
+    name: dnss.socket
+    enabled: true
+    daemon_reload: true
+  notify: Restart dnss.socket
+
+- name: Enable dnss.service
+  become: true
+  ansible.builtin.systemd:
+    name: dnss 
+    enabled: true
+  notify: Restart dnss
